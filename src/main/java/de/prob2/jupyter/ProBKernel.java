@@ -1,5 +1,8 @@
 package de.prob2.jupyter;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.inject.Inject;
 
 import de.prob.animator.domainobjects.AbstractEvalResult;
@@ -21,6 +24,16 @@ public class ProBKernel extends BaseKernel {
 		super();
 		
 		this.trace = new Trace(classicalBFactory.create("MACHINE repl END").load());
+	}
+	
+	@Override
+	public String getBanner() {
+		return "ProB Interactive Expression and Predicate Evaluator (on Jupyter)\nType \":help\" for more information.";
+	}
+	
+	@Override
+	public List<LanguageInfo.Help> getHelpLinks() {
+		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://www3.hhu.de/stups/prob/index.php/User_Manual"));
 	}
 	
 	@Override
