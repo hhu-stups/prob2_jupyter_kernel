@@ -16,10 +16,12 @@ import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.Trace;
 
+import de.prob2.jupyter.commands.CellCommand;
 import de.prob2.jupyter.commands.CommandExecutionException;
+import de.prob2.jupyter.commands.EchoCellCommand;
 import de.prob2.jupyter.commands.HelpCommand;
+import de.prob2.jupyter.commands.LineCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
-import de.prob2.jupyter.commands.ReplCommand;
 
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
@@ -28,24 +30,34 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 import org.jetbrains.annotations.NotNull;
 
 public final class ProBKernel extends BaseKernel {
-	private static final Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:.*)");
+	private static final Pattern CELL_COMMAND_PATTERN = Pattern.compile("\\s*(\\:\\:[^\n]*)(?:\n(.*))?", Pattern.DOTALL);
+	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:.*)");
 	
-	private final @NotNull Map<@NotNull String, @NotNull ReplCommand> commands;
+	private final @NotNull Map<@NotNull String, @NotNull LineCommand> lineCommands;
+	private final @NotNull Map<@NotNull String, @NotNull CellCommand> cellCommands;
 	private @NotNull Trace trace;
 	
 	@Inject
 	private ProBKernel(final @NotNull ClassicalBFactory classicalBFactory) {
 		super();
 		
-		this.commands = new HashMap<>();
-		final ReplCommand help = new HelpCommand();
-		this.commands.put(":?", help);
-		this.commands.put(":help", help);
+		this.lineCommands = new HashMap<>();
+		final LineCommand help = new HelpCommand();
+		this.lineCommands.put(":?", help);
+		this.lineCommands.put(":help", help);
+		
+		this.cellCommands = new HashMap<>();
+		this.cellCommands.put("::echo", new EchoCellCommand());
+		
 		this.trace = new Trace(classicalBFactory.create("MACHINE repl END").load());
 	}
 	
-	public @NotNull Map<@NotNull String, @NotNull ReplCommand> getCommands() {
-		return Collections.unmodifiableMap(this.commands);
+	public @NotNull Map<@NotNull String, @NotNull CellCommand> getCellCommands() {
+		return Collections.unmodifiableMap(this.cellCommands);
+	}
+	
+	public @NotNull Map<@NotNull String, @NotNull LineCommand> getLineCommands() {
+		return Collections.unmodifiableMap(this.lineCommands);
 	}
 	
 	@Override
@@ -58,8 +70,16 @@ public final class ProBKernel extends BaseKernel {
 		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://www3.hhu.de/stups/prob/index.php/User_Manual"));
 	}
 	
-	private @NotNull DisplayData executeCommand(final @NotNull String name, final @NotNull List<@NotNull String> args) {
-		final ReplCommand command = this.getCommands().get(name);
+	private @NotNull DisplayData executeCellCommand(final @NotNull String name, final @NotNull List<@NotNull String> args, final @NotNull String body) {
+		final CellCommand command = this.getCellCommands().get(name);
+		if (command == null) {
+			throw new NoSuchCommandException(name);
+		}
+		return command.run(this, name, args, body);
+	}
+	
+	private @NotNull DisplayData executeLineCommand(final @NotNull String name, final @NotNull List<@NotNull String> args) {
+		final LineCommand command = this.getLineCommands().get(name);
 		if (command == null) {
 			throw new NoSuchCommandException(name);
 		}
@@ -70,17 +90,27 @@ public final class ProBKernel extends BaseKernel {
 	public @NotNull DisplayData eval(final String expr) {
 		assert expr != null;
 		
-		final Matcher matcher = COMMAND_PATTERN.matcher(expr);
-		if (matcher.matches()) {
-			final List<String> args = new ArrayList<>(Arrays.asList(matcher.group(1).split("\\s+")));
+		final Matcher cellMatcher = CELL_COMMAND_PATTERN.matcher(expr);
+		if (cellMatcher.matches()) {
+			final List<String> args = new ArrayList<>(Arrays.asList(cellMatcher.group(1).split("\\s+")));
 			// args always contains at least one element, even for an empty string (in that case the only element is an empty string).
 			assert args.size() >= 1;
 			final String name = args.remove(0);
-			return this.executeCommand(name, args);
-		} else {
-			final AbstractEvalResult result = this.trace.evalCurrent(expr, FormulaExpand.EXPAND);
-			return new DisplayData(result.toString());
+			final String body = cellMatcher.group(2) == null ? "" : cellMatcher.group(2);
+			return this.executeCellCommand(name, args, body);
 		}
+		
+		final Matcher lineMatcher = LINE_COMMAND_PATTERN.matcher(expr);
+		if (lineMatcher.matches()) {
+			final List<String> args = new ArrayList<>(Arrays.asList(lineMatcher.group(1).split("\\s+")));
+			// args always contains at least one element, even for an empty string (in that case the only element is an empty string).
+			assert args.size() >= 1;
+			final String name = args.remove(0);
+			return this.executeLineCommand(name, args);
+		}
+		
+		final AbstractEvalResult result = this.trace.evalCurrent(expr, FormulaExpand.EXPAND);
+		return new DisplayData(result.toString());
 	}
 	
 	@Override
