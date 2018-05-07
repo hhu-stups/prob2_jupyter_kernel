@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.FormulaExpand;
@@ -21,6 +22,7 @@ import de.prob2.jupyter.commands.CommandExecutionException;
 import de.prob2.jupyter.commands.EchoCellCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.LineCommand;
+import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
 
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
@@ -38,7 +40,7 @@ public final class ProBKernel extends BaseKernel {
 	private @NotNull Trace trace;
 	
 	@Inject
-	private ProBKernel(final @NotNull ClassicalBFactory classicalBFactory) {
+	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory) {
 		super();
 		
 		this.lineCommands = new HashMap<>();
@@ -48,6 +50,7 @@ public final class ProBKernel extends BaseKernel {
 		
 		this.cellCommands = new HashMap<>();
 		this.cellCommands.put("::echo", new EchoCellCommand());
+		this.cellCommands.put("::load", injector.getInstance(LoadCellCommand.class));
 		
 		this.trace = new Trace(classicalBFactory.create("MACHINE repl END").load());
 	}
@@ -58,6 +61,14 @@ public final class ProBKernel extends BaseKernel {
 	
 	public @NotNull Map<@NotNull String, @NotNull LineCommand> getLineCommands() {
 		return Collections.unmodifiableMap(this.lineCommands);
+	}
+	
+	public @NotNull Trace getTrace() {
+		return this.trace;
+	}
+	
+	public void setTrace(final @NotNull Trace trace) {
+		this.trace = trace;
 	}
 	
 	@Override
