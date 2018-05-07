@@ -1,0 +1,49 @@
+import java.util.concurrent.TimeUnit
+
+plugins {
+	id("application")
+	id("java")
+	
+	id("com.github.johnrengelman.shadow").version("2.0.3")
+}
+
+final SOURCE_ENCODING = "UTF-8"
+
+task wrapper(type: Wrapper) {
+	distributionType = "ALL"
+	gradleVersion = "4.7"
+}
+
+repositories {
+	mavenLocal()
+	jcenter()
+	maven {
+		name("Sonatype snapshots")
+		url("https://oss.sonatype.org/content/repositories/snapshots")
+	}
+	maven {
+		name("Sonatype releases")
+		url("https://oss.sonatype.org/content/repositories/releases")
+	}
+}
+
+configurations.all {
+	resolutionStrategy {
+		cacheChangingModulesFor(0, TimeUnit.SECONDS)
+	}
+}
+
+dependencies {
+	compile(group: "de.hhu.stups", name: "de.prob2.kernel", version: "3.2.10-SNAPSHOT", changing: true)
+	compile(group: "io.github.spencerpark", name: "jupyter-jvm-basekernel", version: "2.0.0-SNAPSHOT", changing: true)
+	compile(group: "org.jetbrains", name: "annotations", version: "16.0.1")
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+tasks.withType(JavaCompile) {
+	options.encoding = SOURCE_ENCODING
+}
+
+mainClassName = "de.prob2.jupyter.Main"
