@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule;
 
 import de.prob.MainModule;
 
-public class ProBKernelModule extends AbstractModule {
+public final class ProBKernelModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		install(new MainModule());

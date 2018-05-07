@@ -27,7 +27,7 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ProBKernel extends BaseKernel {
+public final class ProBKernel extends BaseKernel {
 	private static final Pattern COMMAND_PATTERN = Pattern.compile("\\s*\\:(.*)");
 	
 	private final @NotNull Map<@NotNull String, @NotNull ReplCommand> commands;

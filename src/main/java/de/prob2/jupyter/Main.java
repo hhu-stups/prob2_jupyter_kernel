@@ -15,7 +15,7 @@ import com.google.inject.Stage;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
 import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 
-public class Main {
+public final class Main {
 	private Main() {
 		super();
 		
