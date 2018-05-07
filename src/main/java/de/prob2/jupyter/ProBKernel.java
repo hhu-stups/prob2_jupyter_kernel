@@ -28,7 +28,7 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 import org.jetbrains.annotations.NotNull;
 
 public final class ProBKernel extends BaseKernel {
-	private static final Pattern COMMAND_PATTERN = Pattern.compile("\\s*\\:(.*)");
+	private static final Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:.*)");
 	
 	private final @NotNull Map<@NotNull String, @NotNull ReplCommand> commands;
 	private @NotNull Trace trace;
@@ -39,8 +39,8 @@ public final class ProBKernel extends BaseKernel {
 		
 		this.commands = new HashMap<>();
 		final ReplCommand help = new HelpCommand();
-		this.commands.put("?", help);
-		this.commands.put("help", help);
+		this.commands.put(":?", help);
+		this.commands.put(":help", help);
 		this.trace = new Trace(classicalBFactory.create("MACHINE repl END").load());
 	}
 	

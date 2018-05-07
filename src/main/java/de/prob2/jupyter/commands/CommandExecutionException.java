@@ -19,7 +19,7 @@ public final class CommandExecutionException extends RuntimeException {
 	}
 	
 	private static @NotNull String formatMessage(final @NotNull String commandName, final @NotNull String message) {
-		return String.format(":%s: %s", commandName, message);
+		return String.format("%s: %s", commandName, message);
 	}
 	
 	public @NotNull String getCommandName() {

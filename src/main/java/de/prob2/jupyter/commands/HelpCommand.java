@@ -30,7 +30,6 @@ public final class HelpCommand implements ReplCommand {
 			for (final String commandName : names) {
 				final ReplCommand command = kernel.getCommands().get(commandName);
 				assert command != null;
-				sb.append(':');
 				sb.append(commandName);
 				sb.append(' ');
 				sb.append(command.getShortHelp());
@@ -38,7 +37,10 @@ public final class HelpCommand implements ReplCommand {
 			}
 			return new DisplayData(sb.toString());
 		} else if (args.size() == 1) {
-			final String commandName = args.get(0);
+			String commandName = args.get(0);
+			if (!commandName.startsWith(":")) {
+				commandName = ':' + commandName;
+			}
 			final ReplCommand command = kernel.getCommands().get(commandName);
 			if (command == null) {
 				throw new CommandExecutionException(name, String.format("Cannot display help for unknown command \"%s\"", commandName));
