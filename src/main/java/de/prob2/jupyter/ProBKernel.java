@@ -44,12 +44,12 @@ public final class ProBKernel extends BaseKernel {
 		super();
 		
 		this.lineCommands = new HashMap<>();
-		final LineCommand help = new HelpCommand();
+		final LineCommand help = injector.getInstance(HelpCommand.class);
 		this.lineCommands.put(":?", help);
 		this.lineCommands.put(":help", help);
 		
 		this.cellCommands = new HashMap<>();
-		this.cellCommands.put("::echo", new EchoCellCommand());
+		this.cellCommands.put("::echo", injector.getInstance(EchoCellCommand.class));
 		this.cellCommands.put("::load", injector.getInstance(LoadCellCommand.class));
 		
 		this.trace = new Trace(classicalBFactory.create("MACHINE repl END").load());

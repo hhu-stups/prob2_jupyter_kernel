@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.google.inject.Inject;
+
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.messages.DisplayData;
@@ -11,6 +13,11 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 import org.jetbrains.annotations.NotNull;
 
 public final class HelpCommand implements LineCommand {
+	@Inject
+	private HelpCommand() {
+		super();
+	}
+	
 	@Override
 	public @NotNull String getSyntax() {
 		return ":? [COMMAND]\n:help [COMMAND]";
