@@ -4,3 +4,9 @@
 
 # Generated
 /kernelspec/prob2/kernel.json
+
+# Python virtual environment
+/env/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
