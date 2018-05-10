@@ -1,3 +1,6 @@
 # Gradle
 .gradle/
 /build/
+
+# Generated
+/kernelspec/prob2/kernel.json

@@ -1,3 +1,6 @@
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 plugins {
@@ -47,3 +50,35 @@ tasks.withType(JavaCompile) {
 }
 
 mainClassName = "de.prob2.jupyter.Main"
+
+final KERNEL_SPEC_PATH = project.projectDir.toPath().resolve(Paths.get("kernelspec", "prob2"))
+final KERNEL_JSON_PATH = KERNEL_SPEC_PATH.resolve("kernel.json")
+task createKernelSpec {
+	dependsOn = [shadowJar]
+	outputs.files(KERNEL_JSON_PATH.toFile())
+	
+	doFirst {
+		final jarPath = shadowJar.archivePath
+		final jsonText = """{
+\t"argv": [
+\t\t"java",
+\t\t"-jar",
+\t\t"$jarPath",
+\t\t"{connection_file}"
+\t],
+\t"display_name": "ProB 2",
+\t"language": "prob"
+}
+"""
+		Files.write(KERNEL_JSON_PATH, jsonText.getBytes(StandardCharsets.UTF_8))
+	}
+}
+
+task installKernelSpec(type: Exec) {
+	dependsOn = [createKernelSpec]
+	executable = "python3"
+	args = ["-m", "jupyter", "kernelspec", "install", "--sys-prefix", KERNEL_SPEC_PATH.toString()]
+}
+if (hasProperty("pythonInterpreter")) {
+	installKernelSpec.executable = pythonInterpreter
+}
