@@ -13,10 +13,6 @@ Print out version of probcli running.
 ## z3/cvc4/kodkod:
 Allow predicates to be evaluated with an alternate backend
 
-## setting preferences
-E.g, -p MAXINT 128
-Could also be accomplished by the SET_PREF external function
-
 ## pretty print a B formula in Latex/Unicode
 Be able to pretty print a formula, possibly without evaluating it.
 
