@@ -27,7 +27,7 @@ public final class LoadCellCommand implements CellCommand {
 	
 	@Override
 	public @NotNull String getSyntax() {
-		return "::load\nMACHINE\n...\nEND";
+		return "::load [PREF=VALUE ...]\nMACHINE\n...\nEND";
 	}
 	
 	@Override
