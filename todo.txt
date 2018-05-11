@@ -5,7 +5,10 @@
 ## version
 Print out version of probcli running.
 --> this could be implemented by allowing access to external functions in Jupyter
-    PROB_INFO_STR("prob-version") would then return this information
+    PROB_INFO_STR("prob-version") would then return this information.
+    To enable this one would need to load a machine
+    MACHINE Jupyter
+    DEFINITIONS "LibraryMeta.def"; "LibraryStrings.def" END
     
 ## z3/cvc4/kodkod:
 Allow predicates to be evaluated with an alternate backend
@@ -46,3 +49,27 @@ similar to :exec or -animate Nr probcli REPL commands
 
 ### allow to execute other dot commands
 i.e., machine hierarchy, ...
+
+
+# Issues
+
+## stdlib contents not available to ProB2 parser
+
+::load
+MACHINE Jupyter
+    DEFINITIONS "LibraryMeta.def"; "LibraryStrings.def"
+END
+
+generates
+
+de.prob.exception.ProBError: ProB returned error messages:
+Error: Definition file cannot be read: Loading of file content not supported.
+	at de.prob.scripting.ClassicalBFactory.parseString(ClassicalBFactory.java:137)
+	at de.prob.scripting.ClassicalBFactory.create(ClassicalBFactory.java:55)
+	at de.prob2.jupyter.commands.LoadCellCommand.run(LoadCellCommand.java:49)
+	at de.prob2.jupyter.ProBKernel.executeCellCommand(ProBKernel.java:98)
+	at de.prob2.jupyter.ProBKernel.eval(ProBKernel.java:168)
+	at io.github.spencerpark.jupyter.kernel.BaseKernel.handleExecuteRequest(BaseKernel.java:282)
+	at io.github.spencerpark.jupyter.channels.ShellChannel.lambda$bind$0(ShellChannel.java:50)
+	at java.lang.Thread.run(Thread.java:748)
+	at io.github.spencerpark.jupyter.channels.Loop.run(Loop.java:39)
