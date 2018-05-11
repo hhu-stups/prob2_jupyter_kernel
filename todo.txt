@@ -20,6 +20,15 @@ Could also be accomplished by the SET_PREF external function
 ## pretty print a B formula in Latex/Unicode
 Be able to pretty print a formula, possibly without evaluating it.
 
+## asserting a predicate
+This would be useful in a manual: ensure that the results
+are as expected and print a big red warning if not.
+For example:
+ :assert DEC_STRING_TO_INT("10000000000000000000000000000000000",-32)=100
+
+This could also be used as a kind of test or for
+notebooks to be filled in by students, where the teacher
+has added the asserts at the bottom.
 
 ## Displaying evaluation results
 
