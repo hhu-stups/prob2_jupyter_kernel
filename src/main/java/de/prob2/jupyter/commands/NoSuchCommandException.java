@@ -1,9 +1,11 @@
 package de.prob2.jupyter.commands;
 
+import de.prob2.jupyter.UserErrorException;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class NoSuchCommandException extends RuntimeException {
+public final class NoSuchCommandException extends UserErrorException {
 	private static final long serialVersionUID = 1L;
 	
 	private final @NotNull String name;
