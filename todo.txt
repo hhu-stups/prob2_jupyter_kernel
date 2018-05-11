@@ -58,6 +58,11 @@ i.e., machine hierarchy, ...
 
 # Issues
 
+## Unknown should be reported
+In the chr_tests notebook, the second call to x>y & y>x
+(with enumeration warning) should probably be accompanied by the result
+UNKNOWN
+
 ## stdlib contents not available to ProB2 parser
 
 ::load
