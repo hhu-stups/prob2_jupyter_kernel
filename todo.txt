@@ -1,0 +1,48 @@
+
+
+# Feature Requests
+
+## version
+Print out version of probcli running.
+--> this could be implemented by allowing access to external functions in Jupyter
+    PROB_INFO_STR("prob-version") would then return this information
+    
+## z3/cvc4/kodkod:
+Allow predicates to be evaluated with an alternate backend
+
+## setting preferences
+E.g, -p MAXINT 128
+Could also be accomplished by the SET_PREF external function
+
+## pretty print a B formula in Latex/Unicode
+Be able to pretty print a formula, possibly without evaluating it.
+
+
+## Displaying evaluation results
+
+### show result of an evaluation as a table
+E.g., show {1|->"a", 2|->"b"} as a table.
+
+### show result of an evaluation as a dot/sfdp graph
+
+### show result of an evaluation as a chart
+
+### display ANIMATION_FUNCTION as a table/grid in the notebook
+
+
+## other probcli REPL commands
+
+### show type of a formula
+
+### let, unlet, store
+
+### browse lets and stored results
+
+
+## Animation
+
+### allow to execute an operation
+similar to :exec or -animate Nr probcli REPL commands
+
+### allow to execute other dot commands
+i.e., machine hierarchy, ...
