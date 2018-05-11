@@ -116,9 +116,9 @@ public final class ProBKernel extends BaseKernel {
 				sb.append("\n\nSolutions:");
 				result.getSolutions().forEach((k, v) -> {
 					sb.append("\n\t");
-					sb.append(k);
+					sb.append(UnicodeTranslator.toUnicode(k));
 					sb.append(" = ");
-					sb.append(v);
+					sb.append(UnicodeTranslator.toUnicode(v));
 				});
 			}
 			error = false;
