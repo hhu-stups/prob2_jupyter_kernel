@@ -23,11 +23,11 @@ import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 
 import de.prob2.jupyter.commands.CellCommand;
-import de.prob2.jupyter.commands.EchoCellCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.LineCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
+import de.prob2.jupyter.commands.PrefCommand;
 
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
@@ -56,9 +56,9 @@ public final class ProBKernel extends BaseKernel {
 		final LineCommand help = injector.getInstance(HelpCommand.class);
 		this.lineCommands.put(":?", help);
 		this.lineCommands.put(":help", help);
+		this.lineCommands.put(":pref", injector.getInstance(PrefCommand.class));
 		
 		this.cellCommands = new HashMap<>();
-		this.cellCommands.put("::echo", injector.getInstance(EchoCellCommand.class));
 		this.cellCommands.put("::load", injector.getInstance(LoadCellCommand.class));
 		
 		this.trace = new Trace(classicalBFactory.create("MACHINE repl END").load());
