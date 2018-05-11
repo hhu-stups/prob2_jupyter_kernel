@@ -113,7 +113,7 @@ public final class ProBKernel extends BaseKernel {
 			final EvalResult result = (EvalResult)aer;
 			sb.append(UnicodeTranslator.toUnicode(result.getValue()));
 			if (!result.getSolutions().isEmpty()) {
-				sb.append("\n\nSolutions:");
+				sb.append("\n\nSolution:");
 				result.getSolutions().forEach((k, v) -> {
 					sb.append("\n\t");
 					sb.append(UnicodeTranslator.toUnicode(k));
