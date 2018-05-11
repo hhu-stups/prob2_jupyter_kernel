@@ -23,7 +23,6 @@ import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 
 import de.prob2.jupyter.commands.CellCommand;
-import de.prob2.jupyter.commands.EchoCellCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.LineCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
@@ -58,7 +57,6 @@ public final class ProBKernel extends BaseKernel {
 		this.lineCommands.put(":help", help);
 		
 		this.cellCommands = new HashMap<>();
-		this.cellCommands.put("::echo", injector.getInstance(EchoCellCommand.class));
 		this.cellCommands.put("::load", injector.getInstance(LoadCellCommand.class));
 		
 		this.trace = new Trace(classicalBFactory.create("MACHINE repl END").load());
