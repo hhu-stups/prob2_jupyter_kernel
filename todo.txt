@@ -2,6 +2,8 @@
 
 # Feature Requests
 
+Features marked with **, *** would be useful or very useful for the presentation at ABZ in June.
+
 ## version
 Print out version of probcli running.
 --> this could be implemented by allowing access to external functions in Jupyter
@@ -10,7 +12,7 @@ Print out version of probcli running.
     MACHINE Jupyter
     DEFINITIONS "LibraryMeta.def"; "LibraryStrings.def" END
     
-## z3/cvc4/kodkod:
+## z3/cvc4/kodkod:  ***
 Allow predicates to be evaluated with an alternate backend
 
 ## pretty print a B formula in Latex/Unicode
@@ -28,10 +30,20 @@ has added the asserts at the bottom.
 
 ## Displaying evaluation results
 
-### show result of an evaluation as a table
+### additional details ***
+providing timing information about evaluation; could be applicable
+to all cells and be set by a prob2-jupyter preference
+E.g.,
+ :pref JUPYTER-SHOW-TIME=TRUE
+ 2+2
+  --->  4
+  --->  Evaluation time: 0.000 sec
+  
+
+### show result of an evaluation as a table **
 E.g., show {1|->"a", 2|->"b"} as a table.
 
-### show result of an evaluation as a dot/sfdp graph
+### show result of an evaluation as a dot/sfdp graph **
 
 ### show result of an evaluation as a chart
 
@@ -47,14 +59,30 @@ E.g., show {1|->"a", 2|->"b"} as a table.
 ### browse lets and stored results
 
 
-## Animation
+## Animation and Model Checking
 
+Note: we can either re-implement the commands in the Jupyter kernel
+on top of ProB2, or we can add one command:
+:probcli PROBCLI-COMMAND
+which then delegates the execution and treatment to probcli
+  (e.g., :probcli -mc 100)
 ### allow to execute an operation
 similar to :exec or -animate Nr probcli REPL commands
 
 ### allow to execute other dot commands
 i.e., machine hierarchy, ...
 
+### model checking commands
+-mc LIMIT
+--model-check
+-ltlformula FORMULA
+-ctlformula FORMULA
+
+### constraint-based checking commands
+-cbc OPERATION
+-bmc LIMIT
+-cbc_deadlock
+...
 
 # Issues
 
