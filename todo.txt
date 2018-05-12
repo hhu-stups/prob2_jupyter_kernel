@@ -28,6 +28,20 @@ This could also be used as a kind of test or for
 notebooks to be filled in by students, where the teacher
 has added the asserts at the bottom.
 
+## Supporting other languages
+
+### Event-B
+Allow to load Event-B files (.eventb or possibly .buc).
+Possibly allow Event-B syntax/parser to be used for formulas/expressions
+
+### TLA+
+allowing to type in expressions/predicates in TLA+ syntax
+(and call TLA parser); this feature is not yet available in probcli/ProB
+
+### Z
+### CSP
+### XTL Prolog files
+
 ## Displaying evaluation results
 
 ### additional details ***
