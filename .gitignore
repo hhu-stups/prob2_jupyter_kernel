@@ -10,3 +10,6 @@
 
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
+/notebooks/*/*.aux
+/notebooks/*/*.log
+/notebooks/*/*.out
