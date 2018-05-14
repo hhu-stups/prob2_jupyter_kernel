@@ -6,6 +6,7 @@ import java.util.Map;
 import com.google.inject.Inject;
 
 import de.prob.scripting.ClassicalBFactory;
+import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.ProBKernel;
@@ -16,12 +17,14 @@ import org.jetbrains.annotations.NotNull;
 
 public final class LoadCellCommand implements CellCommand {
 	private final @NotNull ClassicalBFactory classicalBFactory;
+	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private LoadCellCommand(final @NotNull ClassicalBFactory classicalBFactory) {
+	private LoadCellCommand(final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
 		this.classicalBFactory = classicalBFactory;
+		this.animationSelector = animationSelector;
 	}
 	
 	@Override
@@ -39,7 +42,7 @@ public final class LoadCellCommand implements CellCommand {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		final Map<String, String> preferences = CommandUtils.parsePreferences(name, args);
 		
-		kernel.setTrace(new Trace(this.classicalBFactory.create(body).load(preferences)));
-		return new DisplayData("Loaded machine: " + kernel.getTrace().getModel());
+		this.animationSelector.changeCurrentAnimation(new Trace(this.classicalBFactory.create(body).load(preferences)));
+		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getModel());
 	}
 }

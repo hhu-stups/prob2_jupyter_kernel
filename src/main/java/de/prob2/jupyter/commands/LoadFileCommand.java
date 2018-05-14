@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.scripting.ModelTranslationError;
+import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.ProBKernel;
@@ -17,13 +18,15 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 import org.jetbrains.annotations.NotNull;
 
 public final class LoadFileCommand implements LineCommand {
-	private final ClassicalBFactory classicalBFactory;
+	private final @NotNull ClassicalBFactory classicalBFactory;
+	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private LoadFileCommand(final ClassicalBFactory classicalBFactory) {
+	private LoadFileCommand(final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
 		this.classicalBFactory = classicalBFactory;
+		this.animationSelector = animationSelector;
 	}
 	
 	@Override
@@ -47,10 +50,10 @@ public final class LoadFileCommand implements LineCommand {
 		final Map<String, String> preferences = CommandUtils.parsePreferences(name, args.subList(1, args.size()));
 		
 		try {
-			kernel.setTrace(new Trace(this.classicalBFactory.extract(fileName).load(preferences)));
+			this.animationSelector.changeCurrentAnimation(new Trace(this.classicalBFactory.extract(fileName).load(preferences)));
 		} catch (IOException | ModelTranslationError e) {
 			throw new RuntimeException(e);
 		}
-		return new DisplayData("Loaded machine: " + kernel.getTrace().getModel());
+		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getModel());
 	}
 }

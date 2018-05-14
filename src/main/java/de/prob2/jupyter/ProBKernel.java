@@ -17,6 +17,7 @@ import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.EvaluationErrorResult;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.scripting.ClassicalBFactory;
+import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 
@@ -44,13 +45,16 @@ public final class ProBKernel extends BaseKernel {
 	private static final Pattern CELL_COMMAND_PATTERN = Pattern.compile("\\s*(\\:\\:[^\\n\\h]*)(?:\\h+([^\\n]*))?(?:\\n(.*))?", Pattern.DOTALL);
 	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\h]*)(?:\\h+(.*))?");
 	
+	private final @NotNull AnimationSelector animationSelector;
+	
 	private final @NotNull Map<@NotNull String, @NotNull LineCommand> lineCommands;
 	private final @NotNull Map<@NotNull String, @NotNull CellCommand> cellCommands;
-	private @NotNull Trace trace;
 	
 	@Inject
-	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory) {
+	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
 		super();
+		
+		this.animationSelector = animationSelector;
 		
 		this.lineCommands = new HashMap<>();
 		final LineCommand help = injector.getInstance(HelpCommand.class);
@@ -63,7 +67,7 @@ public final class ProBKernel extends BaseKernel {
 		this.cellCommands = new HashMap<>();
 		this.cellCommands.put("::load", injector.getInstance(LoadCellCommand.class));
 		
-		this.trace = new Trace(classicalBFactory.create("MACHINE repl END").load());
+		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("MACHINE repl END").load()));
 	}
 	
 	public @NotNull Map<@NotNull String, @NotNull CellCommand> getCellCommands() {
@@ -72,14 +76,6 @@ public final class ProBKernel extends BaseKernel {
 	
 	public @NotNull Map<@NotNull String, @NotNull LineCommand> getLineCommands() {
 		return Collections.unmodifiableMap(this.lineCommands);
-	}
-	
-	public @NotNull Trace getTrace() {
-		return this.trace;
-	}
-	
-	public void setTrace(final @NotNull Trace trace) {
-		this.trace = trace;
 	}
 	
 	@Override
@@ -177,7 +173,7 @@ public final class ProBKernel extends BaseKernel {
 			return this.executeLineCommand(name, argString);
 		}
 		
-		return this.displayDataForEvalResult(this.trace.evalCurrent(expr, FormulaExpand.EXPAND));
+		return this.displayDataForEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(expr, FormulaExpand.EXPAND));
 	}
 	
 	@Override
@@ -190,7 +186,7 @@ public final class ProBKernel extends BaseKernel {
 	
 	@Override
 	public void onShutdown(final boolean isRestarting) {
-		this.trace.getStateSpace().kill();
+		this.animationSelector.getCurrentTrace().getStateSpace().kill();
 	}
 	
 	@Override

@@ -10,6 +10,7 @@ import de.prob.animator.command.ComposedCommand;
 import de.prob.animator.command.GetCurrentPreferencesCommand;
 import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.animator.command.SetPreferenceCommand;
+import de.prob.statespace.AnimationSelector;
 
 import de.prob2.jupyter.ProBKernel;
 
@@ -18,9 +19,13 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 import org.jetbrains.annotations.NotNull;
 
 public final class PrefCommand implements LineCommand {
+	private final @NotNull AnimationSelector animationSelector;
+	
 	@Inject
-	private PrefCommand() {
+	private PrefCommand(final @NotNull AnimationSelector animationSelector) {
 		super();
+		
+		this.animationSelector = animationSelector;
 	}
 	
 	@Override
@@ -39,7 +44,7 @@ public final class PrefCommand implements LineCommand {
 		final StringBuilder sb = new StringBuilder();
 		if (args.isEmpty()) {
 			final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();
-			kernel.getTrace().getStateSpace().execute(cmd);
+			this.animationSelector.getCurrentTrace().getStateSpace().execute(cmd);
 			// TreeMap is used to sort the preferences by name.
 			new TreeMap<>(cmd.getPreferences()).forEach((k, v) -> {
 				sb.append(k);
@@ -57,7 +62,7 @@ public final class PrefCommand implements LineCommand {
 				sb.append(value);
 				sb.append('\n');
 			});
-			kernel.getTrace().getStateSpace().execute(new ComposedCommand(cmds));
+			this.animationSelector.getCurrentTrace().getStateSpace().execute(new ComposedCommand(cmds));
 		} else {
 			final List<GetPreferenceCommand> cmds = new ArrayList<>();
 			for (final String arg : args) {
@@ -66,7 +71,7 @@ public final class PrefCommand implements LineCommand {
 				}
 				cmds.add(new GetPreferenceCommand(arg));
 			}
-			kernel.getTrace().getStateSpace().execute(new ComposedCommand(cmds));
+			this.animationSelector.getCurrentTrace().getStateSpace().execute(new ComposedCommand(cmds));
 			for (final GetPreferenceCommand cmd : cmds) {
 				sb.append(cmd.getKey());
 				sb.append(" = ");
