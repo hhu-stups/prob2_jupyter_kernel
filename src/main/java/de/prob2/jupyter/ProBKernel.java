@@ -26,6 +26,7 @@ import de.prob2.jupyter.commands.CellCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.LineCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
+import de.prob2.jupyter.commands.LoadFileCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
 import de.prob2.jupyter.commands.PrefCommand;
 
@@ -56,6 +57,7 @@ public final class ProBKernel extends BaseKernel {
 		final LineCommand help = injector.getInstance(HelpCommand.class);
 		this.lineCommands.put(":?", help);
 		this.lineCommands.put(":help", help);
+		this.lineCommands.put(":load", injector.getInstance(LoadFileCommand.class));
 		this.lineCommands.put(":pref", injector.getInstance(PrefCommand.class));
 		
 		this.cellCommands = new HashMap<>();
