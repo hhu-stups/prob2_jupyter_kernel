@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
 public final class ProBKernel extends BaseKernel {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
-	private static final Pattern CELL_COMMAND_PATTERN = Pattern.compile("\\s*(\\:\\:[^\\n\\s]*)(?:\\s+([^\\n]*))?(?:\\n(.*))?", Pattern.DOTALL);
-	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\s+(.*))?");
+	private static final Pattern CELL_COMMAND_PATTERN = Pattern.compile("\\s*(\\:\\:[^\\n\\h]*)(?:\\h+([^\\n]*))?(?:\\n(.*))?", Pattern.DOTALL);
+	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\h]*)(?:\\h+(.*))?");
 	
 	private final @NotNull Map<@NotNull String, @NotNull LineCommand> lineCommands;
 	private final @NotNull Map<@NotNull String, @NotNull CellCommand> cellCommands;
