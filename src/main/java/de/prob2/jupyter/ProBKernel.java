@@ -126,7 +126,7 @@ public final class ProBKernel extends BaseKernel {
 			sb.append(result.getReason());
 			error = true;
 		} else if (aer instanceof EnumerationWarning) {
-			sb.append("Enumeration warning occurred");
+			sb.append("UNKNOWN (FALSE with enumeration warning)");
 			error = true;
 		} else if (aer instanceof EvaluationErrorResult) {
 			final EvaluationErrorResult result = (EvaluationErrorResult)aer;
