@@ -21,6 +21,7 @@ import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 
 import de.prob2.jupyter.commands.CellCommand;
+import de.prob2.jupyter.commands.GroovyCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.LineCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
@@ -57,6 +58,7 @@ public final class ProBKernel extends BaseKernel {
 		this.lineCommands.put(":help", help);
 		this.lineCommands.put(":load", injector.getInstance(LoadFileCommand.class));
 		this.lineCommands.put(":pref", injector.getInstance(PrefCommand.class));
+		this.lineCommands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		
 		this.cellCommands = new HashMap<>();
 		this.cellCommands.put("::load", injector.getInstance(LoadCellCommand.class));
