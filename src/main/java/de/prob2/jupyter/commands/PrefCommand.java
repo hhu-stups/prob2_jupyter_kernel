@@ -34,7 +34,8 @@ public final class PrefCommand implements LineCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull List<@NotNull String> args) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
+		final List<String> args = CommandUtils.splitArgs(argString);
 		final StringBuilder sb = new StringBuilder();
 		if (args.isEmpty()) {
 			final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();

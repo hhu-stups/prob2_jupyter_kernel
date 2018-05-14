@@ -1,7 +1,5 @@
 package de.prob2.jupyter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -42,8 +40,8 @@ import org.slf4j.LoggerFactory;
 public final class ProBKernel extends BaseKernel {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
-	private static final Pattern CELL_COMMAND_PATTERN = Pattern.compile("\\s*(\\:\\:[^\n]*)(?:\n(.*))?", Pattern.DOTALL);
-	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:.*)");
+	private static final Pattern CELL_COMMAND_PATTERN = Pattern.compile("\\s*(\\:\\:[^\\n\\s]*)(?:\\s+([^\\n]*))?(?:\\n(.*))?", Pattern.DOTALL);
+	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\s+(.*))?");
 	
 	private final @NotNull Map<@NotNull String, @NotNull LineCommand> lineCommands;
 	private final @NotNull Map<@NotNull String, @NotNull CellCommand> cellCommands;
@@ -92,20 +90,20 @@ public final class ProBKernel extends BaseKernel {
 		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://www3.hhu.de/stups/prob/index.php/User_Manual"));
 	}
 	
-	private @NotNull DisplayData executeCellCommand(final @NotNull String name, final @NotNull List<@NotNull String> args, final @NotNull String body) {
+	private @NotNull DisplayData executeCellCommand(final @NotNull String name, final @NotNull String argString, final @NotNull String body) {
 		final CellCommand command = this.getCellCommands().get(name);
 		if (command == null) {
 			throw new NoSuchCommandException(name);
 		}
-		return command.run(this, name, args, body);
+		return command.run(this, name, argString, body);
 	}
 	
-	private @NotNull DisplayData executeLineCommand(final @NotNull String name, final @NotNull List<@NotNull String> args) {
+	private @NotNull DisplayData executeLineCommand(final @NotNull String name, final @NotNull String argString) {
 		final LineCommand command = this.getLineCommands().get(name);
 		if (command == null) {
 			throw new NoSuchCommandException(name);
 		}
-		return command.run(this, name, args);
+		return command.run(this, name, argString);
 	}
 	
 	private @NotNull DisplayData displayDataForEvalResult(final @NotNull AbstractEvalResult aer) {
@@ -162,21 +160,19 @@ public final class ProBKernel extends BaseKernel {
 		
 		final Matcher cellMatcher = CELL_COMMAND_PATTERN.matcher(expr);
 		if (cellMatcher.matches()) {
-			final List<String> args = new ArrayList<>(Arrays.asList(cellMatcher.group(1).split("\\s+")));
-			// args always contains at least one element, even for an empty string (in that case the only element is an empty string).
-			assert args.size() >= 1;
-			final String name = args.remove(0);
-			final String body = cellMatcher.group(2) == null ? "" : cellMatcher.group(2);
-			return this.executeCellCommand(name, args, body);
+			final String name = cellMatcher.group(1);
+			assert name != null;
+			final String argString = cellMatcher.group(2) == null ? "" : cellMatcher.group(2);
+			final String body = cellMatcher.group(3) == null ? "" : cellMatcher.group(3);
+			return this.executeCellCommand(name, argString, body);
 		}
 		
 		final Matcher lineMatcher = LINE_COMMAND_PATTERN.matcher(expr);
 		if (lineMatcher.matches()) {
-			final List<String> args = new ArrayList<>(Arrays.asList(lineMatcher.group(1).split("\\s+")));
-			// args always contains at least one element, even for an empty string (in that case the only element is an empty string).
-			assert args.size() >= 1;
-			final String name = args.remove(0);
-			return this.executeLineCommand(name, args);
+			final String name = lineMatcher.group(1);
+			assert name != null;
+			final String argString = lineMatcher.group(2) == null ? "" : lineMatcher.group(2);
+			return this.executeLineCommand(name, argString);
 		}
 		
 		return this.displayDataForEvalResult(this.trace.evalCurrent(expr, FormulaExpand.EXPAND));

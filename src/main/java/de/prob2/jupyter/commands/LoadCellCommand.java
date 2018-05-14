@@ -36,7 +36,8 @@ public final class LoadCellCommand implements CellCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull List<@NotNull String> args, final @NotNull String body) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString, final @NotNull String body) {
+		final List<String> args = CommandUtils.splitArgs(argString);
 		final Map<String, String> preferences = new HashMap<>();
 		for (final String arg : args) {
 			final String[] split = arg.split("=", 2);

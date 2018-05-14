@@ -38,7 +38,8 @@ public final class LoadFileCommand implements LineCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull List<@NotNull String> args) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
+		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {
 			throw new CommandExecutionException(name, "Missing machine file name");
 		}
