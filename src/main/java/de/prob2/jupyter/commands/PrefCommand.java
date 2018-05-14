@@ -49,21 +49,14 @@ public final class PrefCommand implements LineCommand {
 			});
 		} else if (args.get(0).contains("=")) {
 			final List<SetPreferenceCommand> cmds = new ArrayList<>();
-			for (final String arg : args) {
-				final String[] split = arg.split("=", 2);
-				if (split.length == 1) {
-					throw new CommandExecutionException(name, String.format("Cannot view and change preferences in the same command (missing value for preference %s)", split[0]));
-				}
-				assert split.length == 2;
-				final String pref = split[0];
-				final String value = split[1];
+			CommandUtils.parsePreferences(name, args).forEach((pref, value) -> {
 				cmds.add(new SetPreferenceCommand(pref, value));
 				sb.append("Preference changed: ");
 				sb.append(pref);
 				sb.append(" = ");
 				sb.append(value);
 				sb.append('\n');
-			}
+			});
 			kernel.getTrace().getStateSpace().execute(new ComposedCommand(cmds));
 		} else {
 			final List<GetPreferenceCommand> cmds = new ArrayList<>();

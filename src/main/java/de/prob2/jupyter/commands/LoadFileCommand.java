@@ -1,7 +1,6 @@
 package de.prob2.jupyter.commands;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,15 +44,7 @@ public final class LoadFileCommand implements LineCommand {
 		}
 		
 		final String fileName = args.get(0);
-		final List<String> prefArgs = args.subList(1, args.size());
-		final Map<String, String> preferences = new HashMap<>();
-		for (final String arg : prefArgs) {
-			final String[] split = arg.split("=", 2);
-			if (split.length == 1) {
-				throw new CommandExecutionException(name, "Missing value for preference " + split[0]);
-			}
-			preferences.put(split[0], split[1]);
-		}
+		final Map<String, String> preferences = CommandUtils.parsePreferences(name, args.subList(1, args.size()));
 		
 		try {
 			kernel.setTrace(new Trace(this.classicalBFactory.extract(fileName).load(preferences)));

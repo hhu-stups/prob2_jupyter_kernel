@@ -1,6 +1,5 @@
 package de.prob2.jupyter.commands;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,14 +37,7 @@ public final class LoadCellCommand implements CellCommand {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString, final @NotNull String body) {
 		final List<String> args = CommandUtils.splitArgs(argString);
-		final Map<String, String> preferences = new HashMap<>();
-		for (final String arg : args) {
-			final String[] split = arg.split("=", 2);
-			if (split.length == 1) {
-				throw new CommandExecutionException(name, "Missing value for preference " + split[0]);
-			}
-			preferences.put(split[0], split[1]);
-		}
+		final Map<String, String> preferences = CommandUtils.parsePreferences(name, args);
 		
 		kernel.setTrace(new Trace(this.classicalBFactory.create(body).load(preferences)));
 		return new DisplayData("Loaded machine: " + kernel.getTrace().getModel());
