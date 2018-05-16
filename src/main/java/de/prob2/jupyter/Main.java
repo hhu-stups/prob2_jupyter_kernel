@@ -28,6 +28,8 @@ public final class Main {
 			System.exit(2);
 		}
 		
+		System.setProperty("prob.stdlib", Paths.get(de.prob.Main.getProBDirectory(), "stdlib").toString());
+		
 		final Path connectionFile = Paths.get(args[0]);
 		final String contents = String.join("\n", Files.readAllLines(connectionFile, StandardCharsets.UTF_8));
 		final JupyterConnection conn = new JupyterConnection(KernelConnectionProperties.parse(contents));
