@@ -1,10 +1,12 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import com.google.inject.Inject;
 
+import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
@@ -60,6 +62,7 @@ public final class ExecCommand implements LineCommand {
 		}
 		
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
-		return new DisplayData(String.format("Executed operation %s", opNameOrId));
+		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
+		return new DisplayData(String.format("Executed operation %s: %s", op.getId(), op.getRep()));
 	}
 }
