@@ -1,23 +1,29 @@
 package de.prob2.jupyter.commands;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 
+import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.model.representation.AbstractElement;
-import de.prob.model.representation.BEvent;
 import de.prob.model.representation.Constant;
 import de.prob.model.representation.Set;
 import de.prob.model.representation.Variable;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
+import de.prob.statespace.Transition;
 
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.messages.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+
+import se.sawano.java.text.AlphanumericComparator;
 
 public final class BrowseCommand implements LineCommand {
 	private final @NotNull AnimationSelector animationSelector;
@@ -65,8 +71,18 @@ public final class BrowseCommand implements LineCommand {
 		sb.append("\nVariables: ");
 		sb.append(elementsToString(mainComponent, Variable.class, Variable::getName));
 		sb.append("\nOperations: ");
-		sb.append(elementsToString(mainComponent, BEvent.class, Object::toString));
-		sb.append('\n');
+		final List<Transition> sortedTransitions = new ArrayList<>(trace.getNextTransitions(true, FormulaExpand.TRUNCATE));
+		// Transition IDs are strings, but they almost always contain numbers.
+		sortedTransitions.sort(Comparator.comparing(Transition::getId, new AlphanumericComparator()));
+		for (final Transition t : sortedTransitions) {
+			sb.append('\n');
+			sb.append(t.getId());
+			sb.append(": ");
+			sb.append(t.getRep());
+		}
+		if (trace.getCurrentState().isMaxTransitionsCalculated()) {
+			sb.append("\nMore operations may be available (MAX_OPERATIONS/MAX_INITIALISATIONS reached)");
+		}
 		return new DisplayData(sb.toString());
 	}
 }
