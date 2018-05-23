@@ -23,9 +23,11 @@ import de.prob.unicode.UnicodeTranslator;
 
 import de.prob2.jupyter.commands.BrowseCommand;
 import de.prob2.jupyter.commands.CellCommand;
+import de.prob2.jupyter.commands.ConstantsCommand;
 import de.prob2.jupyter.commands.ExecCommand;
 import de.prob2.jupyter.commands.GroovyCommand;
 import de.prob2.jupyter.commands.HelpCommand;
+import de.prob2.jupyter.commands.InitialiseCommand;
 import de.prob2.jupyter.commands.LineCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.LoadFileCommand;
@@ -66,6 +68,9 @@ public final class ProBKernel extends BaseKernel {
 		this.lineCommands.put(":pref", injector.getInstance(PrefCommand.class));
 		this.lineCommands.put(":browse", injector.getInstance(BrowseCommand.class));
 		this.lineCommands.put(":exec", injector.getInstance(ExecCommand.class));
+		this.lineCommands.put(":constants", injector.getInstance(ConstantsCommand.class));
+		this.lineCommands.put(":initialise", injector.getInstance(InitialiseCommand.class));
+		this.lineCommands.put(":init", injector.getInstance(InitialiseCommand.class));
 		this.lineCommands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		
 		this.cellCommands = new HashMap<>();
