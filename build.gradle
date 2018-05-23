@@ -6,13 +6,14 @@ import java.util.concurrent.TimeUnit
 plugins {
 	id("application")
 	id("java")
+	id("wrapper")
 	
 	id("com.github.johnrengelman.shadow").version("2.0.3")
 }
 
 final SOURCE_ENCODING = "UTF-8"
 
-task wrapper(type: Wrapper) {
+wrapper {
 	distributionType = "ALL"
 	gradleVersion = "4.7"
 }
