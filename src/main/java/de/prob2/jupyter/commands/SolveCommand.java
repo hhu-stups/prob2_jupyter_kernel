@@ -66,7 +66,7 @@ public final class SolveCommand implements LineCommand {
 		}
 		final IEvalElement predicate = trace.getModel().parseFormula(split[1], FormulaExpand.EXPAND);
 		
-		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver);
+		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());
 		trace.getStateSpace().execute(cmd);
 		return CommandUtils.displayDataForEvalResult(cmd.getValue());
 	}
