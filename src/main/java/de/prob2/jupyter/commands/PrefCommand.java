@@ -40,7 +40,7 @@ public final class PrefCommand implements LineCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		final StringBuilder sb = new StringBuilder();
 		if (args.isEmpty()) {
@@ -55,7 +55,7 @@ public final class PrefCommand implements LineCommand {
 			});
 		} else if (args.get(0).contains("=")) {
 			final List<SetPreferenceCommand> cmds = new ArrayList<>();
-			CommandUtils.parsePreferences(name, args).forEach((pref, value) -> {
+			CommandUtils.parsePreferences(args).forEach((pref, value) -> {
 				cmds.add(new SetPreferenceCommand(pref, value));
 				sb.append("Preference changed: ");
 				sb.append(pref);

@@ -104,7 +104,7 @@ public final class ProBKernel extends BaseKernel {
 			throw new NoSuchCommandException(name);
 		}
 		try {
-			return command.run(this, name, argString, body);
+			return command.run(this, argString, body);
 		} catch (final UserErrorException e) {
 			throw new CommandExecutionException(name, e);
 		}
@@ -116,7 +116,7 @@ public final class ProBKernel extends BaseKernel {
 			throw new NoSuchCommandException(name);
 		}
 		try {
-			return command.run(this, name, argString);
+			return command.run(this, argString);
 		} catch (final UserErrorException e) {
 			throw new CommandExecutionException(name, e);
 		}

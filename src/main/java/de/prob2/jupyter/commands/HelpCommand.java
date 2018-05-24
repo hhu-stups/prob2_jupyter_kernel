@@ -30,7 +30,7 @@ public final class HelpCommand implements LineCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {
 			final StringBuilder sb = new StringBuilder("Type a valid B expression, or one of the following commands:\n");

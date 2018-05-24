@@ -36,7 +36,7 @@ public final class GroovyCommand implements LineCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
 		this.groovyScriptEngine.put("__console", System.out);
 		final Object result;
 		try {

@@ -37,7 +37,7 @@ public final class ConstantsCommand implements LineCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final List<String> predicates = argString.isEmpty() ? Collections.emptyList() : Collections.singletonList(argString);
 		final Transition op = trace.getCurrentState().findTransition("$setup_constants", predicates);

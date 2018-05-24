@@ -56,7 +56,7 @@ public final class BrowseCommand implements LineCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
 		if (!argString.isEmpty()) {
 			throw new UserErrorException("Unexpected argument: " + argString);
 		}

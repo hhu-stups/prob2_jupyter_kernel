@@ -39,7 +39,7 @@ public final class ExecCommand implements LineCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
 		final String[] split = argString.split("\\h", 2);
 		assert split.length >= 1;
 		final String opNameOrId = split[0];

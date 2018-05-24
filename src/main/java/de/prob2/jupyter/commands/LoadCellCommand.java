@@ -38,9 +38,9 @@ public final class LoadCellCommand implements CellCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString, final @NotNull String body) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString, final @NotNull String body) {
 		final List<String> args = CommandUtils.splitArgs(argString);
-		final Map<String, String> preferences = CommandUtils.parsePreferences(name, args);
+		final Map<String, String> preferences = CommandUtils.parsePreferences(args);
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(this.classicalBFactory.create(body).load(preferences)));
 		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getModel());

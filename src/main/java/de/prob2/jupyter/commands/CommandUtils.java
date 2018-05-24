@@ -20,7 +20,7 @@ public final class CommandUtils {
 		}
 	}
 	
-	public static @NotNull Map<@NotNull String, @NotNull String> parsePreferences(final @NotNull String name, final @NotNull List<@NotNull String> args) {
+	public static @NotNull Map<@NotNull String, @NotNull String> parsePreferences(final @NotNull List<@NotNull String> args) {
 		final Map<String, String> preferences = new HashMap<>();
 		for (final String arg : args) {
 			final String[] split = arg.split("=", 2);
