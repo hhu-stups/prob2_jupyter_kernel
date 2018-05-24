@@ -10,6 +10,12 @@
 
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
-/notebooks/*/*.aux
-/notebooks/*/*.log
-/notebooks/*/*.out
+
+# LaTeX
+/notebooks/**/*.aux
+/notebooks/**/*.log
+/notebooks/**/*.out
+
+# Kodkod log files
+probkodkod.log
+probkodkod.log.lck
