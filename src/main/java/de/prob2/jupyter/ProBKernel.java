@@ -34,6 +34,7 @@ import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.LoadFileCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
 import de.prob2.jupyter.commands.PrefCommand;
+import de.prob2.jupyter.commands.VersionCommand;
 
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
@@ -65,6 +66,7 @@ public final class ProBKernel extends BaseKernel {
 		final LineCommand help = injector.getInstance(HelpCommand.class);
 		this.lineCommands.put(":?", help);
 		this.lineCommands.put(":help", help);
+		this.lineCommands.put(":version", injector.getInstance(VersionCommand.class));
 		this.lineCommands.put(":load", injector.getInstance(LoadFileCommand.class));
 		this.lineCommands.put(":pref", injector.getInstance(PrefCommand.class));
 		this.lineCommands.put(":browse", injector.getInstance(BrowseCommand.class));
