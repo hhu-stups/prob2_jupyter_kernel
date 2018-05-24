@@ -57,13 +57,16 @@ final KERNEL_SPEC_PATH = project.projectDir.toPath().resolve(Paths.get("kernelsp
 final KERNEL_JSON_PATH = KERNEL_SPEC_PATH.resolve("kernel.json")
 task createKernelSpec {
 	dependsOn = [shadowJar]
+	ext.probHome = project.hasProperty("probHome") ? project.probHome : null
+	inputs.property("probHome", probHome)
 	outputs.files(KERNEL_JSON_PATH.toFile())
 	
 	doFirst {
 		final jarPath = shadowJar.archivePath
+		final probHomeDef = probHome != null ? "\n\t\t\"-Dprob.home=$probHome\"," : ""
 		final jsonText = """{
 \t"argv": [
-\t\t"java",
+\t\t"java",$probHomeDef
 \t\t"-jar",
 \t\t"$jarPath",
 \t\t"{connection_file}"
