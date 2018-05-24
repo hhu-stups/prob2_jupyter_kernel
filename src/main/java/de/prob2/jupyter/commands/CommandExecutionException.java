@@ -3,21 +3,16 @@ package de.prob2.jupyter.commands;
 import de.prob2.jupyter.UserErrorException;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class CommandExecutionException extends UserErrorException {
 	private static final long serialVersionUID = 1L;
 	
 	private final @NotNull String commandName;
 	
-	public CommandExecutionException(final @NotNull String commandName, final @NotNull String message, final @Nullable Throwable cause) {
-		super(formatMessage(commandName, message), cause);
+	public CommandExecutionException(final @NotNull String commandName, final @NotNull Throwable cause) {
+		super(formatMessage(commandName, cause.getMessage()), cause);
 		
 		this.commandName = commandName;
-	}
-	
-	public CommandExecutionException(final @NotNull String commandName, final @NotNull String message) {
-		this(commandName, message, null);
 	}
 	
 	private static @NotNull String formatMessage(final @NotNull String commandName, final @NotNull String message) {

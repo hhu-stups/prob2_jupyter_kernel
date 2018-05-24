@@ -12,6 +12,7 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.ProBKernel;
+import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.messages.DisplayData;
 
@@ -43,7 +44,7 @@ public final class LoadFileCommand implements LineCommand {
 	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {
-			throw new CommandExecutionException(name, "Missing machine file name");
+			throw new UserErrorException("Missing machine file name");
 		}
 		
 		final String fileName = args.get(0);

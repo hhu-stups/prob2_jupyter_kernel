@@ -18,6 +18,7 @@ import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 
 import de.prob2.jupyter.ProBKernel;
+import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.messages.DisplayData;
 
@@ -57,7 +58,7 @@ public final class BrowseCommand implements LineCommand {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
 		if (!argString.isEmpty()) {
-			throw new CommandExecutionException(name, "Unexpected argument: " + argString);
+			throw new UserErrorException("Unexpected argument: " + argString);
 		}
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();

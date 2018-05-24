@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import com.google.inject.Inject;
 
 import de.prob2.jupyter.ProBKernel;
+import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.messages.DisplayData;
 
@@ -63,11 +64,11 @@ public final class HelpCommand implements LineCommand {
 			}
 			
 			if (command == null) {
-				throw new CommandExecutionException(name, String.format("Cannot display help for unknown command \"%s\"", commandName));
+				throw new UserErrorException(String.format("Cannot display help for unknown command \"%s\"", commandName));
 			}
 			return new DisplayData(command.getLongHelp());
 		} else {
-			throw new CommandExecutionException(name, "Expected at most 1 argument, got " + args.size());
+			throw new UserErrorException("Expected at most 1 argument, got " + args.size());
 		}
 	}
 }

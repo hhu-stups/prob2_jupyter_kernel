@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.prob2.jupyter.UserErrorException;
+
 import org.jetbrains.annotations.NotNull;
 
 public final class CommandUtils {
@@ -23,7 +25,7 @@ public final class CommandUtils {
 		for (final String arg : args) {
 			final String[] split = arg.split("=", 2);
 			if (split.length == 1) {
-				throw new CommandExecutionException(name, "Missing value for preference " + split[0]);
+				throw new UserErrorException("Missing value for preference " + split[0]);
 			}
 			preferences.put(split[0], split[1]);
 		}

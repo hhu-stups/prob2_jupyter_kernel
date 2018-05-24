@@ -13,6 +13,7 @@ import de.prob.animator.command.SetPreferenceCommand;
 import de.prob.statespace.AnimationSelector;
 
 import de.prob2.jupyter.ProBKernel;
+import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.messages.DisplayData;
 
@@ -67,7 +68,7 @@ public final class PrefCommand implements LineCommand {
 			final List<GetPreferenceCommand> cmds = new ArrayList<>();
 			for (final String arg : args) {
 				if (arg.contains("=")) {
-					throw new CommandExecutionException(name, String.format("Cannot view and change preferences in the same command (attempted to assign preference %s)", arg));
+					throw new UserErrorException(String.format("Cannot view and change preferences in the same command (attempted to assign preference %s)", arg));
 				}
 				cmds.add(new GetPreferenceCommand(arg));
 			}

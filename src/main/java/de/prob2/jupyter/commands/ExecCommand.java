@@ -12,6 +12,7 @@ import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 
 import de.prob2.jupyter.ProBKernel;
+import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.messages.DisplayData;
 
@@ -50,7 +51,7 @@ public final class ExecCommand implements LineCommand {
 		if (opt.isPresent()) {
 			// Transition found, nothing else needs to be done.
 			if (split.length != 1) {
-				throw new CommandExecutionException(name, "Cannot specify a predicate when executing an operation by ID");
+				throw new UserErrorException("Cannot specify a predicate when executing an operation by ID");
 			}
 			op = opt.get();
 		} else {

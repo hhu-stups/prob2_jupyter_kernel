@@ -23,6 +23,7 @@ import de.prob.unicode.UnicodeTranslator;
 
 import de.prob2.jupyter.commands.BrowseCommand;
 import de.prob2.jupyter.commands.CellCommand;
+import de.prob2.jupyter.commands.CommandExecutionException;
 import de.prob2.jupyter.commands.ConstantsCommand;
 import de.prob2.jupyter.commands.ExecCommand;
 import de.prob2.jupyter.commands.GroovyCommand;
@@ -102,7 +103,11 @@ public final class ProBKernel extends BaseKernel {
 		if (command == null) {
 			throw new NoSuchCommandException(name);
 		}
-		return command.run(this, name, argString, body);
+		try {
+			return command.run(this, name, argString, body);
+		} catch (final UserErrorException e) {
+			throw new CommandExecutionException(name, e);
+		}
 	}
 	
 	private @NotNull DisplayData executeLineCommand(final @NotNull String name, final @NotNull String argString) {
@@ -110,7 +115,11 @@ public final class ProBKernel extends BaseKernel {
 		if (command == null) {
 			throw new NoSuchCommandException(name);
 		}
-		return command.run(this, name, argString);
+		try {
+			return command.run(this, name, argString);
+		} catch (final UserErrorException e) {
+			throw new CommandExecutionException(name, e);
+		}
 	}
 	
 	private @NotNull DisplayData displayDataForEvalResult(final @NotNull AbstractEvalResult aer) {
