@@ -39,9 +39,8 @@ public final class ConstantsCommand implements LineCommand {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String name, final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final List<Transition> transitions = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), "$setup_constants", argString, 1);
-		assert transitions.size() == 1;
-		final Transition op = transitions.get(0);
+		final List<String> predicates = argString.isEmpty() ? Collections.emptyList() : Collections.singletonList(argString);
+		final Transition op = trace.getCurrentState().findTransition("$setup_constants", predicates);
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
 		return new DisplayData(String.format("Machine constants set up using operation %s: %s", op.getId(), op.getRep()));

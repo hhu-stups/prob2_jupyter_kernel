@@ -55,10 +55,8 @@ public final class ExecCommand implements LineCommand {
 			op = opt.get();
 		} else {
 			// Transition not found, assume that the argument is an operation name instead.
-			final String predicate = split.length >= 2 ? split[1] : "1=1";
-			final List<Transition> transitions = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), opNameOrId, predicate, 1);
-			assert transitions.size() == 1;
-			op = transitions.get(0);
+			final List<String> predicates = split.length < 2 ? Collections.emptyList() : Collections.singletonList(split[1]);
+			op = trace.getCurrentState().findTransition(opNameOrId, predicates);
 		}
 		
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
