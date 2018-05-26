@@ -13,3 +13,6 @@ latex:
 		jupyter nbconvert $$spec --to latex ; \
 		done
 	echo "done"
+
+slides:
+	jupyter nbconvert notebooks/presentations/SETS_RODIN18.ipynb --to slides --post serve
