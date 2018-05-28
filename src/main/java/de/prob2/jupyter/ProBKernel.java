@@ -45,7 +45,7 @@ public final class ProBKernel extends BaseKernel {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
 	private static final Pattern CELL_COMMAND_PATTERN = Pattern.compile("\\s*(\\:\\:[^\\n\\h]*)(?:\\h+([^\\n]*))?(?:\\n(.*))?", Pattern.DOTALL);
-	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\h]*)(?:\\h+(.*))?");
+	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\h]*)(?:\\h+(.*))?", Pattern.DOTALL);
 	
 	private final @NotNull AnimationSelector animationSelector;
 	
