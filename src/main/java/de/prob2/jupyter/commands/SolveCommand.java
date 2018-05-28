@@ -1,5 +1,7 @@
 package de.prob2.jupyter.commands;
 
+import java.util.List;
+
 import com.google.inject.Inject;
 
 import de.prob.animator.command.CbcSolveCommand;
@@ -37,14 +39,14 @@ public final class SolveCommand implements LineCommand {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
-		final String[] split = argString.split("\\h+", 2);
-		if (split.length != 2) {
+		final List<String> split = CommandUtils.splitArgs(argString, 2);
+		if (split.size() != 2) {
 			throw new UserErrorException("Expected 2 arguments, got 1");
 		}
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final CbcSolveCommand.Solvers solver;
-		switch (split[0]) {
+		switch (split.get(0)) {
 			case "prob":
 				solver = CbcSolveCommand.Solvers.PROB;
 				break;
@@ -62,9 +64,9 @@ public final class SolveCommand implements LineCommand {
 				break;
 			
 			default:
-				throw new UserErrorException("Unknown solver: " + split[0]);
+				throw new UserErrorException("Unknown solver: " + split.get(0));
 		}
-		final IEvalElement predicate = trace.getModel().parseFormula(split[1], FormulaExpand.EXPAND);
+		final IEvalElement predicate = trace.getModel().parseFormula(split.get(1), FormulaExpand.EXPAND);
 		
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());
 		trace.getStateSpace().execute(cmd);

@@ -40,9 +40,9 @@ public final class ExecCommand implements LineCommand {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
-		final String[] split = argString.split("\\h", 2);
-		assert split.length >= 1;
-		final String opNameOrId = split[0];
+		final List<String> split = CommandUtils.splitArgs(argString, 2);
+		assert !split.isEmpty();
+		final String opNameOrId = split.get(0);
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		// Check if the argument is an ID, by searching for a transition with that ID.
@@ -50,13 +50,13 @@ public final class ExecCommand implements LineCommand {
 		final Transition op;
 		if (opt.isPresent()) {
 			// Transition found, nothing else needs to be done.
-			if (split.length != 1) {
+			if (split.size() != 1) {
 				throw new UserErrorException("Cannot specify a predicate when executing an operation by ID");
 			}
 			op = opt.get();
 		} else {
 			// Transition not found, assume that the argument is an operation name instead.
-			final List<String> predicates = split.length < 2 ? Collections.emptyList() : Collections.singletonList(split[1]);
+			final List<String> predicates = split.size() < 2 ? Collections.emptyList() : Collections.singletonList(split.get(1));
 			op = trace.getCurrentState().findTransition(opNameOrId, predicates);
 		}
 		

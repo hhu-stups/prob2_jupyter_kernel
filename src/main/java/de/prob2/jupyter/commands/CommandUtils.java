@@ -25,13 +25,17 @@ import org.slf4j.LoggerFactory;
 public final class CommandUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
 	
-	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args) {
-		final String[] split = args.split("\\h+");
+	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args, final int limit) {
+		final String[] split = args.split("\\h+", limit);
 		if (split.length == 1 && split[0].isEmpty()) {
 			return Collections.emptyList();
 		} else {
 			return Arrays.asList(split);
 		}
+	}
+	
+	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args) {
+		return splitArgs(args, 0);
 	}
 	
 	public static @NotNull Map<@NotNull String, @NotNull String> parsePreferences(final @NotNull List<@NotNull String> args) {
