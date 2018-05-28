@@ -15,7 +15,7 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.commands.BrowseCommand;
-import de.prob2.jupyter.commands.CellCommand;
+import de.prob2.jupyter.commands.Command;
 import de.prob2.jupyter.commands.CommandExecutionException;
 import de.prob2.jupyter.commands.ConstantsCommand;
 import de.prob2.jupyter.commands.EvalCommand;
@@ -23,7 +23,6 @@ import de.prob2.jupyter.commands.ExecCommand;
 import de.prob2.jupyter.commands.GroovyCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.InitialiseCommand;
-import de.prob2.jupyter.commands.LineCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.LoadFileCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
@@ -38,19 +37,12 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public final class ProBKernel extends BaseKernel {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
-	
-	private static final Pattern CELL_COMMAND_PATTERN = Pattern.compile("\\s*(\\:\\:[^\\n\\h]*)(?:\\h+([^\\n]*))?(?:\\n(.*))?", Pattern.DOTALL);
-	private static final Pattern LINE_COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\h]*)(?:\\h+(.*))?", Pattern.DOTALL);
+	private static final Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
 	
 	private final @NotNull AnimationSelector animationSelector;
 	
-	private final @NotNull Map<@NotNull String, @NotNull LineCommand> lineCommands;
-	private final @NotNull Map<@NotNull String, @NotNull CellCommand> cellCommands;
+	private final @NotNull Map<@NotNull String, @NotNull Command> commands;
 	
 	@Inject
 	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
@@ -58,35 +50,29 @@ public final class ProBKernel extends BaseKernel {
 		
 		this.animationSelector = animationSelector;
 		
-		this.lineCommands = new HashMap<>();
-		final LineCommand help = injector.getInstance(HelpCommand.class);
-		this.lineCommands.put(":?", help);
-		this.lineCommands.put(":help", help);
-		this.lineCommands.put(":version", injector.getInstance(VersionCommand.class));
-		this.lineCommands.put(":eval", injector.getInstance(EvalCommand.class));
-		this.lineCommands.put(":solve", injector.getInstance(SolveCommand.class));
-		this.lineCommands.put(":load", injector.getInstance(LoadFileCommand.class));
-		this.lineCommands.put(":pref", injector.getInstance(PrefCommand.class));
-		this.lineCommands.put(":browse", injector.getInstance(BrowseCommand.class));
-		this.lineCommands.put(":exec", injector.getInstance(ExecCommand.class));
-		this.lineCommands.put(":constants", injector.getInstance(ConstantsCommand.class));
-		this.lineCommands.put(":initialise", injector.getInstance(InitialiseCommand.class));
-		this.lineCommands.put(":init", injector.getInstance(InitialiseCommand.class));
-		this.lineCommands.put(":time", injector.getInstance(TimeCommand.class));
-		this.lineCommands.put(":groovy", injector.getInstance(GroovyCommand.class));
-		
-		this.cellCommands = new HashMap<>();
-		this.cellCommands.put("::load", injector.getInstance(LoadCellCommand.class));
+		this.commands = new HashMap<>();
+		final Command help = injector.getInstance(HelpCommand.class);
+		this.commands.put(":?", help);
+		this.commands.put(":help", help);
+		this.commands.put(":version", injector.getInstance(VersionCommand.class));
+		this.commands.put(":eval", injector.getInstance(EvalCommand.class));
+		this.commands.put(":solve", injector.getInstance(SolveCommand.class));
+		this.commands.put(":load", injector.getInstance(LoadFileCommand.class));
+		this.commands.put("::load", injector.getInstance(LoadCellCommand.class));
+		this.commands.put(":pref", injector.getInstance(PrefCommand.class));
+		this.commands.put(":browse", injector.getInstance(BrowseCommand.class));
+		this.commands.put(":exec", injector.getInstance(ExecCommand.class));
+		this.commands.put(":constants", injector.getInstance(ConstantsCommand.class));
+		this.commands.put(":initialise", injector.getInstance(InitialiseCommand.class));
+		this.commands.put(":init", injector.getInstance(InitialiseCommand.class));
+		this.commands.put(":time", injector.getInstance(TimeCommand.class));
+		this.commands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("MACHINE repl END").load()));
 	}
 	
-	public @NotNull Map<@NotNull String, @NotNull CellCommand> getCellCommands() {
-		return Collections.unmodifiableMap(this.cellCommands);
-	}
-	
-	public @NotNull Map<@NotNull String, @NotNull LineCommand> getLineCommands() {
-		return Collections.unmodifiableMap(this.lineCommands);
+	public @NotNull Map<@NotNull String, @NotNull Command> getCommands() {
+		return Collections.unmodifiableMap(this.commands);
 	}
 	
 	@Override
@@ -99,20 +85,8 @@ public final class ProBKernel extends BaseKernel {
 		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://www3.hhu.de/stups/prob/index.php/User_Manual"));
 	}
 	
-	private @NotNull DisplayData executeCellCommand(final @NotNull String name, final @NotNull String argString, final @NotNull String body) {
-		final CellCommand command = this.getCellCommands().get(name);
-		if (command == null) {
-			throw new NoSuchCommandException(name);
-		}
-		try {
-			return command.run(this, argString, body);
-		} catch (final UserErrorException e) {
-			throw new CommandExecutionException(name, e);
-		}
-	}
-	
-	private @NotNull DisplayData executeLineCommand(final @NotNull String name, final @NotNull String argString) {
-		final LineCommand command = this.getLineCommands().get(name);
+	private @NotNull DisplayData executeCommand(final @NotNull String name, final @NotNull String argString) {
+		final Command command = this.getCommands().get(name);
 		if (command == null) {
 			throw new NoSuchCommandException(name);
 		}
@@ -127,24 +101,15 @@ public final class ProBKernel extends BaseKernel {
 	public @NotNull DisplayData eval(final String expr) {
 		assert expr != null;
 		
-		final Matcher cellMatcher = CELL_COMMAND_PATTERN.matcher(expr);
-		if (cellMatcher.matches()) {
-			final String name = cellMatcher.group(1);
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(expr);
+		if (commandMatcher.matches()) {
+			final String name = commandMatcher.group(1);
 			assert name != null;
-			final String argString = cellMatcher.group(2) == null ? "" : cellMatcher.group(2);
-			final String body = cellMatcher.group(3) == null ? "" : cellMatcher.group(3);
-			return this.executeCellCommand(name, argString, body);
+			final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
+			return this.executeCommand(name, argString);
 		}
 		
-		final Matcher lineMatcher = LINE_COMMAND_PATTERN.matcher(expr);
-		if (lineMatcher.matches()) {
-			final String name = lineMatcher.group(1);
-			assert name != null;
-			final String argString = lineMatcher.group(2) == null ? "" : lineMatcher.group(2);
-			return this.executeLineCommand(name, argString);
-		}
-		
-		return this.executeLineCommand(":eval", expr);
+		return this.executeCommand(":eval", expr);
 	}
 	
 	@Override

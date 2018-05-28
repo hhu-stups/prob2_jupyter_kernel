@@ -1,7 +1,6 @@
 package de.prob2.jupyter.commands;
 
 import java.util.List;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.google.inject.Inject;
@@ -13,7 +12,7 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class HelpCommand implements LineCommand {
+public final class HelpCommand implements Command {
 	@Inject
 	private HelpCommand() {
 		super();
@@ -34,10 +33,7 @@ public final class HelpCommand implements LineCommand {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {
 			final StringBuilder sb = new StringBuilder("Type a valid B expression, or one of the following commands:\n");
-			final SortedMap<String, BaseCommand> commands = new TreeMap<>();
-			commands.putAll(kernel.getCellCommands());
-			commands.putAll(kernel.getLineCommands());
-			commands.forEach((commandName, command) -> {
+			new TreeMap<>(kernel.getCommands()).forEach((commandName, command) -> {
 				sb.append(commandName);
 				sb.append(' ');
 				sb.append(command.getShortHelp());
@@ -49,20 +45,14 @@ public final class HelpCommand implements LineCommand {
 			// If the user entered a command name without colons, add one or two colons as appropriate.
 			// (If the command cannot be found, no colons are added, because we'll error out later anyway.)
 			if (!commandName.startsWith(":")) {
-				if (kernel.getLineCommands().containsKey(':' + commandName)) {
+				if (kernel.getCommands().containsKey(':' + commandName)) {
 					commandName = ':' + commandName;
-				} else if (kernel.getCellCommands().containsKey("::" + commandName)) {
+				} else if (kernel.getCommands().containsKey("::" + commandName)) {
 					commandName = "::" + commandName;
 				}
 			}
 			
-			final BaseCommand command;
-			if (commandName.startsWith("::")) {
-				command = kernel.getCellCommands().get(commandName);
-			} else {
-				command = kernel.getLineCommands().get(commandName);
-			}
-			
+			final Command command = kernel.getCommands().get(commandName);
 			if (command == null) {
 				throw new UserErrorException(String.format("Cannot display help for unknown command \"%s\"", commandName));
 			}

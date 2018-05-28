@@ -10,12 +10,13 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.ProBKernel;
+import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.messages.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class LoadCellCommand implements CellCommand {
+public final class LoadCellCommand implements Command {
 	private final @NotNull ClassicalBFactory classicalBFactory;
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -38,8 +39,14 @@ public final class LoadCellCommand implements CellCommand {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString, final @NotNull String body) {
-		final List<String> args = CommandUtils.splitArgs(argString);
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+		final String[] split = argString.split("\n", 2);
+		if (split.length != 2) {
+			throw new UserErrorException("Missing command body");
+		}
+		final String prefsString = split[0];
+		final String body = split[1];
+		final List<String> args = CommandUtils.splitArgs(prefsString);
 		final Map<String, String> preferences = CommandUtils.parsePreferences(args);
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(this.classicalBFactory.create(body).load(preferences)));

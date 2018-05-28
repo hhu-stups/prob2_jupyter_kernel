@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import se.sawano.java.text.AlphanumericComparator;
 
-public final class BrowseCommand implements LineCommand {
+public final class BrowseCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject

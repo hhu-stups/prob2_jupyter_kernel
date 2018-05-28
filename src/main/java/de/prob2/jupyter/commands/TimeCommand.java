@@ -8,7 +8,7 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class TimeCommand implements LineCommand {
+public final class TimeCommand implements Command {
 	private static final long NANOSECONDS_PER_SECOND = 1000000000L;
 	
 	@Inject

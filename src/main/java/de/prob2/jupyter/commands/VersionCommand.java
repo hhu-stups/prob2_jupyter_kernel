@@ -12,7 +12,7 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class VersionCommand implements LineCommand {
+public final class VersionCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject

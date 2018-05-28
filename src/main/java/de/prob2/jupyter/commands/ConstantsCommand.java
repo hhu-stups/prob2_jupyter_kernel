@@ -16,7 +16,7 @@ import io.github.spencerpark.jupyter.messages.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class ConstantsCommand implements LineCommand {
+public final class ConstantsCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
