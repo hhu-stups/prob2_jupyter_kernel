@@ -29,6 +29,7 @@ import de.prob2.jupyter.commands.LoadFileCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
 import de.prob2.jupyter.commands.PrefCommand;
 import de.prob2.jupyter.commands.SolveCommand;
+import de.prob2.jupyter.commands.TimeCommand;
 import de.prob2.jupyter.commands.VersionCommand;
 
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
@@ -71,6 +72,7 @@ public final class ProBKernel extends BaseKernel {
 		this.lineCommands.put(":constants", injector.getInstance(ConstantsCommand.class));
 		this.lineCommands.put(":initialise", injector.getInstance(InitialiseCommand.class));
 		this.lineCommands.put(":init", injector.getInstance(InitialiseCommand.class));
+		this.lineCommands.put(":time", injector.getInstance(TimeCommand.class));
 		this.lineCommands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		
 		this.cellCommands = new HashMap<>();
