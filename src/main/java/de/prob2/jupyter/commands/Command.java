@@ -11,9 +11,5 @@ public interface Command {
 	
 	public abstract @NotNull String getShortHelp();
 	
-	public default @NotNull String getLongHelp() {
-		return this.getSyntax() + "\n\n" + this.getShortHelp();
-	}
-	
 	public abstract @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString);
 }
