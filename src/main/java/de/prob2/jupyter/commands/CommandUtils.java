@@ -15,7 +15,7 @@ import de.prob.unicode.UnicodeTranslator;
 
 import de.prob2.jupyter.UserErrorException;
 
-import io.github.spencerpark.jupyter.messages.DisplayData;
+import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 

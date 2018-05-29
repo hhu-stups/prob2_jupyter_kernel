@@ -11,7 +11,7 @@ import de.prob.scripting.ScriptEngineProvider;
 
 import de.prob2.jupyter.ProBKernel;
 
-import io.github.spencerpark.jupyter.messages.DisplayData;
+import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 

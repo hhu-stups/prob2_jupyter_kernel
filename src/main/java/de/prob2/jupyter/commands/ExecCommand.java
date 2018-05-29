@@ -14,7 +14,7 @@ import de.prob.statespace.Transition;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
-import io.github.spencerpark.jupyter.messages.DisplayData;
+import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
