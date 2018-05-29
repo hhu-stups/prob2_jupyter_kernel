@@ -33,13 +33,21 @@ public final class HelpCommand implements Command {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {
 			final StringBuilder sb = new StringBuilder("Type a valid B expression, or one of the following commands:\n");
+			final StringBuilder sbMarkdown = new StringBuilder("Type a valid B expression, or one of the following commands:\n\n");
 			new TreeMap<>(kernel.getCommands()).forEach((commandName, command) -> {
 				sb.append(commandName);
 				sb.append(' ');
 				sb.append(command.getShortHelp());
 				sb.append('\n');
+				sbMarkdown.append("* `");
+				sbMarkdown.append(commandName);
+				sbMarkdown.append("` ");
+				sbMarkdown.append(command.getShortHelp());
+				sbMarkdown.append('\n');
 			});
-			return new DisplayData(sb.toString());
+			final DisplayData result = new DisplayData(sb.toString());
+			result.putMarkdown(sbMarkdown.toString());
+			return result;
 		} else if (args.size() == 1) {
 			String commandName = args.get(0);
 			// If the user entered a command name without colons, add one or two colons as appropriate.
@@ -56,7 +64,9 @@ public final class HelpCommand implements Command {
 			if (command == null) {
 				throw new UserErrorException(String.format("Cannot display help for unknown command \"%s\"", commandName));
 			}
-			return new DisplayData(command.getSyntax() + "\n\n" + command.getShortHelp());
+			final DisplayData result = new DisplayData(command.getSyntax() + "\n\n" + command.getShortHelp());
+			result.putMarkdown("```\n" + command.getSyntax() + "\n```\n\n" + command.getShortHelp());
+			return result;
 		} else {
 			throw new UserErrorException("Expected at most 1 argument, got " + args.size());
 		}
