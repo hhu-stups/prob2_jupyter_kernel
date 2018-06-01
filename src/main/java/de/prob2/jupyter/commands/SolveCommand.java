@@ -63,6 +63,10 @@ public final class SolveCommand implements Command {
 				solver = CbcSolveCommand.Solvers.Z3;
 				break;
 			
+			case "cvc4":
+				solver = CbcSolveCommand.Solvers.CVC4;
+				break;
+			
 			default:
 				throw new UserErrorException("Unknown solver: " + split.get(0));
 		}
