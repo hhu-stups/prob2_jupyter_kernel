@@ -23,11 +23,12 @@ import de.prob2.jupyter.commands.ExecCommand;
 import de.prob2.jupyter.commands.GroovyCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.InitialiseCommand;
-import de.prob2.jupyter.commands.RenderCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.LoadFileCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
 import de.prob2.jupyter.commands.PrefCommand;
+import de.prob2.jupyter.commands.PrettyPrintCommand;
+import de.prob2.jupyter.commands.RenderCommand;
 import de.prob2.jupyter.commands.SolveCommand;
 import de.prob2.jupyter.commands.TimeCommand;
 import de.prob2.jupyter.commands.VersionCommand;
@@ -69,6 +70,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":time", injector.getInstance(TimeCommand.class));
 		this.commands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		this.commands.put("::render", injector.getInstance(RenderCommand.class));
+		this.commands.put(":prettyprint", injector.getInstance(PrettyPrintCommand.class));
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("MACHINE repl END").load()));
 	}
