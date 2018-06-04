@@ -56,8 +56,16 @@ public final class ExecCommand implements Command {
 			op = opt.get();
 		} else {
 			// Transition not found, assume that the argument is an operation name instead.
+			final String translatedOpName;
+			if ("SETUP_CONSTANTS".equals(opNameOrId)) {
+				translatedOpName = "$setup_constants";
+			} else if ("INITIALISATION".equals(opNameOrId)) {
+				translatedOpName = "$initialise_machine";
+			} else {
+				translatedOpName = opNameOrId;
+			}
 			final List<String> predicates = split.size() < 2 ? Collections.emptyList() : Collections.singletonList(split.get(1));
-			op = trace.getCurrentState().findTransition(opNameOrId, predicates);
+			op = trace.getCurrentState().findTransition(translatedOpName, predicates);
 			if (op == null) {
 				throw new UserErrorException("Could not execute operation " + opNameOrId + (split.size() < 2 ? "" : " with the given predicate"));
 			}
