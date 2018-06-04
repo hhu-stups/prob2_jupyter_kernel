@@ -32,7 +32,10 @@ public final class TimeCommand implements Command {
 		final DisplayData result = kernel.eval(argString);
 		final long stopTime = System.nanoTime();
 		final long diff = stopTime - startTime;
-		System.out.printf("Execution time: %d.%09d seconds%n", diff / NANOSECONDS_PER_SECOND, diff % NANOSECONDS_PER_SECOND);
+		final String text = String.format("Execution time: %d.%09d seconds", diff / NANOSECONDS_PER_SECOND, diff % NANOSECONDS_PER_SECOND);
+		final DisplayData timeDisplay = new DisplayData(text);
+		timeDisplay.putMarkdown(text);
+		kernel.display(timeDisplay);
 		return result;
 	}
 }
