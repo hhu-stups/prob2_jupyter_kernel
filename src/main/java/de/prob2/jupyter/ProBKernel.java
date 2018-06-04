@@ -1,5 +1,7 @@
 package de.prob2.jupyter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.regex.Pattern;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
+import de.prob.animator.domainobjects.ErrorItem;
+import de.prob.exception.ProBError;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
@@ -40,7 +44,12 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class ProBKernel extends BaseKernel {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
+	
 	private static final Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
 	
 	private final @NotNull AnimationSelector animationSelector;
@@ -133,10 +142,32 @@ public final class ProBKernel extends BaseKernel {
 	
 	@Override
 	public @NotNull List<@NotNull String> formatError(final Exception e) {
-		if (e instanceof UserErrorException) {
-			return this.errorStyler.secondaryLines(e.getMessage());
-		} else {
-			return super.formatError(e);
+		try {
+			if (e instanceof UserErrorException) {
+				return this.errorStyler.secondaryLines(String.valueOf(e.getMessage()));
+			} else if (e instanceof ProBError) {
+				final ProBError proBError = (ProBError)e;
+				final List<String> out = new ArrayList<>(Arrays.asList((
+					this.errorStyler.primary("Error from ProB: ")
+					+ this.errorStyler.secondary(String.valueOf(proBError.getOriginalMessage()))
+				).split("\n")));
+				if (proBError.getErrors().isEmpty()) {
+					out.addAll(this.errorStyler.primaryLines("ProB returned no error messages.\n"));
+				} else if (proBError.getErrors().size() == 1) {
+					out.addAll(this.errorStyler.secondaryLines(proBError.getErrors().get(0).toString()));
+				} else {
+					out.addAll(this.errorStyler.primaryLines(proBError.getErrors().size() + " errors:\n"));
+					for (final ErrorItem error : proBError.getErrors()) {
+						out.addAll(this.errorStyler.secondaryLines(error.toString()));
+					}
+				}
+				return out;
+			} else {
+				return super.formatError(e);
+			}
+		} catch (final RuntimeException e2) {
+			LOGGER.error("Exception in error formatting", e2);
+			throw e2;
 		}
 	}
 }
