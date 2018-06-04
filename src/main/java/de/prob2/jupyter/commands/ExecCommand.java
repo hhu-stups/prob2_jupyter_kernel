@@ -58,6 +58,9 @@ public final class ExecCommand implements Command {
 			// Transition not found, assume that the argument is an operation name instead.
 			final List<String> predicates = split.size() < 2 ? Collections.emptyList() : Collections.singletonList(split.get(1));
 			op = trace.getCurrentState().findTransition(opNameOrId, predicates);
+			if (op == null) {
+				throw new UserErrorException("Could not execute operation " + opNameOrId + (split.size() < 2 ? "" : " with the given predicate"));
+			}
 		}
 		
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
