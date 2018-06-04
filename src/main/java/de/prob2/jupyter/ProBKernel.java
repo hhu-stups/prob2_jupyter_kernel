@@ -30,6 +30,7 @@ import de.prob2.jupyter.commands.PrefCommand;
 import de.prob2.jupyter.commands.PrettyPrintCommand;
 import de.prob2.jupyter.commands.RenderCommand;
 import de.prob2.jupyter.commands.SolveCommand;
+import de.prob2.jupyter.commands.TableCommand;
 import de.prob2.jupyter.commands.TimeCommand;
 import de.prob2.jupyter.commands.VersionCommand;
 
@@ -58,6 +59,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":help", help);
 		this.commands.put(":version", injector.getInstance(VersionCommand.class));
 		this.commands.put(":eval", injector.getInstance(EvalCommand.class));
+		this.commands.put(":table", injector.getInstance(TableCommand.class));
 		this.commands.put(":solve", injector.getInstance(SolveCommand.class));
 		this.commands.put(":load", injector.getInstance(LoadFileCommand.class));
 		this.commands.put("::load", injector.getInstance(LoadCellCommand.class));
