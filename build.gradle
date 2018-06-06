@@ -58,7 +58,7 @@ final KERNEL_JSON_PATH = KERNEL_SPEC_PATH.resolve("kernel.json")
 task createKernelSpec {
 	dependsOn = [shadowJar]
 	ext.probHome = project.hasProperty("probHome") ? project.probHome : null
-	inputs.property("probHome", probHome)
+	inputs.property("probHome", probHome).optional(true)
 	outputs.files(KERNEL_JSON_PATH.toFile())
 	
 	doFirst {
