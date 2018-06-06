@@ -60,6 +60,8 @@ public final class ProBKernel extends BaseKernel {
 	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
+		this.setShouldReplaceStdStreams(false);
+		
 		this.animationSelector = animationSelector;
 		
 		this.commands = new HashMap<>();
