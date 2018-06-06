@@ -37,7 +37,7 @@ public final class GroovyCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
-		this.groovyScriptEngine.put("__console", System.out);
+		this.groovyScriptEngine.put("__console", kernel.getIO().out);
 		final Object result;
 		try {
 			result = this.groovyScriptEngine.eval(argString);
