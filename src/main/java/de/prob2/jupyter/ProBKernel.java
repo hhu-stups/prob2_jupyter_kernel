@@ -155,7 +155,10 @@ public final class ProBKernel extends BaseKernel {
 					this.errorStyler.primary("Error from ProB: ")
 					+ this.errorStyler.secondary(String.valueOf(proBError.getOriginalMessage()))
 				).split("\n")));
-				if (proBError.getErrors().isEmpty()) {
+				if (proBError.getErrors() == null) {
+					// If the errors list is null rather than empty, don't show the "no error messages" message.
+					// (This matches the normal behavior of ProBError.)
+				} else if (proBError.getErrors().isEmpty()) {
 					out.addAll(this.errorStyler.primaryLines("ProB returned no error messages.\n"));
 				} else if (proBError.getErrors().size() == 1) {
 					out.addAll(this.errorStyler.secondaryLines(proBError.getErrors().get(0).toString()));
