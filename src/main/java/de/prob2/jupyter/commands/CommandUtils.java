@@ -52,17 +52,27 @@ public final class CommandUtils {
 	
 	public static @NotNull DisplayData displayDataForEvalResult(final @NotNull AbstractEvalResult aer) {
 		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sbMarkdown = new StringBuilder();
 		final boolean error;
 		if (aer instanceof EvalResult) {
 			final EvalResult result = (EvalResult)aer;
 			sb.append(UnicodeTranslator.toUnicode(result.getValue()));
+			sbMarkdown.append('$');
+			sbMarkdown.append(UnicodeTranslator.toLatex(result.getValue()));
+			sbMarkdown.append('$');
 			if (!result.getSolutions().isEmpty()) {
 				sb.append("\n\nSolution:");
+				sbMarkdown.append("\n\n**Solution:**");
 				result.getSolutions().forEach((k, v) -> {
 					sb.append("\n\t");
 					sb.append(UnicodeTranslator.toUnicode(k));
 					sb.append(" = ");
 					sb.append(UnicodeTranslator.toUnicode(v));
+					sbMarkdown.append("\n* $");
+					sbMarkdown.append(UnicodeTranslator.toLatex(k));
+					sbMarkdown.append(" = ");
+					sbMarkdown.append(UnicodeTranslator.toLatex(v));
+					sbMarkdown.append('$');
 				});
 			}
 			error = false;
@@ -88,13 +98,16 @@ public final class CommandUtils {
 		} else {
 			LOGGER.info("Unhandled eval result type, falling back to toString(): {}", aer.getClass());
 			sb.append(aer);
+			sbMarkdown.append(aer);
 			error = false;
 		}
 		
 		if (error) {
 			throw new UserErrorException(sb.toString());
 		} else {
-			return new DisplayData(sb.toString());
+			final DisplayData result = new DisplayData(sb.toString());
+			result.putMarkdown(sbMarkdown.toString());
+			return result;
 		}
 	}
 }
