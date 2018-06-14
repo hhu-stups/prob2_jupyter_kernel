@@ -134,8 +134,9 @@ public final class ProBKernel extends BaseKernel {
 	@Override
 	public @NotNull LanguageInfo getLanguageInfo() {
 		return new LanguageInfo.Builder("prob")
-			.mimetype("text/x-prob")
+			.mimetype("text/x-prob2-jupyter-repl")
 			.fileExtension(".prob")
+			.codemirror("prob2_jupyter_repl")
 			.build();
 	}
 	
