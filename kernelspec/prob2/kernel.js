@@ -18,11 +18,68 @@ define([
 					},
 					
 					token: function(stream, state) {
-						if (stream.match(/^[A-Z_]+/)) {
-							return "keyword";
-						} else {
-							stream.match(/^.+/);
-							return null;
+						switch (state.state) {
+							case "initial":
+								if (stream.match(/^\/\//)) {
+									// Line comment found, consume the rest of the line.
+									stream.match(/^.+/);
+									return "comment";
+								} else if (stream.match(/^\/\*/)) {
+									// Block comment start found, switch to comment state.
+									state.state = "comment";
+									return "comment";
+								} else if (stream.match(/^"(?:[^\\"\n]|\\[^\n])*"/)) {
+									return "string";
+								} else if (stream.match(/^"""/)) {
+									// Multiline string found, switch to string state.
+									state.state = "string";
+									return "string";
+								} else if (stream.match(/^(?:[0-9]+|0x[0-9A-Fa-f]+)/)) {
+									return "number";
+								} else if (stream.match(/^(?:[⋂∏∑⋃]|(?:ABSTRACT|CONCRETE)_(?:CONSTANTS|VARIABLES)|ANY|ASSERT|ASSERTIONS|BE|BEGIN|CASE|CHOICE|CONSTANTS|CONSTRAINTS|DEFINITIONS|EXPRESSIONS|PREDICATES|DO|EITHER|ELSE|ELSIF|END|EXTENDS|IF|IMPLEMENTATION|IMPORTS|IN|INCLUDES|INITIALI[SZ]ATION|INTER|INVARIANT|LET|LOCAL_OPERATIONS|MACHINE|MODEL|SYSTEM|OF|OPERATIONS|EVENTS|OR|PI|PRE|PROMOTES|PROPERTIES|REFINES|REFINEMENT|SEES|SELECT|SETS|SET|SIGMA|THEN|UNION|USES|VALUES|VAR|VARIANT|VARIABLES|WHEN|WHERE|WHILE|skip|FREETYPES)/)) {
+									return "keyword";
+								} else if (stream.match(/^(?:[⊥ℤℕ⊤∅]|BOOL|bfalse|FALSE|INT|INTEGER|MAXINT|MININT|NAT|NAT1|NATURAL|NATURAL1|ℕ1|ℕ₁|STRING|TRUE)/)) {
+									return "atom";
+								} else if (stream.match(/^(?:[ℙ¬]|FIN|FIN1|POW|POW1|ℙ1|ℙ₁|arity|bin|bool|btree|card|closure|closure1|conc|const|dom|father|first|fnc|front|id|infix|inter|iseq|iseq1|iterate|last|left|max|min|mirror|not|perm|postfix|pred|prefix|prj1|prj2|rank|ran|rec|rel|rev|right|seq|seq1|sizet|size|sons|son|struct|subtree|succ|tail|top|tree|union)/)) {
+									return "builtin";
+								} else if (stream.match(/^(?:[!∀#∃$%λ&∧'\*×\+⇸⤀\-−→↠⇾\.·‥\/÷∉⊈⊄≠\\∩↑:∈;<\ue103⋖↔⇽←⊆⊂⩤◀≤⇔◁=⇒>⤔↣⤖⊗≥∪↓\^⌒∨\|∣∥↦▷⩥▶~∼\ue100\ue101\ue102]|\*\*|\+[\-−]>|\+[\-−]>>|[\-−][\-−]>|[\-−][\-−]>>|[\-−]>|\.\.|\/:|\/<:|\/<<:|\/=|\/\\|\/\|\\|::|:∈|:=|<\+|<[\-−]>|<[\-−]|<[\-−][\-−]|<:|<<:|<<\||<=|<=>|>\||==|=>|>\+>|>[\-−]>|>\+>>|>[\-−]>>|><|>=|\\\/|\\\|\/)|mod|or|\|\||\|[\-−]>|\|>|\|>>|⁻¹|<<[\-−]>|<[\-−]>>|<<[\-−]>>/)) {
+									return "operator";
+								} else if (stream.match(/^[A-Za-z_][A-Za-z0-9_]*/)) {
+									return "variable";
+								} else if (stream.match(/^[\s()\[\]{},]+/)) {
+									return null;
+								} else {
+									stream.match(/^.+/);
+									return "error";
+								}
+							
+							case "comment":
+								while (!stream.eol()) {
+									// Consume everything that is not an asterisk.
+									stream.match(/^[^\*\n]+/);
+									if (stream.match(/^\*\//)) {
+										// Asterisk and slash found, switch back to initial state.
+										state.state = "initial";
+										return "comment";
+									} else {
+										// Asterisk without slash found, consume and stay in comment state.
+										stream.match(/^\*/);
+									}
+								}
+								return "comment";
+							
+							case "string":
+								if (stream.match(/(?:[^\\"\n]|\\[^\n])*"""/)) {
+									// End of multiline string found, switch back to initial state.
+									stream.state = "initial";
+								} else {
+									// No end of multiline string found, consume the rest of the line.
+									stream.match(/.+/);
+								}
+								return "string";
+							
+							default:
+								throw new Error("Unhandled state: " + state.state);
 						}
 					},
 				};
