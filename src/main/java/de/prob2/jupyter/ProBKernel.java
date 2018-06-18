@@ -18,6 +18,7 @@ import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
+import de.prob2.jupyter.commands.AssertCommand;
 import de.prob2.jupyter.commands.BrowseCommand;
 import de.prob2.jupyter.commands.Command;
 import de.prob2.jupyter.commands.CommandExecutionException;
@@ -146,6 +147,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":constants", injector.getInstance(ConstantsCommand.class));
 		this.commands.put(":initialise", injector.getInstance(InitialiseCommand.class));
 		this.commands.put(":init", injector.getInstance(InitialiseCommand.class));
+		this.commands.put(":assert", injector.getInstance(AssertCommand.class));
 		this.commands.put(":time", injector.getInstance(TimeCommand.class));
 		this.commands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		this.commands.put("::render", injector.getInstance(RenderCommand.class));
