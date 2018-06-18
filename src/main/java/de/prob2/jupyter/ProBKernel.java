@@ -50,13 +50,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ProBKernel extends BaseKernel {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
+	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
-	private static final Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
-	private static final Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
-	private static final MIMEType MARKDOWN_MIME_TYPE = MIMEType.parse("text/markdown");
+	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
+	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
+	private static final @NotNull MIMEType MARKDOWN_MIME_TYPE = MIMEType.parse("text/markdown");
 	
-	private static final Map<String, String> BSYMB_COMMAND_DEFINITIONS;
+	private static final @NotNull Map<@NotNull String, @NotNull String> BSYMB_COMMAND_DEFINITIONS;
 	static {
 		final Map<String, String> map = new HashMap<>();
 		map.put("bfalse", "\\newcommand{\\bfalse}{\\mathord\\bot}");
