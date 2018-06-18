@@ -39,7 +39,7 @@ configurations.all {
 
 dependencies {
 	compile(group: "de.hhu.stups", name: "de.prob2.kernel", version: "3.2.10-SNAPSHOT", changing: true)
-	compile(group: "io.github.spencerpark", name: "jupyter-jvm-basekernel", version: "2.2.0-SNAPSHOT", changing: true)
+	compile(group: "io.github.spencerpark", name: "jupyter-jvm-basekernel", version: "2.2.1-SNAPSHOT", changing: true)
 	compile(group: "org.jetbrains", name: "annotations", version: "16.0.1")
 	compile(group: "se.sawano.java", name: "alphanumeric-comparator", version: "1.4.1")
 }
