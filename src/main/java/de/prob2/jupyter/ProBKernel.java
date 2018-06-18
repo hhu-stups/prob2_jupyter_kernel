@@ -42,6 +42,7 @@ import de.prob2.jupyter.commands.VersionCommand;
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
+import io.github.spencerpark.jupyter.kernel.display.mime.MIMEType;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,6 +53,69 @@ public final class ProBKernel extends BaseKernel {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
 	private static final Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
+	private static final Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
+	private static final MIMEType MARKDOWN_MIME_TYPE = MIMEType.parse("text/markdown");
+	
+	private static final Map<String, String> BSYMB_COMMAND_DEFINITIONS;
+	static {
+		final Map<String, String> map = new HashMap<>();
+		map.put("bfalse", "\\newcommand{\\bfalse}{\\mathord\\bot}");
+		map.put("btrue", "\\newcommand{\\btrue}{\\mathord\\top}");
+		map.put("limp", "\\newcommand{\\limp}{\\mathbin\\Rightarrow}");
+		map.put("leqv", "\\newcommand{\\leqv}{\\mathbin\\Leftrightarrow}");
+		map.put("qdot", "\\newcommand{\\qdot}{\\mathord{\\mkern1mu\\cdot\\mkern1mu}}");
+		map.put("defi", "\\newcommand{\\defi}{\\mathrel{≙}}");
+		map.put("pow", "\\newcommand{\\pow}{\\mathop{\\mathbb P\\hbox{}}\\nolimits}");
+		map.put("pown", "\\newcommand{\\pown}{\\mathop{\\mathbb P_1}\\nolimits}");
+		map.put("cprod", "\\newcommand{\\cprod}{\\mathbin\\times}");
+		map.put("bunion", "\\newcommand{\\bunion}{\\mathbin{\\mkern1mu\\cup\\mkern1mu}}");
+		map.put("binter", "\\newcommand{\\binter}{\\mathbin{\\mkern1mu\\cap\\mkern1mu}}");
+		map.put("union", "\\newcommand{\\union}{\\mathop{\\mathrm{union}}\\nolimits}");
+		map.put("inter", "\\newcommand{\\inter}{\\mathop{\\mathrm{inter}}\\nolimits}");
+		map.put("Union", "\\newcommand{\\Union}{\\bigcup\\nolimits}");
+		map.put("Inter", "\\newcommand{\\Inter}{\\bigcap\\nolimits}");
+		map.put("emptyset", "\\renewcommand{\\emptyset}{\\mathord\\varnothing}");
+		map.put("rel", "\\newcommand{\\rel}{\\mathbin{<\\mkern-10mu-\\mkern-10mu>}}");
+		map.put("trel", "\\newcommand{\\trel}{\\mathbin{<\\mkern-6mu<\\mkern-10mu-\\mkern-10mu>}}");
+		map.put("srel", "\\newcommand{\\srel}{\\mathbin{<\\mkern-10mu-\\mkern-10mu>\\mkern-6mu>}}");
+		map.put("strel", "\\newcommand{\\strel}{\\mathbin{<\\mkern-6mu<\\mkern-10mu-\\mkern-10mu>\\mkern-6mu>}}");
+		map.put("dom", "\\newcommand{\\dom}{\\mathop{\\mathrm{dom}}\\nolimits}");
+		map.put("ran", "\\newcommand{\\ran}{\\mathop{\\mathrm{ran}}\\nolimits}");
+		map.put("fcomp", "\\newcommand{\\fcomp}{\\mathbin;}");
+		map.put("bcomp", "\\newcommand{\\bcomp}{\\circ}");
+		map.put("id", "\\newcommand{\\id}{\\mathop{\\mathrm{id}}\\nolimits}");
+		map.put("domres", "\\newcommand{\\domres}{\\mathbin◁}");
+		map.put("domsub", "\\newcommand{\\domsub}{\\mathbin⩤}");
+		map.put("ranres", "\\newcommand{\\ranres}{\\mathbin▷}");
+		map.put("ransub", "\\newcommand{\\ransub}{\\mathbin⩥}");
+		map.put("ovl", "\\newcommand{\\ovl}{\\mathbin{<\\mkern-11mu+}}");
+		map.put("dprod", "\\newcommand{\\dprod}{\\mathbin\\otimes}");
+		map.put("prjone", "\\newcommand{\\prjone}{\\mathop{\\mathrm{prj}_1}\\nolimits}");
+		map.put("prjtwo", "\\newcommand{\\prjtwo}{\\mathop{\\mathrm{prj}_2}\\nolimits}");
+		map.put("pprod", "\\newcommand{\\pprod}{\\mathbin\\mid}");
+		map.put("pfun", "\\newcommand{\\pfun}{\\mathbin↦}");
+		map.put("tfun", "\\newcommand{\\tfun}{\\mathbin→}");
+		map.put("pinj", "\\newcommand{\\pinj}{\\mathbin⤔}");
+		map.put("tinj", "\\newcommand{\\tinj}{\\mathbin↣}");
+		map.put("psur", "\\newcommand{\\psur}{\\mathbin⤅}");
+		map.put("tsur", "\\newcommand{\\tsur}{\\mathbin↠}");
+		map.put("tbij", "\\newcommand{\\tbij}{\\mathbin⤖}");
+		map.put("nat", "\\newcommand{\\nat}{\\mathord{\\mathbb N}}");
+		map.put("natn", "\\newcommand{\\natn}{\\mathord{\\mathbb N_1}}");
+		map.put("intg", "\\newcommand{\\intg}{\\mathord{\\mathbb Z}}");
+		map.put("upto", "\\newcommand{\\upto}{\\mathbin{.\\mkern1mu.}}");
+		map.put("finite", "\\newcommand{\\finite}{\\mathop{\\mathrm{finite}}\\nolimits}");
+		map.put("card", "\\newcommand{\\card}{\\mathop{\\mathrm{card}}\\nolimits}");
+		map.put("upred", "\\newcommand{\\upred}{\\mathop{\\mathrm{pred}}\\nolimits}");
+		map.put("usucc", "\\newcommand{\\usucc}{\\mathop{\\mathrm{succ}}\\nolimits}");
+		map.put("expn", "\\newcommand{\\expn}{\\mathbin{\\widehat{\\mkern1em}}}");
+		map.put("Bool", "\\newcommand{\\Bool}{\\mathord{\\mathrm{BOOL}}}");
+		map.put("bool", "\\newcommand{\\bool}{\\mathop{\\mathrm{bool}}\\nolimits}");
+		map.put("bcmeq", "\\newcommand{\\bcmeq}{\\mathrel{:\\mkern1mu=}}");
+		map.put("bcmin", "\\newcommand{\\bcmin}{\\mathrel{:\\mkern1mu\\in}}");
+		map.put("bcmsuch", "\\newcommand{\\bcmsuch}{\\mathrel{:\\mkern1mu\\mid}}");
+		BSYMB_COMMAND_DEFINITIONS = Collections.unmodifiableMap(map);
+	}
 	
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -109,11 +173,27 @@ public final class ProBKernel extends BaseKernel {
 		if (command == null) {
 			throw new NoSuchCommandException(name);
 		}
+		final DisplayData result;
 		try {
-			return command.run(this, argString);
+			result = command.run(this, argString);
 		} catch (final UserErrorException e) {
 			throw new CommandExecutionException(name, e);
 		}
+		
+		if (result.hasDataForType(MARKDOWN_MIME_TYPE)) {
+			// Add definitions for any used bsymb LaTeX commands to Markdown output.
+			final String markdown = (String)result.getData(MARKDOWN_MIME_TYPE);
+			final StringBuilder defs = new StringBuilder();
+			final Matcher matcher = BSYMB_COMMAND_PATTERN.matcher(markdown);
+			while (matcher.find()) {
+				defs.append(BSYMB_COMMAND_DEFINITIONS.getOrDefault(matcher.group(1), ""));
+			}
+			if (defs.length() > 0) {
+				result.putMarkdown("$" + defs + "$\n" + markdown);
+			}
+		}
+		
+		return result;
 	}
 	
 	@Override
