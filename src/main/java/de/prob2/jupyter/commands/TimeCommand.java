@@ -7,6 +7,7 @@ import de.prob2.jupyter.ProBKernel;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class TimeCommand implements Command {
 	private static final long NANOSECONDS_PER_SECOND = 1000000000L;
@@ -27,7 +28,7 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @Nullable DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
 		final long startTime = System.nanoTime();
 		final DisplayData result = kernel.eval(argString);
 		final long stopTime = System.nanoTime();

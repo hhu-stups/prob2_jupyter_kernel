@@ -45,6 +45,7 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import io.github.spencerpark.jupyter.kernel.display.mime.MIMEType;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,7 +169,7 @@ public final class ProBKernel extends BaseKernel {
 		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://www3.hhu.de/stups/prob/index.php/User_Manual"));
 	}
 	
-	private @NotNull DisplayData executeCommand(final @NotNull String name, final @NotNull String argString) {
+	private @Nullable DisplayData executeCommand(final @NotNull String name, final @NotNull String argString) {
 		final Command command = this.getCommands().get(name);
 		if (command == null) {
 			throw new NoSuchCommandException(name);
@@ -180,7 +181,7 @@ public final class ProBKernel extends BaseKernel {
 			throw new CommandExecutionException(name, e);
 		}
 		
-		if (result.hasDataForType(MARKDOWN_MIME_TYPE)) {
+		if (result != null && result.hasDataForType(MARKDOWN_MIME_TYPE)) {
 			// Add definitions for any used bsymb LaTeX commands to Markdown output.
 			final String markdown = (String)result.getData(MARKDOWN_MIME_TYPE);
 			final StringBuilder defs = new StringBuilder();
@@ -197,7 +198,7 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	@Override
-	public @NotNull DisplayData eval(final String expr) {
+	public @Nullable DisplayData eval(final String expr) {
 		assert expr != null;
 		
 		final Matcher commandMatcher = COMMAND_PATTERN.matcher(expr);
