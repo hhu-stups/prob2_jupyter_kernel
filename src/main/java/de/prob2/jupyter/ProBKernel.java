@@ -55,7 +55,6 @@ public final class ProBKernel extends BaseKernel {
 	
 	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
-	private static final @NotNull MIMEType MARKDOWN_MIME_TYPE = MIMEType.parse("text/markdown");
 	
 	private static final @NotNull Map<@NotNull String, @NotNull String> BSYMB_COMMAND_DEFINITIONS;
 	static {
@@ -181,9 +180,9 @@ public final class ProBKernel extends BaseKernel {
 			throw new CommandExecutionException(name, e);
 		}
 		
-		if (result != null && result.hasDataForType(MARKDOWN_MIME_TYPE)) {
+		if (result != null && result.hasDataForType(MIMEType.TEXT_MARKDOWN)) {
 			// Add definitions for any used bsymb LaTeX commands to Markdown output.
-			final String markdown = (String)result.getData(MARKDOWN_MIME_TYPE);
+			final String markdown = (String)result.getData(MIMEType.TEXT_MARKDOWN);
 			final StringBuilder defs = new StringBuilder();
 			final Matcher matcher = BSYMB_COMMAND_PATTERN.matcher(markdown);
 			while (matcher.find()) {
