@@ -2,12 +2,14 @@ package de.prob2.jupyter.commands;
 
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -70,5 +72,15 @@ public final class HelpCommand implements Command {
 		} else {
 			throw new UserErrorException("Expected at most 1 argument, got " + args.size());
 		}
+	}
+	
+	@Override
+	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		final String prefix = argString.substring(0, at);
+		return new ReplacementOptions(
+			kernel.getCommands().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList()),
+			0,
+			argString.length()
+		);
 	}
 }

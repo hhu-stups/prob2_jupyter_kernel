@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import de.prob2.jupyter.ProBKernel;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -38,5 +39,10 @@ public final class TimeCommand implements Command {
 		timeDisplay.putMarkdown(text);
 		kernel.display(timeDisplay);
 		return result;
+	}
+	
+	@Override
+	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return kernel.complete(argString, at);
 	}
 }

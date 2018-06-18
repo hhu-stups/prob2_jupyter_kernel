@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -42,6 +43,7 @@ import de.prob2.jupyter.commands.VersionCommand;
 
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import io.github.spencerpark.jupyter.kernel.display.mime.MIMEType;
 
@@ -55,6 +57,7 @@ public final class ProBKernel extends BaseKernel {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
 	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
+	private static final @NotNull Pattern SPACE_PATTERN = Pattern.compile("\\s*");
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
 	
 	private static final @NotNull Map<@NotNull String, @NotNull String> BSYMB_COMMAND_DEFINITIONS;
@@ -211,6 +214,55 @@ public final class ProBKernel extends BaseKernel {
 		}
 		
 		return this.executeCommand(":eval", expr);
+	}
+	
+	@Override
+	public @Nullable ReplacementOptions complete(final @NotNull String code, final int at) {
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code);
+		if (commandMatcher.matches()) {
+			// The code is a valid command.
+			final int argOffset = commandMatcher.start(2);
+			if (at <= commandMatcher.end(1)) {
+				// The cursor is somewhere in the command name, provide command completions.
+				final String prefix = code.substring(commandMatcher.start(1), at);
+				return new ReplacementOptions(
+					this.getCommands().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList()),
+					commandMatcher.start(1), 
+					commandMatcher.end(1)
+				);
+			} else if (at < commandMatcher.start(2)) {
+				// The cursor is in the whitespace between the command name and arguments, don't show anything.
+				return null;
+			} else {
+				// The cursor is somewhere in the command arguments, ask the command to provide completions.
+				final String name = commandMatcher.group(1);
+				assert name != null;
+				final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
+				if (this.getCommands().containsKey(name)) {
+					final ReplacementOptions replacements = this.getCommands().get(name).complete(this, argString, at - argOffset);
+					return replacements == null ? null : new ReplacementOptions(
+						replacements.getReplacements(),
+						replacements.getSourceStart() + argOffset,
+						replacements.getSourceEnd() + argOffset
+					);
+				} else {
+					// Invalid command, can't provide any completions.
+					return null;
+				}
+			}
+		} else if (SPACE_PATTERN.matcher(code).matches()) {
+			// The code contains only whitespace, provide completions from :eval and for command names.
+			final List<String> replacementStrings = new ArrayList<>();
+			final ReplacementOptions evalReplacements = this.getCommands().get(":eval").complete(this, code, at);
+			if (evalReplacements != null) {
+				replacementStrings.addAll(evalReplacements.getReplacements());
+			}
+			replacementStrings.addAll(this.getCommands().keySet().stream().sorted().collect(Collectors.toList()));
+			return new ReplacementOptions(replacementStrings, at, at);
+		} else {
+			// The code is not a valid command, ask :eval for completions.
+			return this.getCommands().get(":eval").complete(this, code, at);
+		}
 	}
 	
 	@Override
