@@ -1,20 +1,28 @@
 package de.prob2.jupyter.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import de.prob.animator.command.CompleteIdentifierCommand;
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.ComputationNotCompletedResult;
 import de.prob.animator.domainobjects.EnumerationWarning;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.EvaluationErrorResult;
+import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +31,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class CommandUtils {
-	private static final Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
+	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
+	
+	private static final @NotNull Pattern B_IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
+	
+	private CommandUtils() {
+		super();
+		
+		throw new AssertionError("Utility class");
+	}
 	
 	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args, final int limit) {
 		final String[] split = args.split("\\h+", limit);
@@ -109,5 +125,36 @@ public final class CommandUtils {
 			result.putMarkdown(sbMarkdown.toString());
 			return result;
 		}
+	}
+	
+	public static @NotNull ReplacementOptions completeInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
+		final Matcher identifierMatcher = B_IDENTIFIER_PATTERN.matcher(code);
+		String identifier = "";
+		int start = at;
+		int end = at;
+		// Try to find the identifier that the cursor is in.
+		// If the cursor is not on an identifier, default to empty string, i. e. show all possible completions.
+		while (identifierMatcher.find() && identifierMatcher.start() < at) {
+			if (identifierMatcher.end() >= at) {
+				identifier = code.substring(identifierMatcher.start(), at);
+				start = identifierMatcher.start();
+				end = identifierMatcher.end();
+				break;
+			}
+		}
+		
+		final CompleteIdentifierCommand cmdExact = new CompleteIdentifierCommand(identifier);
+		cmdExact.setIncludeKeywords(true);
+		trace.getStateSpace().execute(cmdExact);
+		// Use LinkedHashSet to remove duplicates while maintaining order.
+		final Set<String> completions = new LinkedHashSet<>(cmdExact.getCompletions());
+		
+		final CompleteIdentifierCommand cmdIgnoreCase = new CompleteIdentifierCommand(identifier);
+		cmdIgnoreCase.setIgnoreCase(true);
+		cmdIgnoreCase.setIncludeKeywords(true);
+		trace.getStateSpace().execute(cmdIgnoreCase);
+		completions.addAll(cmdIgnoreCase.getCompletions());
+		
+		return new ReplacementOptions(new ArrayList<>(completions), start, end);
 	}
 }
