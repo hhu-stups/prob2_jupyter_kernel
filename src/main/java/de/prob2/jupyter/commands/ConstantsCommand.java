@@ -43,7 +43,13 @@ public final class ConstantsCommand implements Command {
 		final List<String> predicates = argString.isEmpty() ? Collections.emptyList() : Collections.singletonList(argString);
 		final Transition op = trace.getCurrentState().findTransition("$setup_constants", predicates);
 		if (op == null) {
-			throw new UserErrorException("Could not setup constants" + (argString.isEmpty() ? "" : " with the specified predicate"));
+			if (trace.gotoPosition(-1).canExecuteEvent("$initialise_machine")) {
+				throw new UserErrorException("Machine has no constants, use :init instead");
+			} else if (trace.getCurrent().getIndex() > -1) {
+				throw new UserErrorException("Machine constants are already set up");
+			} else {
+				throw new UserErrorException("Could not setup constants" + (argString.isEmpty() ? "" : " with the specified predicate"));
+			}
 		}
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);

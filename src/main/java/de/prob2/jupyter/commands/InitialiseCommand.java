@@ -43,7 +43,13 @@ public final class InitialiseCommand implements Command {
 		final List<String> predicates = argString.isEmpty() ? Collections.emptyList() : Collections.singletonList(argString);
 		final Transition op = trace.getCurrentState().findTransition("$initialise_machine", predicates);
 		if (op == null) {
-			throw new UserErrorException("Could not initialise machine" + (argString.isEmpty() ? "" : " with the specified predicate"));
+			if (trace.getCurrentState().isInitialised()) {
+				throw new UserErrorException("Machine is already initialised");
+			} else if (trace.getHead().getPrevious() == null && trace.canExecuteEvent("$setup_constants")) {
+				throw new UserErrorException("Machine constants are not yet set up, use :constants first");
+			} else {
+				throw new UserErrorException("Could not initialise machine" + (argString.isEmpty() ? "" : " with the specified predicate"));
+			}
 		}
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
