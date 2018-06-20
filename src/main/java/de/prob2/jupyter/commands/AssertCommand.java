@@ -14,7 +14,6 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import io.github.spencerpark.jupyter.kernel.display.mime.MIMEType;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class AssertCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -37,10 +36,11 @@ public final class AssertCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
 		final AbstractEvalResult result = this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.TRUNCATE);
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
-			return null;
+			// Use EvalResult.TRUE instead of the real result so that solution variables are not displayed.
+			return CommandUtils.displayDataForEvalResult(EvalResult.TRUE);
 		}
 		
 		final DisplayData displayData;
