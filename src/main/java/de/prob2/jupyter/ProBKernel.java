@@ -23,6 +23,7 @@ import de.prob2.jupyter.commands.AssertCommand;
 import de.prob2.jupyter.commands.BrowseCommand;
 import de.prob2.jupyter.commands.Command;
 import de.prob2.jupyter.commands.CommandExecutionException;
+import de.prob2.jupyter.commands.CommandUtils;
 import de.prob2.jupyter.commands.ConstantsCommand;
 import de.prob2.jupyter.commands.EvalCommand;
 import de.prob2.jupyter.commands.ExecCommand;
@@ -240,11 +241,7 @@ public final class ProBKernel extends BaseKernel {
 				final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
 				if (this.getCommands().containsKey(name)) {
 					final ReplacementOptions replacements = this.getCommands().get(name).complete(this, argString, at - argOffset);
-					return replacements == null ? null : new ReplacementOptions(
-						replacements.getReplacements(),
-						replacements.getSourceStart() + argOffset,
-						replacements.getSourceEnd() + argOffset
-					);
+					return replacements == null ? null : CommandUtils.offsetReplacementOptions(replacements, argOffset);
 				} else {
 					// Invalid command, can't provide any completions.
 					return null;

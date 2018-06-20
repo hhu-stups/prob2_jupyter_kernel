@@ -3,6 +3,9 @@ package de.prob2.jupyter.commands;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.inject.Inject;
 
@@ -14,6 +17,7 @@ import de.prob.statespace.Transition;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -56,14 +60,7 @@ public final class ExecCommand implements Command {
 			op = opt.get();
 		} else {
 			// Transition not found, assume that the argument is an operation name instead.
-			final String translatedOpName;
-			if ("SETUP_CONSTANTS".equals(opNameOrId)) {
-				translatedOpName = "$setup_constants";
-			} else if ("INITIALISATION".equals(opNameOrId)) {
-				translatedOpName = "$initialise_machine";
-			} else {
-				translatedOpName = opNameOrId;
-			}
+			final String translatedOpName = CommandUtils.unprettyOperationName(opNameOrId);
 			final List<String> predicates = split.size() < 2 ? Collections.emptyList() : Collections.singletonList(split.get(1));
 			op = trace.getCurrentState().findTransition(translatedOpName, predicates);
 			if (op == null) {
@@ -74,5 +71,34 @@ public final class ExecCommand implements Command {
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
 		return new DisplayData(String.format("Executed operation %s: %s", op.getId(), op.getRep()));
+	}
+	
+	@Override
+	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		final int opNameEnd;
+		final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString);
+		if (argSplitMatcher.find()) {
+			opNameEnd = argSplitMatcher.start();
+		} else {
+			opNameEnd = argString.length();
+		}
+		
+		if (opNameEnd < at) {
+			// Cursor is in the predicate part of the arguments, provide B completions.
+			final ReplacementOptions replacements = CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString.substring(opNameEnd), at - opNameEnd);
+			return CommandUtils.offsetReplacementOptions(replacements, opNameEnd);
+		} else {
+			// Cursor is in the first part of the arguments, provide possible operation names and transition IDs.
+			final String prefix = argString.substring(0, at);
+			final List<String> opNames = this.animationSelector.getCurrentTrace()
+				.getNextTransitions()
+				.stream()
+				.flatMap(t -> Stream.of(CommandUtils.prettyOperationName(t.getName()), t.getId()))
+				.distinct()
+				.filter(s -> s.startsWith(prefix))
+				.sorted()
+				.collect(Collectors.toList());
+			return new ReplacementOptions(opNames, 0, opNameEnd);
+		}
 	}
 }

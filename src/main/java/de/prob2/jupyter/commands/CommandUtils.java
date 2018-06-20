@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 public final class CommandUtils {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
 	
+	public static final @NotNull Pattern ARG_SPLIT_PATTERN = Pattern.compile("\\h+");
 	private static final @NotNull Pattern B_IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
 	
 	private CommandUtils() {
@@ -41,8 +42,34 @@ public final class CommandUtils {
 		throw new AssertionError("Utility class");
 	}
 	
+	public static @NotNull String prettyOperationName(final @NotNull String name) {
+		switch (name) {
+			case "$setup_constants":
+				return "SETUP_CONSTANTS";
+			
+			case "$initialise_machine":
+				return "INITIALISATION";
+			
+			default:
+				return name;
+		}
+	}
+	
+	public static @NotNull String unprettyOperationName(final @NotNull String name) {
+		switch (name) {
+			case "SETUP_CONSTANTS":
+				return "$setup_constants";
+			
+			case "INITIALISATION":
+				return "$initialise_machine";
+			
+			default:
+				return name;
+		}
+	}
+	
 	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args, final int limit) {
-		final String[] split = args.split("\\h+", limit);
+		final String[] split = ARG_SPLIT_PATTERN.split(args, limit);
 		if (split.length == 1 && split[0].isEmpty()) {
 			return Collections.emptyList();
 		} else {
@@ -125,6 +152,14 @@ public final class CommandUtils {
 			result.putMarkdown(sbMarkdown.toString());
 			return result;
 		}
+	}
+	
+	public static @NotNull ReplacementOptions offsetReplacementOptions(final @NotNull ReplacementOptions replacements, final int offset) {
+		return new ReplacementOptions(
+			replacements.getReplacements(),
+			replacements.getSourceStart() + offset,
+			replacements.getSourceEnd() + offset
+		);
 	}
 	
 	public static @NotNull ReplacementOptions completeInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {

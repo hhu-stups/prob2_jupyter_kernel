@@ -16,6 +16,7 @@ import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.ProBKernel;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -79,5 +80,10 @@ public final class TableCommand implements Command {
 		final DisplayData res = new DisplayData(sbPlain.toString());
 		res.putMarkdown(sbMarkdown.toString());
 		return res;
+	}
+	
+	@Override
+	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }

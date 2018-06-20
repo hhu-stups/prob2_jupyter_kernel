@@ -10,6 +10,7 @@ import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import io.github.spencerpark.jupyter.kernel.display.mime.MIMEType;
 
@@ -50,5 +51,10 @@ public final class AssertCommand implements Command {
 			throw new UserErrorException("Error while evaluating assertion: " + e.getMessage());
 		}
 		throw new UserErrorException("Assertion is not true: " + displayData.getData(MIMEType.TEXT_PLAIN));
+	}
+	
+	@Override
+	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }

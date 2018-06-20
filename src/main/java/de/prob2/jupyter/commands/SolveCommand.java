@@ -1,6 +1,9 @@
 package de.prob2.jupyter.commands;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.inject.Inject;
 
@@ -13,6 +16,7 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -75,5 +79,30 @@ public final class SolveCommand implements Command {
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());
 		trace.getStateSpace().execute(cmd);
 		return CommandUtils.displayDataForEvalResult(cmd.getValue());
+	}
+	
+	@Override
+	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		final int solverNameEnd;
+		final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString);
+		if (argSplitMatcher.find()) {
+			solverNameEnd = argSplitMatcher.start();
+		} else {
+			solverNameEnd = argString.length();
+		}
+		
+		if (solverNameEnd < at) {
+			// Cursor is in the predicate part of the arguments, provide B completions.
+			final ReplacementOptions replacements = CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString.substring(solverNameEnd), at - solverNameEnd);
+			return CommandUtils.offsetReplacementOptions(replacements, solverNameEnd);
+		} else {
+			// Cursor is in the solver name.
+			final String prefix = argString.substring(0, at);
+			final List<String> solverNames = Stream.of("prob", "kodkod", "smt_supported_interpreter", "z3", "cvc4")
+				.filter(s -> s.startsWith(prefix))
+				.sorted()
+				.collect(Collectors.toList());
+			return new ReplacementOptions(solverNames, 0, solverNameEnd);
+		}
 	}
 }

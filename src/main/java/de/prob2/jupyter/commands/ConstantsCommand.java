@@ -13,6 +13,7 @@ import de.prob.statespace.Transition;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -54,5 +55,10 @@ public final class ConstantsCommand implements Command {
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
 		return new DisplayData(String.format("Machine constants set up using operation %s: %s", op.getId(), op.getRep()));
+	}
+	
+	@Override
+	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }
