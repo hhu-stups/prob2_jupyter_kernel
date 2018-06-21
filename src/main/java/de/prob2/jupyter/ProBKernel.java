@@ -37,6 +37,7 @@ import de.prob2.jupyter.commands.NoSuchCommandException;
 import de.prob2.jupyter.commands.PrefCommand;
 import de.prob2.jupyter.commands.PrettyPrintCommand;
 import de.prob2.jupyter.commands.RenderCommand;
+import de.prob2.jupyter.commands.ShowCommand;
 import de.prob2.jupyter.commands.SolveCommand;
 import de.prob2.jupyter.commands.TableCommand;
 import de.prob2.jupyter.commands.TimeCommand;
@@ -149,6 +150,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":exec", injector.getInstance(ExecCommand.class));
 		this.commands.put(":constants", injector.getInstance(ConstantsCommand.class));
 		this.commands.put(":init", injector.getInstance(InitialiseCommand.class));
+		this.commands.put(":show", injector.getInstance(ShowCommand.class));
 		this.commands.put(":dot", injector.getInstance(DotCommand.class));
 		this.commands.put(":assert", injector.getInstance(AssertCommand.class));
 		this.commands.put(":time", injector.getInstance(TimeCommand.class));
