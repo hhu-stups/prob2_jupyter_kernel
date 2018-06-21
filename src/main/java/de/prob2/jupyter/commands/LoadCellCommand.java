@@ -12,9 +12,11 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class LoadCellCommand implements Command {
 	private final @NotNull ClassicalBFactory classicalBFactory;
@@ -51,5 +53,17 @@ public final class LoadCellCommand implements Command {
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(this.classicalBFactory.create(body).load(preferences)));
 		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getModel());
+	}
+	
+	@Override
+	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		final int newlinePos = argString.indexOf('\n');
+		if (newlinePos == -1 || at < newlinePos) {
+			// Cursor is on the first line, provide preference name completions.
+			return CommandUtils.completeInPreferences(this.animationSelector.getCurrentTrace(), argString, at);
+		} else {
+			// Cursor is in the body, provide B completions.
+			return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
+		}
 	}
 }

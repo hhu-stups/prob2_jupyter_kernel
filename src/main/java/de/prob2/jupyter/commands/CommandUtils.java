@@ -10,8 +10,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import de.prob.animator.command.CompleteIdentifierCommand;
+import de.prob.animator.command.GetCurrentPreferencesCommand;
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.ComputationNotCompletedResult;
 import de.prob.animator.domainobjects.EnumerationWarning;
@@ -26,6 +28,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,5 +194,24 @@ public final class CommandUtils {
 		completions.addAll(cmdIgnoreCase.getCompletions());
 		
 		return new ReplacementOptions(new ArrayList<>(completions), start, end);
+	}
+	
+	public static @Nullable ReplacementOptions completeInPreferences(final @NotNull Trace trace, final @NotNull String code, final int at) {
+		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(code);
+		int prefNameStart = 0;
+		while (argSplitMatcher.find() && argSplitMatcher.end() <= at) {
+			prefNameStart = argSplitMatcher.end();
+		}
+		final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
+		prefNameMatcher.region(prefNameStart, code.length());
+		if (prefNameMatcher.lookingAt() && at <= prefNameMatcher.end()) {
+			final String prefix = code.substring(prefNameMatcher.start(), at);
+			final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();
+			trace.getStateSpace().execute(cmd);
+			final List<String> prefs = cmd.getPreferences().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList());
+			return new ReplacementOptions(prefs, prefNameMatcher.start(), prefNameMatcher.end());
+		} else {
+			return null;
+		}
 	}
 }

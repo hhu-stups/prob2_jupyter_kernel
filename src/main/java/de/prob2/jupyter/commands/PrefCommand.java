@@ -15,9 +15,11 @@ import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class PrefCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -81,5 +83,10 @@ public final class PrefCommand implements Command {
 			}
 		}
 		return new DisplayData(sb.toString());
+	}
+	
+	@Override
+	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return CommandUtils.completeInPreferences(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }
