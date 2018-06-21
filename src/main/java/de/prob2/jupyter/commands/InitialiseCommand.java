@@ -30,7 +30,7 @@ public final class InitialiseCommand implements Command {
 	
 	@Override
 	public @NotNull String getSyntax() {
-		return ":initialise [PREDICATE]\n:init [PREDICATE]";
+		return ":init [PREDICATE]";
 	}
 	
 	@Override

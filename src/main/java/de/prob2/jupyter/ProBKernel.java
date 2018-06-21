@@ -135,9 +135,7 @@ public final class ProBKernel extends BaseKernel {
 		this.animationSelector = animationSelector;
 		
 		this.commands = new HashMap<>();
-		final Command help = injector.getInstance(HelpCommand.class);
-		this.commands.put(":?", help);
-		this.commands.put(":help", help);
+		this.commands.put(":help", injector.getInstance(HelpCommand.class));
 		this.commands.put(":version", injector.getInstance(VersionCommand.class));
 		this.commands.put(":eval", injector.getInstance(EvalCommand.class));
 		this.commands.put(":type", injector.getInstance(TypeCommand.class));
@@ -149,7 +147,6 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":browse", injector.getInstance(BrowseCommand.class));
 		this.commands.put(":exec", injector.getInstance(ExecCommand.class));
 		this.commands.put(":constants", injector.getInstance(ConstantsCommand.class));
-		this.commands.put(":initialise", injector.getInstance(InitialiseCommand.class));
 		this.commands.put(":init", injector.getInstance(InitialiseCommand.class));
 		this.commands.put(":assert", injector.getInstance(AssertCommand.class));
 		this.commands.put(":time", injector.getInstance(TimeCommand.class));

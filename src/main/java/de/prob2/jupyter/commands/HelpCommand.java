@@ -22,7 +22,7 @@ public final class HelpCommand implements Command {
 	
 	@Override
 	public @NotNull String getSyntax() {
-		return ":? [COMMAND]\n:help [COMMAND]";
+		return ":help [COMMAND]";
 	}
 	
 	@Override
