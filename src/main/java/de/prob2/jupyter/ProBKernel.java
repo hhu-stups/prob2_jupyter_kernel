@@ -25,6 +25,7 @@ import de.prob2.jupyter.commands.Command;
 import de.prob2.jupyter.commands.CommandExecutionException;
 import de.prob2.jupyter.commands.CommandUtils;
 import de.prob2.jupyter.commands.ConstantsCommand;
+import de.prob2.jupyter.commands.DotCommand;
 import de.prob2.jupyter.commands.EvalCommand;
 import de.prob2.jupyter.commands.ExecCommand;
 import de.prob2.jupyter.commands.GroovyCommand;
@@ -148,6 +149,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":exec", injector.getInstance(ExecCommand.class));
 		this.commands.put(":constants", injector.getInstance(ConstantsCommand.class));
 		this.commands.put(":init", injector.getInstance(InitialiseCommand.class));
+		this.commands.put(":dot", injector.getInstance(DotCommand.class));
 		this.commands.put(":assert", injector.getInstance(AssertCommand.class));
 		this.commands.put(":time", injector.getInstance(TimeCommand.class));
 		this.commands.put(":groovy", injector.getInstance(GroovyCommand.class));
