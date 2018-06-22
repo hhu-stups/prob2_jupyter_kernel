@@ -14,8 +14,8 @@ plugins {
 final SOURCE_ENCODING = "UTF-8"
 
 wrapper {
-	distributionType = "ALL"
-	gradleVersion = "4.7"
+	gradleVersion = "4.8.1"
+	distributionType = Wrapper.DistributionType.ALL
 }
 
 repositories {
