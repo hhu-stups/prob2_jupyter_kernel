@@ -44,6 +44,10 @@ public final class ShowCommand implements Command {
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		
+		if (!trace.getCurrentState().isInitialised()) {
+			throw new UserErrorException("Machine is not initialised, cannot show animation function visualisation");
+		}
+		
 		final GetImagesForMachineCommand cmd1 = new GetImagesForMachineCommand();
 		trace.getStateSpace().execute(cmd1);
 		final Map<Integer, String> images = cmd1.getImages();
