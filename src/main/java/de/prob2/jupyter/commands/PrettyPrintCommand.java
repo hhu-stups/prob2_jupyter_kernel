@@ -33,6 +33,12 @@ public final class PrettyPrintCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "The predicate is not evaluated or simplified, it is only reformatted and converted to Unicode/$\\LaTeX$ form.\n\n"
+			+ "Expressions cannot be pretty-printed, only predicates.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final IEvalElement formula = this.animationSelector.getCurrentTrace().getModel().parseFormula(argString, FormulaExpand.EXPAND);
 		

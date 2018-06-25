@@ -38,7 +38,13 @@ public final class ExecCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Execute an operation with the specified predicate, or by its ID";
+		return "Execute an operation with the specified predicate, or by its ID.";
+	}
+	
+	@Override
+	public @NotNull String getHelpBody() {
+		return "In the first form, the given operation is executed. If the optional predicate is specified, a transition is found for which the predicate is $\\mathit{TRUE}$. The predicate can be used to restrict what values the operation's parameters or the variables in the next state may have.\n\n"
+			+ "In the second form, a known transition with the given numeric ID is executed. A list of the current state's available transitions and their IDs can be viewed using `:browse`. Only transition IDs from the current state can be executed.";
 	}
 	
 	@Override

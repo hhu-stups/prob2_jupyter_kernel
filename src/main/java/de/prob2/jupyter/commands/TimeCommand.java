@@ -34,6 +34,12 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "The time is measured using Java's [`System.nanoTime()`](https://docs.oracle.com/javase/8/docs/api/java/lang/System.html#nanoTime--) method. The measured time is displayed with the full number of decimal places, but no guarantees are made about the actual resolution of the time measurement.\n\n"
+			+ "As with any measurement of execution time, there will likely be small differences between two measurements of the same command. The time is measured by the kernel rather than ProB, so it will include some overhead due to processing of the command by the kernel and communication with ProB.";
+	}
+	
+	@Override
 	public @Nullable DisplayData run(final @NotNull String argString) {
 		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
 		final long startTime = System.nanoTime();

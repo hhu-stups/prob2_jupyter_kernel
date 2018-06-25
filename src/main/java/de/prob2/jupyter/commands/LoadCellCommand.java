@@ -36,7 +36,13 @@ public final class LoadCellCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Load the machine source code from the body.";
+		return "Load the machine source code given in the cell body.";
+	}
+	
+	@Override
+	public @NotNull String getHelpBody() {
+		return "There must be a newline between the `::load` command name and the machine code.\n\n"
+			+ "Any number of preference assignments may be included after `::load` (only on the first line). Preferences can also be changed on a loaded machine using the `:pref` command, however certain preferences do not take full effect when set using `:pref` and must be set when the machine is loaded.";
 	}
 	
 	@Override

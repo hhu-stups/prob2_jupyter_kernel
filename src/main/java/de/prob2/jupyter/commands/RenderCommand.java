@@ -27,6 +27,12 @@ public final class RenderCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "This command is intended for debugging the rendering behavior of Jupyter and the kernel, it should not be used in regular notebooks. To include text or images in a notebook, Markdown cells should be used instead.\n\n"
+			+ "The command does not place any restrictions on the MIME type or content. A plain text fallback with the raw content is always included, and will be displayed if the frontend does not support the given MIME type.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final String[] split = argString.split("\n", 2);
 		if (split.length != 2) {

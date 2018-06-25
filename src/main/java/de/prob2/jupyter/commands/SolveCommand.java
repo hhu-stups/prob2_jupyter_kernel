@@ -1,9 +1,10 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.inject.Inject;
 
@@ -21,6 +22,9 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import org.jetbrains.annotations.NotNull;
 
 public final class SolveCommand implements Command {
+	private static final @NotNull Map<@NotNull String, CbcSolveCommand.@NotNull Solvers> SOLVERS = Arrays.stream(CbcSolveCommand.Solvers.values())
+		.collect(Collectors.toMap(s -> s.name().toLowerCase(), s -> s));
+	
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
@@ -37,7 +41,18 @@ public final class SolveCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Solve a predicate with the specified solver";
+		return "Solve a predicate with the specified solver.";
+	}
+	
+	@Override
+	public @NotNull String getHelpBody() {
+		final StringBuilder sb = new StringBuilder("The following solvers are currently available:\n\n");
+		SOLVERS.keySet().stream().sorted().forEach(solver -> {
+			sb.append("* `");
+			sb.append(solver);
+			sb.append("`\n");
+		});
+		return sb.toString();
 	}
 	
 	@Override
@@ -48,30 +63,9 @@ public final class SolveCommand implements Command {
 		}
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final CbcSolveCommand.Solvers solver;
-		switch (split.get(0)) {
-			case "prob":
-				solver = CbcSolveCommand.Solvers.PROB;
-				break;
-			
-			case "kodkod":
-				solver = CbcSolveCommand.Solvers.KODKOD;
-				break;
-			
-			case "smt_supported_interpreter":
-				solver = CbcSolveCommand.Solvers.SMT_SUPPORTED_INTERPRETER;
-				break;
-			
-			case "z3":
-				solver = CbcSolveCommand.Solvers.Z3;
-				break;
-			
-			case "cvc4":
-				solver = CbcSolveCommand.Solvers.CVC4;
-				break;
-			
-			default:
-				throw new UserErrorException("Unknown solver: " + split.get(0));
+		final CbcSolveCommand.Solvers solver = SOLVERS.get(split.get(0));
+		if (solver == null) {
+			throw new UserErrorException("Unknown solver: " + split.get(0));
 		}
 		final IEvalElement predicate = trace.getModel().parseFormula(split.get(1), FormulaExpand.EXPAND);
 		
@@ -97,7 +91,7 @@ public final class SolveCommand implements Command {
 		} else {
 			// Cursor is in the solver name.
 			final String prefix = argString.substring(0, at);
-			final List<String> solverNames = Stream.of("prob", "kodkod", "smt_supported_interpreter", "z3", "cvc4")
+			final List<String> solverNames = SOLVERS.keySet().stream()
 				.filter(s -> s.startsWith(prefix))
 				.sorted()
 				.collect(Collectors.toList());

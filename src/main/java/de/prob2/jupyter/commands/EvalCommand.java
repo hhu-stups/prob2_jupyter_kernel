@@ -22,12 +22,18 @@ public final class EvalCommand implements Command {
 	
 	@Override
 	public @NotNull String getSyntax() {
-		return ":eval EXPRESSION";
+		return ":eval FORMULA";
 	}
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Evaluate an expression.";
+		return "Evaluate a formula and display the result.";
+	}
+	
+	@Override
+	public @NotNull String getHelpBody() {
+		return "This is equivalent to inputting the formula without a command name.\n\n"
+			+ "If the formula is a $\\mathit{TRUE}$ predicate with free variables, the variable values found while solving are displayed.";
 	}
 	
 	@Override

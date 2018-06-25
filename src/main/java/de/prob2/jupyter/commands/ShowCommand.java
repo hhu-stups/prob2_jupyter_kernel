@@ -38,6 +38,11 @@ public final class ShowCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "The visualisation is static, any defined right-click options cannot be viewed or used.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		if (!argString.isEmpty()) {
 			throw new UserErrorException("Expected no arguments");

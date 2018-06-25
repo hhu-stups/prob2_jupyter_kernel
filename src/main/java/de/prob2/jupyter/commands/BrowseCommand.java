@@ -44,7 +44,12 @@ public final class BrowseCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Show information about the current state";
+		return "Show information about the current state.";
+	}
+	
+	@Override
+	public @NotNull String getHelpBody() {
+		return "The output shows the names of all sets, constants, and variables defined by the current machine, as well as a list of transitions that are available in the current state. Each transition has a numeric ID, which can be passed to `:exec` to execute that transition.";
 	}
 	
 	private static <T extends AbstractElement> @NotNull String elementsToString(

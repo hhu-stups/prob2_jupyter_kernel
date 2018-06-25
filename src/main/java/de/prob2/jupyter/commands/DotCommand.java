@@ -44,7 +44,30 @@ public final class DotCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Execute and show a dot visualization.";
+		return "Execute and show a dot visualisation.";
+	}
+	
+	@Override
+	public @NotNull String getHelpBody() {
+		final StringBuilder sb = new StringBuilder("The following dot visualisation commands are available:\n\n");
+		final Trace trace = this.animationSelector.getCurrentTrace();
+		final GetAllDotCommands cmd = new GetAllDotCommands(trace.getCurrentState());
+		trace.getStateSpace().execute(cmd);
+		for (final DynamicCommandItem item : cmd.getCommands()) {
+			sb.append("* `");
+			sb.append(item.getCommand());
+			sb.append("` - ");
+			sb.append(item.getName());
+			sb.append(": ");
+			sb.append(item.getDescription());
+			if (!item.isAvailable()) {
+				sb.append(" (**Not available for this machine/state**: ");
+				sb.append(item.getAvailable());
+				sb.append(')');
+			}
+			sb.append('\n');
+		}
+		return sb.toString();
 	}
 	
 	@Override

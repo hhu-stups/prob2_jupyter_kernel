@@ -41,6 +41,12 @@ public final class PrefCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "In the first form, the values of all given preferences are displayed (or all preferences, if none are given). In the second form, the given preference assignments are performed. The two forms cannot be mixed; it is not possible to view and change preferences in a single command.\n\n"
+			+ "Certain preference changes do not take full effect when performed on a loaded machine. Such preferences must be assigned when the machine is loaded using the `::load` or `:load` command.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		final StringBuilder sb = new StringBuilder();

@@ -40,6 +40,11 @@ public final class TableCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "Although any expression is accepted, this command is most useful for sets of tuples.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final IEvalElement formula = trace.getModel().parseFormula(argString, FormulaExpand.EXPAND);

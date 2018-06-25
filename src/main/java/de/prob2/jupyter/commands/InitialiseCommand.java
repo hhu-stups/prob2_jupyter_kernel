@@ -38,6 +38,11 @@ public final class InitialiseCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "This is a shorthand for `:exec INITIALISATION [PREDICATE]`.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final List<String> predicates = argString.isEmpty() ? Collections.emptyList() : Collections.singletonList(argString);

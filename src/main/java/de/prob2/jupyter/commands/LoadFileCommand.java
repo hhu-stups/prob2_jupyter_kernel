@@ -53,6 +53,12 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "The path is relative to the kernel's current directory (i. e. the directory in which the notebook is located).\n\n"
+			+ "Any number of preference assignments may be included after the file path. Preferences can also be changed on a loaded machine using the `:pref` command, however certain preferences do not take full effect when set using `:pref` and must be set when the machine is loaded.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {

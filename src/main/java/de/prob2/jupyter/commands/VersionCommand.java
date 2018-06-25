@@ -29,7 +29,12 @@ public final class VersionCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Display version info about the ProB CLI and ProB 2";
+		return "Display version info about the ProB CLI and ProB 2.";
+	}
+	
+	@Override
+	public @NotNull String getHelpBody() {
+		return "";
 	}
 	
 	@Override

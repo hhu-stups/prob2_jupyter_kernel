@@ -11,6 +11,8 @@ public interface Command {
 	
 	public abstract @NotNull String getShortHelp();
 	
+	public abstract  @NotNull String getHelpBody();
+	
 	public abstract @Nullable DisplayData run(final @NotNull String argString);
 	
 	public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int at);

@@ -41,6 +41,11 @@ public final class GroovyCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "The standard ProB 2 Groovy environment is used to evaluate the expression, so ProB 2's global `api` and `animations` objects may be used to load machines and manipulate traces.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		this.groovyScriptEngine.put("__console", this.injector.getInstance(ProBKernel.class).getIO().out);
 		final Object result;

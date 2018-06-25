@@ -35,6 +35,11 @@ public final class TypeCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "The returned types are *not* standard B types. They are human-readable, but cannot be used in code.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final IEvalElement formula = trace.getModel().parseFormula(argString, FormulaExpand.EXPAND);

@@ -34,7 +34,12 @@ public final class ConstantsCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Set up the current machine's constants with the specified predicate";
+		return "Set up the current machine's constants.";
+	}
+	
+	@Override
+	public @NotNull String getHelpBody() {
+		return "This is a shorthand for `:exec SETUP_CONSTANTS [PREDICATE]`.";
 	}
 	
 	@Override

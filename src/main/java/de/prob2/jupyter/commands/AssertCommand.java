@@ -36,6 +36,12 @@ public final class AssertCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getHelpBody() {
+		return "This command is intended for verifying that a predicate is always true at a certain point in a notebook. Unlike normal evaluation (`:eval`), this command treats a $\\mathit{FALSE}$ result as an error. If the result is $\\mathit{TRUE}$, solutions for free variables (if any) are not displayed.\n\n"
+			+ "Only predicates and $\\mathit{BOOL}$ expressions are accepted. Expressions of other types cause an error.";
+	}
+	
+	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final AbstractEvalResult result = this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.TRUNCATE);
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
