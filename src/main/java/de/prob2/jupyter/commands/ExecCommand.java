@@ -14,7 +14,6 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 
-import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -43,7 +42,7 @@ public final class ExecCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final List<String> split = CommandUtils.splitArgs(argString, 2);
 		assert !split.isEmpty();
 		final String opNameOrId = split.get(0);
@@ -74,7 +73,7 @@ public final class ExecCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
 		final int opNameEnd;
 		final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString);
 		if (argSplitMatcher.find()) {

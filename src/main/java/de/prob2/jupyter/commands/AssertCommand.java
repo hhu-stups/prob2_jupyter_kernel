@@ -7,7 +7,6 @@ import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
 
-import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -37,7 +36,7 @@ public final class AssertCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final AbstractEvalResult result = this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.TRUNCATE);
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
 			// Use EvalResult.TRUE instead of the real result so that solution variables are not displayed.
@@ -54,7 +53,7 @@ public final class AssertCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }

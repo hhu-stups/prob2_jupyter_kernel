@@ -5,6 +5,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
@@ -15,9 +16,13 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import org.jetbrains.annotations.NotNull;
 
 public final class HelpCommand implements Command {
+	private final @NotNull Injector injector;
+	
 	@Inject
-	private HelpCommand() {
+	private HelpCommand(final @NotNull Injector injector) {
 		super();
+		
+		this.injector = injector;
 	}
 	
 	@Override
@@ -31,7 +36,8 @@ public final class HelpCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
+		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
 		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {
 			final StringBuilder sb = new StringBuilder("Type a valid B expression, or one of the following commands:\n");
@@ -75,10 +81,16 @@ public final class HelpCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
 		final String prefix = argString.substring(0, at);
 		return new ReplacementOptions(
-			kernel.getCommands().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList()),
+			this.injector.getInstance(ProBKernel.class)
+				.getCommands()
+				.keySet()
+				.stream()
+				.filter(s -> s.startsWith(prefix))
+				.sorted()
+				.collect(Collectors.toList()),
 			0,
 			argString.length()
 		);

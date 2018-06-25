@@ -17,7 +17,6 @@ import de.prob.scripting.ModelTranslationError;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
-import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -54,7 +53,7 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {
 			throw new UserErrorException("Missing machine file name");
@@ -72,7 +71,7 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		final int fileNameEnd;
 		final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString);
 		if (argSplitMatcher.find()) {

@@ -7,8 +7,6 @@ import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 
-import de.prob2.jupyter.ProBKernel;
-
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
@@ -35,7 +33,7 @@ public final class PrettyPrintCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final IEvalElement formula = this.animationSelector.getCurrentTrace().getModel().parseFormula(argString, FormulaExpand.EXPAND);
 		
 		final PrettyPrintFormulaCommand cmdUnicode = new PrettyPrintFormulaCommand(formula, PrettyPrintFormulaCommand.Mode.UNICODE);
@@ -50,7 +48,7 @@ public final class PrettyPrintCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }

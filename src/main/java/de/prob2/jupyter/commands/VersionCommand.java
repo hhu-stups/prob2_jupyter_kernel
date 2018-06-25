@@ -6,8 +6,6 @@ import de.prob.Main;
 import de.prob.animator.command.GetVersionCommand;
 import de.prob.statespace.AnimationSelector;
 
-import de.prob2.jupyter.ProBKernel;
-
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
@@ -35,14 +33,14 @@ public final class VersionCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final GetVersionCommand cmd = new GetVersionCommand();
 		this.animationSelector.getCurrentTrace().getStateSpace().execute(cmd);
 		return new DisplayData(String.format("ProB CLI: %s\nProB 2: %s (%s)", cmd.getVersion(), Main.getVersion(), Main.getGitSha()));
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return null;
 	}
 }

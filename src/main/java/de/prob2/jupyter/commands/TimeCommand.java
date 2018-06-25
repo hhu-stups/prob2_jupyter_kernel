@@ -1,6 +1,7 @@
 package de.prob2.jupyter.commands;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import de.prob2.jupyter.ProBKernel;
 
@@ -13,9 +14,13 @@ import org.jetbrains.annotations.Nullable;
 public final class TimeCommand implements Command {
 	private static final long NANOSECONDS_PER_SECOND = 1000000000L;
 	
+	private final @NotNull Injector injector;
+	
 	@Inject
-	private TimeCommand() {
+	private TimeCommand(final @NotNull Injector injector) {
 		super();
+		
+		this.injector = injector;
 	}
 	
 	@Override
@@ -29,7 +34,8 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @Nullable DisplayData run(final @NotNull String argString) {
+		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
 		final long startTime = System.nanoTime();
 		final DisplayData result = kernel.eval(argString);
 		final long stopTime = System.nanoTime();
@@ -42,7 +48,7 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
-		return kernel.complete(argString, at);
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
+		return this.injector.getInstance(ProBKernel.class).complete(argString, at);
 	}
 }

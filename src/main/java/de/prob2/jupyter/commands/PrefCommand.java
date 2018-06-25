@@ -12,7 +12,6 @@ import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.animator.command.SetPreferenceCommand;
 import de.prob.statespace.AnimationSelector;
 
-import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -42,7 +41,7 @@ public final class PrefCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final List<String> args = CommandUtils.splitArgs(argString);
 		final StringBuilder sb = new StringBuilder();
 		if (args.isEmpty()) {
@@ -86,7 +85,7 @@ public final class PrefCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return CommandUtils.completeInPreferences(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }

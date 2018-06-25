@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 import de.prob.animator.domainobjects.ErrorItem;
 import de.prob.exception.ProBError;
@@ -56,6 +57,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public final class ProBKernel extends BaseKernel {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
@@ -196,7 +198,7 @@ public final class ProBKernel extends BaseKernel {
 		}
 		final DisplayData result;
 		try {
-			result = command.run(this, argString);
+			result = command.run(argString);
 		} catch (final UserErrorException e) {
 			throw new CommandExecutionException(name, e);
 		}
@@ -248,7 +250,7 @@ public final class ProBKernel extends BaseKernel {
 				assert name != null;
 				final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
 				if (this.getCommands().containsKey(name)) {
-					final ReplacementOptions replacements = this.getCommands().get(name).complete(this, argString, at - argOffset);
+					final ReplacementOptions replacements = this.getCommands().get(name).complete(argString, at - argOffset);
 					return replacements == null ? null : CommandUtils.offsetReplacementOptions(replacements, argOffset);
 				} else {
 					// Invalid command, can't provide any completions.
@@ -258,7 +260,7 @@ public final class ProBKernel extends BaseKernel {
 		} else if (SPACE_PATTERN.matcher(code).matches()) {
 			// The code contains only whitespace, provide completions from :eval and for command names.
 			final List<String> replacementStrings = new ArrayList<>();
-			final ReplacementOptions evalReplacements = this.getCommands().get(":eval").complete(this, code, at);
+			final ReplacementOptions evalReplacements = this.getCommands().get(":eval").complete(code, at);
 			if (evalReplacements != null) {
 				replacementStrings.addAll(evalReplacements.getReplacements());
 			}
@@ -266,7 +268,7 @@ public final class ProBKernel extends BaseKernel {
 			return new ReplacementOptions(replacementStrings, at, at);
 		} else {
 			// The code is not a valid command, ask :eval for completions.
-			return this.getCommands().get(":eval").complete(this, code, at);
+			return this.getCommands().get(":eval").complete(code, at);
 		}
 	}
 	

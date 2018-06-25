@@ -9,7 +9,6 @@ import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
-import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -41,7 +40,7 @@ public final class LoadCellCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final String[] split = argString.split("\n", 2);
 		if (split.length != 2) {
 			throw new UserErrorException("Missing command body");
@@ -56,7 +55,7 @@ public final class LoadCellCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		final int newlinePos = argString.indexOf('\n');
 		if (newlinePos == -1 || at < newlinePos) {
 			// Cursor is on the first line, provide preference name completions.

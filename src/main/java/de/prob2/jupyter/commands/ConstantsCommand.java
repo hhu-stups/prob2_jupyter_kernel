@@ -10,7 +10,6 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 
-import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -39,7 +38,7 @@ public final class ConstantsCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final List<String> predicates = argString.isEmpty() ? Collections.emptyList() : Collections.singletonList(argString);
 		final Transition op = trace.getCurrentState().findTransition("$setup_constants", predicates);
@@ -58,7 +57,7 @@ public final class ConstantsCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }

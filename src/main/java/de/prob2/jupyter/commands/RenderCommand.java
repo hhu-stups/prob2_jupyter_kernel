@@ -2,7 +2,6 @@ package de.prob2.jupyter.commands;
 
 import com.google.inject.Inject;
 
-import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -28,7 +27,7 @@ public final class RenderCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final String[] split = argString.split("\n", 2);
 		if (split.length != 2) {
 			throw new UserErrorException("Missing content (the content cannot be placed on the same line as the command)");
@@ -44,7 +43,7 @@ public final class RenderCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return null;
 	}
 }

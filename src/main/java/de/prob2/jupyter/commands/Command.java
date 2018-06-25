@@ -1,7 +1,5 @@
 package de.prob2.jupyter.commands;
 
-import de.prob2.jupyter.ProBKernel;
-
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
@@ -13,7 +11,7 @@ public interface Command {
 	
 	public abstract @NotNull String getShortHelp();
 	
-	public abstract @Nullable DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString);
+	public abstract @Nullable DisplayData run(final @NotNull String argString);
 	
-	public abstract @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at);
+	public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int at);
 }

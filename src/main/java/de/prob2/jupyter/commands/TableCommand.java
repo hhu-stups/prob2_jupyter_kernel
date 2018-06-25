@@ -14,8 +14,6 @@ import de.prob.animator.domainobjects.TableData;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
-import de.prob2.jupyter.ProBKernel;
-
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
@@ -42,7 +40,7 @@ public final class TableCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final IEvalElement formula = trace.getModel().parseFormula(argString, FormulaExpand.EXPAND);
 		
@@ -83,7 +81,7 @@ public final class TableCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 }
