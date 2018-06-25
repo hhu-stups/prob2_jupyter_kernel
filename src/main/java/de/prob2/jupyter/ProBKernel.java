@@ -175,6 +175,20 @@ public final class ProBKernel extends BaseKernel {
 		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://www3.hhu.de/stups/prob/index.php/User_Manual"));
 	}
 	
+	private static @NotNull String addBsymbDefinitions(final @NotNull String markdown) {
+		final StringBuilder defs = new StringBuilder();
+		final Matcher matcher = BSYMB_COMMAND_PATTERN.matcher(markdown);
+		while (matcher.find()) {
+			defs.append(BSYMB_COMMAND_DEFINITIONS.getOrDefault(matcher.group(1), ""));
+		}
+		
+		if (defs.length() > 0) {
+			return "$" + defs + "$\n" + markdown;
+		} else {
+			return markdown;
+		}
+	}
+	
 	private @Nullable DisplayData executeCommand(final @NotNull String name, final @NotNull String argString) {
 		final Command command = this.getCommands().get(name);
 		if (command == null) {
@@ -190,14 +204,7 @@ public final class ProBKernel extends BaseKernel {
 		if (result != null && result.hasDataForType(MIMEType.TEXT_MARKDOWN)) {
 			// Add definitions for any used bsymb LaTeX commands to Markdown output.
 			final String markdown = (String)result.getData(MIMEType.TEXT_MARKDOWN);
-			final StringBuilder defs = new StringBuilder();
-			final Matcher matcher = BSYMB_COMMAND_PATTERN.matcher(markdown);
-			while (matcher.find()) {
-				defs.append(BSYMB_COMMAND_DEFINITIONS.getOrDefault(matcher.group(1), ""));
-			}
-			if (defs.length() > 0) {
-				result.putMarkdown("$" + defs + "$\n" + markdown);
-			}
+			result.putMarkdown(addBsymbDefinitions(markdown));
 		}
 		
 		return result;
