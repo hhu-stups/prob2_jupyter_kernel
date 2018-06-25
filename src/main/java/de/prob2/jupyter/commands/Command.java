@@ -15,7 +15,5 @@ public interface Command {
 	
 	public abstract @Nullable DisplayData run(final @NotNull ProBKernel kernel, final @NotNull String argString);
 	
-	public default @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
-		return null;
-	}
+	public abstract @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at);
 }

@@ -11,9 +11,11 @@ import de.prob.scripting.ScriptEngineProvider;
 
 import de.prob2.jupyter.ProBKernel;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class GroovyCommand implements Command {
 	private final @NotNull ScriptEngine groovyScriptEngine;
@@ -47,5 +49,10 @@ public final class GroovyCommand implements Command {
 			this.groovyScriptEngine.put("__console", null);
 		}
 		return new DisplayData(Objects.toString(result));
+	}
+	
+	@Override
+	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return null;
 	}
 }

@@ -12,9 +12,11 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class ShowCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -68,5 +70,10 @@ public final class ShowCommand implements Command {
 		final DisplayData result = new DisplayData("<Animation function visualisation>");
 		result.putMarkdown(tableBuilder.toString());
 		return result;
+	}
+	
+	@Override
+	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return null;
 	}
 }

@@ -5,9 +5,11 @@ import com.google.inject.Inject;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class RenderCommand implements Command {
 	@Inject
@@ -39,5 +41,10 @@ public final class RenderCommand implements Command {
 		final DisplayData data = new DisplayData(mimeType + ":\n" + code);
 		data.putData(mimeType, code);
 		return data;
+	}
+	
+	@Override
+	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return null;
 	}
 }

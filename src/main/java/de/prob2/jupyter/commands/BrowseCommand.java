@@ -20,9 +20,11 @@ import de.prob.statespace.Transition;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import se.sawano.java.text.AlphanumericComparator;
 
@@ -85,5 +87,10 @@ public final class BrowseCommand implements Command {
 			sb.append("\nMore operations may be available (MAX_OPERATIONS/MAX_INITIALISATIONS reached)");
 		}
 		return new DisplayData(sb.toString());
+	}
+	
+	@Override
+	public @Nullable ReplacementOptions complete(final @NotNull ProBKernel kernel, final @NotNull String argString, final int at) {
+		return null;
 	}
 }
