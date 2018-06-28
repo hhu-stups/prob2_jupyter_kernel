@@ -73,7 +73,7 @@ public final class LoadFileCommand implements Command {
 		} catch (IOException | ModelTranslationError e) {
 			throw new RuntimeException(e);
 		}
-		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getModel());
+		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getStateSpace().getMainComponent());
 	}
 	
 	@Override
