@@ -160,7 +160,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put("::render", injector.getInstance(RenderCommand.class));
 		this.commands.put(":prettyprint", injector.getInstance(PrettyPrintCommand.class));
 		
-		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("MACHINE repl END").load()));
+		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").load()));
 	}
 	
 	public @NotNull Map<@NotNull String, @NotNull Command> getCommands() {
