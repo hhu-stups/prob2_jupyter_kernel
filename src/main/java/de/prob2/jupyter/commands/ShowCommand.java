@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 
 import de.prob.animator.command.GetAnimationMatrixForStateCommand;
 import de.prob.animator.command.GetImagesForMachineCommand;
+import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
@@ -55,29 +56,62 @@ public final class ShowCommand implements Command {
 			throw new UserErrorException("Machine is not initialised, cannot show animation function visualisation");
 		}
 		
-		final GetImagesForMachineCommand cmd1 = new GetImagesForMachineCommand();
-		trace.getStateSpace().execute(cmd1);
-		final Map<Integer, String> images = cmd1.getImages();
+		final GetImagesForMachineCommand cmdImages = new GetImagesForMachineCommand();
+		final GetAnimationMatrixForStateCommand cmdMatrix = new GetAnimationMatrixForStateCommand(trace.getCurrentState());
+		final GetPreferenceCommand cmdImagePadding = new GetPreferenceCommand("TK_CUSTOM_STATE_VIEW_PADDING");
+		final GetPreferenceCommand cmdStringPadding = new GetPreferenceCommand("TK_CUSTOM_STATE_VIEW_STRING_PADDING");
+		final GetPreferenceCommand cmdFontName = new GetPreferenceCommand("TK_CUSTOM_STATE_VIEW_FONT_NAME");
+		final GetPreferenceCommand cmdFontSize = new GetPreferenceCommand("TK_CUSTOM_STATE_VIEW_FONT_SIZE");
+		trace.getStateSpace().execute(
+			cmdImages,
+			cmdMatrix,
+			cmdImagePadding,
+			cmdStringPadding,
+			cmdFontName,
+			cmdFontSize
+		);
 		
-		final GetAnimationMatrixForStateCommand cmd2 = new GetAnimationMatrixForStateCommand(trace.getCurrentState());
-		trace.getStateSpace().execute(cmd2);
-		
-		if (cmd2.getMatrix() == null) {
+		if (cmdMatrix.getMatrix() == null) {
 			throw new UserErrorException("No animation function visualisation available");
 		}
 		
-		final StringBuilder tableBuilder = new StringBuilder("<table><tbody>");
-		for (final List<Object> row : cmd2.getMatrix()) {
+		final Map<Integer, String> images = cmdImages.getImages();
+		final int imagePadding = Integer.parseInt(cmdImagePadding.getValue());
+		final int stringPadding = Integer.parseInt(cmdStringPadding.getValue());
+		final String fontName = cmdFontName.getValue();
+		final int fontSize = Integer.parseInt(cmdFontSize.getValue());
+		
+		final StringBuilder tableBuilder = new StringBuilder("<table style=\"font-family:");
+		if (!fontName.isEmpty()) {
+			tableBuilder.append('"');
+			tableBuilder.append(fontName);
+			tableBuilder.append("\" ");
+		}
+		tableBuilder.append("monospace");
+		if (fontSize != 0) {
+			tableBuilder.append(";font-size:");
+			tableBuilder.append(fontSize);
+			tableBuilder.append("px");
+		}
+		tableBuilder.append("\"><tbody>");
+		for (final List<Object> row : cmdMatrix.getMatrix()) {
 			tableBuilder.append("\n<tr>");
 			for (final Object entry : row) {
-				tableBuilder.append("\n<td style=\"padding:0\">");
+				final int padding;
+				final String contents;
 				if (entry instanceof Integer) {
-					tableBuilder.append(String.format("![%d](%s)", entry, images.get(entry)));
+					padding = imagePadding;
+					contents = String.format("![%d](%s)", entry, images.get(entry));
 				} else if (entry instanceof String) {
-					tableBuilder.append(entry);
+					padding = stringPadding;
+					contents = (String)entry;
 				} else {
 					throw new AssertionError("Unhandled animation matrix entry type: " + entry.getClass());
 				}
+				tableBuilder.append("\n<td style=\"padding:");
+				tableBuilder.append(padding);
+				tableBuilder.append("px\">");
+				tableBuilder.append(contents);
 				tableBuilder.append("</td>");
 			}
 			tableBuilder.append("\n</tr>");
