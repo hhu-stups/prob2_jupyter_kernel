@@ -1,11 +1,12 @@
 package de.prob2.jupyter.commands;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.inject.Inject;
 
+import de.prob.animator.command.GetAnimationMatrixForStateCommand;
 import de.prob.animator.command.GetImagesForMachineCommand;
-import de.prob.animator.command.GetImagesForStateCommand;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
@@ -58,14 +59,26 @@ public final class ShowCommand implements Command {
 		trace.getStateSpace().execute(cmd1);
 		final Map<Integer, String> images = cmd1.getImages();
 		
-		final GetImagesForStateCommand cmd2 = new GetImagesForStateCommand(trace.getCurrentState().getId());
+		final GetAnimationMatrixForStateCommand cmd2 = new GetAnimationMatrixForStateCommand(trace.getCurrentState());
 		trace.getStateSpace().execute(cmd2);
 		
+		if (cmd2.getMatrix() == null) {
+			throw new UserErrorException("No animation function visualisation available");
+		}
+		
 		final StringBuilder tableBuilder = new StringBuilder("<table><tbody>");
-		for (final Integer[] row : cmd2.getMatrix()) {
+		for (final List<Object> row : cmd2.getMatrix()) {
 			tableBuilder.append("\n<tr>");
-			for (final Integer id : row) {
-				tableBuilder.append(String.format("\n<td style=\"padding:0\">![%d](%s)</td>", id, images.get(id)));
+			for (final Object entry : row) {
+				tableBuilder.append("\n<td style=\"padding:0\">");
+				if (entry instanceof Integer) {
+					tableBuilder.append(String.format("![%d](%s)", entry, images.get(entry)));
+				} else if (entry instanceof String) {
+					tableBuilder.append(entry);
+				} else {
+					throw new AssertionError("Unhandled animation matrix entry type: " + entry.getClass());
+				}
+				tableBuilder.append("</td>");
 			}
 			tableBuilder.append("\n</tr>");
 		}
