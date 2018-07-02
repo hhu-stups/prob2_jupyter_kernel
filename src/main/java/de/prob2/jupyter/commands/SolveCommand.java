@@ -67,7 +67,8 @@ public final class SolveCommand implements Command {
 		if (solver == null) {
 			throw new UserErrorException("Unknown solver: " + split.get(0));
 		}
-		final IEvalElement predicate = trace.getModel().parseFormula(split.get(1), FormulaExpand.EXPAND);
+		final String code = split.get(1);
+		final IEvalElement predicate = CommandUtils.withSourceCode(code, () -> trace.getModel().parseFormula(code, FormulaExpand.EXPAND));
 		
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());
 		trace.getStateSpace().execute(cmd);

@@ -38,7 +38,7 @@ public final class EvalCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
-		return CommandUtils.displayDataForEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.EXPAND));
+		return CommandUtils.displayDataForEvalResult(CommandUtils.withSourceCode(argString, () -> this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.EXPAND)));
 	}
 	
 	@Override

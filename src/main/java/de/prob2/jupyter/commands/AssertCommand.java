@@ -43,7 +43,7 @@ public final class AssertCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
-		final AbstractEvalResult result = this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.TRUNCATE);
+		final AbstractEvalResult result = CommandUtils.withSourceCode(argString, () -> this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.TRUNCATE));
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
 			// Use EvalResult.TRUE instead of the real result so that solution variables are not displayed.
 			return CommandUtils.displayDataForEvalResult(EvalResult.TRUE);

@@ -49,7 +49,7 @@ public final class TableCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final IEvalElement formula = trace.getModel().parseFormula(argString, FormulaExpand.EXPAND);
+		final IEvalElement formula = CommandUtils.withSourceCode(argString, () -> trace.getModel().parseFormula(argString, FormulaExpand.EXPAND));
 		
 		final GetAllTableCommands cmd1 = new GetAllTableCommands(trace.getCurrentState());
 		trace.getStateSpace().execute(cmd1);

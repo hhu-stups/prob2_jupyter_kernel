@@ -77,7 +77,9 @@ public final class DotCommand implements Command {
 		final String command = split.get(0);
 		final List<IEvalElement> args;
 		if (split.size() > 1) {
-			args = Collections.singletonList(this.animationSelector.getCurrentTrace().getModel().parseFormula(split.get(1), FormulaExpand.EXPAND));
+			final String code = split.get(1);
+			final IEvalElement formula = CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().getModel().parseFormula(code, FormulaExpand.EXPAND));
+			args = Collections.singletonList(formula);
 		} else {
 			args = Collections.emptyList();
 		}

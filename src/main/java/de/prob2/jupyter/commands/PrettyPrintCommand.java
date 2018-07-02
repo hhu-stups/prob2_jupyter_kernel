@@ -46,7 +46,7 @@ public final class PrettyPrintCommand implements Command {
 		cmdUnicode.setOptimize(false);
 		final PrettyPrintFormulaCommand cmdLatex = new PrettyPrintFormulaCommand(formula, PrettyPrintFormulaCommand.Mode.LATEX);
 		cmdLatex.setOptimize(false);
-		this.animationSelector.getCurrentTrace().getStateSpace().execute(cmdUnicode, cmdLatex);
+		CommandUtils.withSourceCode(argString, () -> this.animationSelector.getCurrentTrace().getStateSpace().execute(cmdUnicode, cmdLatex));
 		
 		final DisplayData ret = new DisplayData(cmdUnicode.getPrettyPrint());
 		ret.putLatex('$' + cmdLatex.getPrettyPrint() + '$');

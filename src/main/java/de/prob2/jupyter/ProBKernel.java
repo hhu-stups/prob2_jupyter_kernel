@@ -46,6 +46,7 @@ import de.prob2.jupyter.commands.TimeCommand;
 import de.prob2.jupyter.commands.TraceCommand;
 import de.prob2.jupyter.commands.TypeCommand;
 import de.prob2.jupyter.commands.VersionCommand;
+import de.prob2.jupyter.commands.WithSourceCodeException;
 
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
@@ -306,13 +307,64 @@ public final class ProBKernel extends BaseKernel {
 		this.animationSelector.getCurrentTrace().getStateSpace().kill();
 	}
 	
+	private @NotNull List<@NotNull String> formatErrorSource(final @NotNull List<@NotNull String> sourceLines, final @NotNull ErrorItem.Location location) {
+		final List<String> out = new ArrayList<>();
+		if (location.getStartLine() < 1 || location.getStartLine() >= sourceLines.size()) {
+			out.add(this.errorStyler.secondary(String.format("Error start line %d out of bounds (1..%d)", location.getStartLine(), sourceLines.size()+1)));
+			return out;
+		}
+		if (location.getEndLine() < 1 || location.getEndLine() >= sourceLines.size()) {
+			out.add(this.errorStyler.secondary(String.format("Error end line %d out of bounds (1..%d)", location.getEndLine(), sourceLines.size()+1)));
+			return out;
+		}
+		final List<String> errorLines = sourceLines.subList(location.getStartLine()-1, location.getEndLine());
+		assert !errorLines.isEmpty();
+		final String firstLine = errorLines.get(0);
+		final String lastLine = errorLines.get(errorLines.size() - 1);
+		if (location.getStartColumn() < 0 || location.getStartColumn() > firstLine.length()) {
+			out.add(this.errorStyler.secondary(String.format("Error start column %d out of bounds (0..%d)", location.getStartColumn(), firstLine.length())));
+			return out;
+		}
+		if (location.getEndColumn() < 0 || location.getEndColumn() > lastLine.length()) {
+			out.add(this.errorStyler.secondary(String.format("Error end column %d out of bounds (0..%d)", location.getEndColumn(), lastLine.length())));
+			return out;
+		}
+		if (errorLines.size() == 1) {
+			out.add(
+				this.errorStyler.primary(firstLine.substring(0, location.getStartColumn()))
+				+ this.errorStyler.highlight(firstLine.substring(location.getStartColumn(), location.getEndColumn()))
+				+ this.errorStyler.primary(firstLine.substring(location.getEndColumn()))
+			);
+		} else {
+			out.add(
+				this.errorStyler.primary(firstLine.substring(0, location.getStartColumn()))
+				+ this.errorStyler.highlight(firstLine.substring(location.getStartColumn()))
+			);
+			errorLines.subList(1, errorLines.size()-1).stream().map(this.errorStyler::highlight).collect(Collectors.toCollection(() -> out));
+			out.add(
+				this.errorStyler.highlight(lastLine.substring(0, location.getEndColumn()))
+				+ this.errorStyler.primary(lastLine.substring(location.getEndColumn()))
+			);
+		}
+		return out;
+	}
+	
 	@Override
 	public @NotNull List<@NotNull String> formatError(final Exception e) {
 		try {
+			LOGGER.warn("Exception while executing command from user", e);
 			if (e instanceof UserErrorException) {
 				return this.errorStyler.secondaryLines(String.valueOf(e.getMessage()));
-			} else if (e instanceof ProBError) {
-				final ProBError proBError = (ProBError)e;
+			} else if (e instanceof ProBError || e instanceof WithSourceCodeException) {
+				final List<String> sourceLines;
+				final ProBError proBError;
+				if (e instanceof WithSourceCodeException) {
+					sourceLines = Arrays.asList(((WithSourceCodeException)e).getSourceCode().split("\n"));
+					proBError = ((WithSourceCodeException)e).getCause();
+				} else {
+					sourceLines = Collections.emptyList();
+					proBError = (ProBError)e;
+				}
 				final List<String> out = new ArrayList<>(Arrays.asList((
 					this.errorStyler.primary("Error from ProB: ")
 					+ this.errorStyler.secondary(String.valueOf(proBError.getOriginalMessage()))
@@ -322,12 +374,15 @@ public final class ProBKernel extends BaseKernel {
 					// (This matches the normal behavior of ProBError.)
 				} else if (proBError.getErrors().isEmpty()) {
 					out.addAll(this.errorStyler.primaryLines("ProB returned no error messages.\n"));
-				} else if (proBError.getErrors().size() == 1) {
-					out.addAll(this.errorStyler.secondaryLines(proBError.getErrors().get(0).toString()));
 				} else {
-					out.addAll(this.errorStyler.primaryLines(proBError.getErrors().size() + " errors:\n"));
+					if (proBError.getErrors().size() > 1) {
+						out.addAll(this.errorStyler.primaryLines(proBError.getErrors().size() + " errors:\n"));
+					}
 					for (final ErrorItem error : proBError.getErrors()) {
 						out.addAll(this.errorStyler.secondaryLines(error.toString()));
+						for (final ErrorItem.Location location : error.getLocations()) {
+							out.addAll(formatErrorSource(sourceLines, location));
+						}
 					}
 				}
 				return out;

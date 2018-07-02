@@ -56,7 +56,9 @@ public final class LoadCellCommand implements Command {
 		final List<String> args = CommandUtils.splitArgs(prefsString);
 		final Map<String, String> preferences = CommandUtils.parsePreferences(args);
 		
-		this.animationSelector.changeCurrentAnimation(new Trace(this.classicalBFactory.create("(machine from Jupyter cell)", body).load(preferences)));
+		this.animationSelector.changeCurrentAnimation(new Trace(CommandUtils.withSourceCode(body, () ->
+			this.classicalBFactory.create("(machine from Jupyter cell)", body).load(preferences)
+		)));
 		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getStateSpace().getMainComponent());
 	}
 	

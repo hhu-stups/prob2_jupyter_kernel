@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import de.prob.animator.domainobjects.ComputationNotCompletedResult;
 import de.prob.animator.domainobjects.EnumerationWarning;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.EvaluationErrorResult;
+import de.prob.exception.ProBError;
 import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 
@@ -94,6 +96,21 @@ public final class CommandUtils {
 			preferences.put(split[0], split[1]);
 		}
 		return preferences;
+	}
+	
+	public static <T> T withSourceCode(final @NotNull String code, final Supplier<T> action) {
+		try {
+			return action.get();
+		} catch (final ProBError e) {
+			throw new WithSourceCodeException(code, e);
+		}
+	}
+	
+	public static void withSourceCode(final @NotNull String code, final Runnable action) {
+		withSourceCode(code, () -> {
+			action.run();
+			return null;
+		});
 	}
 	
 	public static @NotNull DisplayData displayDataForEvalResult(final @NotNull AbstractEvalResult aer) {
