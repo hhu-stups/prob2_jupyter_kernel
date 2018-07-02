@@ -2,6 +2,7 @@ package de.prob2.jupyter.commands;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 
@@ -13,6 +14,7 @@ import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.animator.domainobjects.TableData;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
+import de.prob.unicode.UnicodeTranslator;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -76,7 +78,7 @@ public final class TableCommand implements Command {
 			sbPlain.append(String.join("\t", row));
 			sbPlain.append('\n');
 			sbMarkdown.append('|');
-			sbMarkdown.append(String.join("|", row));
+			sbMarkdown.append(row.stream().map(s -> '$' + UnicodeTranslator.toLatex(s) + '$').collect(Collectors.joining("|")));
 			sbMarkdown.append("|\n");
 		}
 		
