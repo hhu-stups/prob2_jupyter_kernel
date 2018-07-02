@@ -64,6 +64,7 @@ public final class ProBKernel extends BaseKernel {
 	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
 	private static final @NotNull Pattern SPACE_PATTERN = Pattern.compile("\\s*");
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
+	private static final @NotNull Pattern LATEX_FORMULA_PATTERN = Pattern.compile("(\\$\\$?)([^\\$]+)\\1");
 	
 	private static final @NotNull Map<@NotNull String, @NotNull String> BSYMB_COMMAND_DEFINITIONS;
 	static {
@@ -185,8 +186,23 @@ public final class ProBKernel extends BaseKernel {
 		}
 		
 		if (defs.length() > 0) {
-			return "$" + defs + "$\n" + markdown;
+			// Find the first LaTeX formula in the output and add the definitions to it.
+			final Matcher latexFormulaMatcher = LATEX_FORMULA_PATTERN.matcher(markdown);
+			if (latexFormulaMatcher.find()) {
+				// We do this manually instead of using Matcher.replaceFirst to prevent backslashes from being processed.
+				return markdown.substring(0, latexFormulaMatcher.start())
+					+ latexFormulaMatcher.group(1)
+					+ defs
+					+ latexFormulaMatcher.group(2)
+					+ latexFormulaMatcher.group(1)
+					+ markdown.substring(latexFormulaMatcher.end());
+			} else {
+				// No LaTeX formula found, add an extra one at the start.
+				// This can produce an unwanted empty line at the start, so we avoid this method if possible.
+				return "$" + defs + "$\n\n" + markdown;
+			}
 		} else {
+			// No definitions needed, so don't modify the output.
 			return markdown;
 		}
 	}
