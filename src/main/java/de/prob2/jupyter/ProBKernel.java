@@ -29,6 +29,7 @@ import de.prob2.jupyter.commands.ConstantsCommand;
 import de.prob2.jupyter.commands.DotCommand;
 import de.prob2.jupyter.commands.EvalCommand;
 import de.prob2.jupyter.commands.ExecCommand;
+import de.prob2.jupyter.commands.GotoCommand;
 import de.prob2.jupyter.commands.GroovyCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.InitialiseCommand;
@@ -42,6 +43,7 @@ import de.prob2.jupyter.commands.ShowCommand;
 import de.prob2.jupyter.commands.SolveCommand;
 import de.prob2.jupyter.commands.TableCommand;
 import de.prob2.jupyter.commands.TimeCommand;
+import de.prob2.jupyter.commands.TraceCommand;
 import de.prob2.jupyter.commands.TypeCommand;
 import de.prob2.jupyter.commands.VersionCommand;
 
@@ -150,9 +152,11 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put("::load", injector.getInstance(LoadCellCommand.class));
 		this.commands.put(":pref", injector.getInstance(PrefCommand.class));
 		this.commands.put(":browse", injector.getInstance(BrowseCommand.class));
+		this.commands.put(":trace", injector.getInstance(TraceCommand.class));
 		this.commands.put(":exec", injector.getInstance(ExecCommand.class));
 		this.commands.put(":constants", injector.getInstance(ConstantsCommand.class));
 		this.commands.put(":init", injector.getInstance(InitialiseCommand.class));
+		this.commands.put(":goto", injector.getInstance(GotoCommand.class));
 		this.commands.put(":show", injector.getInstance(ShowCommand.class));
 		this.commands.put(":dot", injector.getInstance(DotCommand.class));
 		this.commands.put(":assert", injector.getInstance(AssertCommand.class));
