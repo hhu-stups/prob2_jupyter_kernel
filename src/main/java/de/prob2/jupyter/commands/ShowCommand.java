@@ -99,7 +99,10 @@ public final class ShowCommand implements Command {
 			for (final Object entry : row) {
 				final int padding;
 				final String contents;
-				if (entry instanceof Integer) {
+				if (entry == null) {
+					padding = 0;
+					contents = "";
+				} else if (entry instanceof Integer) {
 					padding = imagePadding;
 					contents = String.format("![%d](%s)", entry, images.get(entry));
 				} else if (entry instanceof String) {
