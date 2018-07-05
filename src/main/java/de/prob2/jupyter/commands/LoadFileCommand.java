@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -11,9 +13,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
+import de.prob.scripting.CSPFactory;
 import de.prob.scripting.ClassicalBFactory;
+import de.prob.scripting.EventBFactory;
+import de.prob.scripting.ModelFactory;
 import de.prob.scripting.ModelTranslationError;
+import de.prob.scripting.TLAFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
@@ -31,14 +38,31 @@ import org.slf4j.LoggerFactory;
 public final class LoadFileCommand implements Command {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LoadFileCommand.class);
 	
-	private final @NotNull ClassicalBFactory classicalBFactory;
+	private static final @NotNull Map<@NotNull String, @NotNull Class<? extends ModelFactory<?>>> EXTENSION_TO_FACTORY_MAP;
+	static {
+		final Map<String, Class<? extends ModelFactory<?>>> extensionToFactoryMap = new HashMap<>();
+		extensionToFactoryMap.put("mch", ClassicalBFactory.class);
+		extensionToFactoryMap.put("ref", ClassicalBFactory.class);
+		extensionToFactoryMap.put("imp", ClassicalBFactory.class);
+		extensionToFactoryMap.put("eventb", EventBFactory.class);
+		extensionToFactoryMap.put("bum", EventBFactory.class);
+		extensionToFactoryMap.put("buc", EventBFactory.class);
+		extensionToFactoryMap.put("csp", CSPFactory.class);
+		extensionToFactoryMap.put("cspm", CSPFactory.class);
+		extensionToFactoryMap.put("tla", TLAFactory.class);
+		// FIXME Not currently possible, because RulesModelFactory does not implement the ModelFactory interface
+		//extensionToFactoryMap.put("rmch", RulesModelFactory.class);
+		EXTENSION_TO_FACTORY_MAP = Collections.unmodifiableMap(extensionToFactoryMap);
+	}
+	
+	private final @NotNull Injector injector;
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private LoadFileCommand(final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
+	private LoadFileCommand(final @NotNull Injector injector, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
-		this.classicalBFactory = classicalBFactory;
+		this.injector = injector;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -66,10 +90,19 @@ public final class LoadFileCommand implements Command {
 		}
 		
 		final String fileName = args.get(0);
+		final int dotIndex = fileName.lastIndexOf('.');
+		if (dotIndex == -1) {
+			throw new UserErrorException("File has no extension, unable to determine language: " + fileName);
+		}
+		final String extension = fileName.substring(dotIndex+1);
+		if (!EXTENSION_TO_FACTORY_MAP.containsKey(extension)) {
+			throw new UserErrorException("Unsupported file type: ." + extension);
+		}
 		final Map<String, String> preferences = CommandUtils.parsePreferences(args.subList(1, args.size()));
 		
 		try {
-			this.animationSelector.changeCurrentAnimation(new Trace(this.classicalBFactory.extract(fileName).load(preferences)));
+			final ModelFactory<?> factory = this.injector.getInstance(EXTENSION_TO_FACTORY_MAP.get(extension));
+			this.animationSelector.changeCurrentAnimation(new Trace(factory.extract(fileName).load(preferences)));
 		} catch (IOException | ModelTranslationError e) {
 			throw new RuntimeException(e);
 		}
@@ -98,7 +131,15 @@ public final class LoadFileCommand implements Command {
 				fileNames = list
 					.map(Path::getFileName)
 					.map(Object::toString)
-					.filter(s -> s.startsWith(prefix) && (s.endsWith(".mch") || s.endsWith(".ref") || s.endsWith(".imp")))
+					.filter(s -> s.startsWith(prefix))
+					.filter(s -> {
+						final int dotIndex = s.lastIndexOf('.');
+						if (dotIndex == -1) {
+							return false;
+						}
+						final String extension = s.substring(dotIndex+1);
+						return EXTENSION_TO_FACTORY_MAP.containsKey(extension);
+					})
 					.collect(Collectors.toList());
 			} catch (final IOException e) {
 				LOGGER.warn("Could not list contents of the current directory, cannot provide file name completions for :load", e);
