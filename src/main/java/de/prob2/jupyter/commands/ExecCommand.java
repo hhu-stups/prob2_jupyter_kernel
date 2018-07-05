@@ -66,11 +66,10 @@ public final class ExecCommand implements Command {
 		} else {
 			// Transition not found, assume that the argument is an operation name instead.
 			final String translatedOpName = CommandUtils.unprettyOperationName(opNameOrId);
-			final List<String> predicates = split.size() < 2 ? Collections.emptyList() : Collections.singletonList(split.get(1));
-			op = trace.getCurrentState().findTransition(translatedOpName, predicates);
-			if (op == null) {
-				throw new UserErrorException("Could not execute operation " + opNameOrId + (split.size() < 2 ? "" : " with the given predicate"));
-			}
+			final String predicate = split.size() < 2 ? "1=1" : split.get(1);
+			final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, predicate, 1);
+			assert !ops.isEmpty();
+			op = ops.get(0);
 		}
 		
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
