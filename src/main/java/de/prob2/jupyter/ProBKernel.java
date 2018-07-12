@@ -311,12 +311,12 @@ public final class ProBKernel extends BaseKernel {
 	
 	private @NotNull List<@NotNull String> formatErrorSource(final @NotNull List<@NotNull String> sourceLines, final @NotNull ErrorItem.Location location) {
 		final List<String> out = new ArrayList<>();
-		if (location.getStartLine() < 1 || location.getStartLine() >= sourceLines.size()) {
-			out.add(this.errorStyler.secondary(String.format("Error start line %d out of bounds (1..%d)", location.getStartLine(), sourceLines.size()+1)));
+		if (location.getStartLine() < 1 || location.getStartLine() > sourceLines.size()) {
+			out.add(this.errorStyler.secondary(String.format("Error start line %d out of bounds (1..%d)", location.getStartLine(), sourceLines.size())));
 			return out;
 		}
-		if (location.getEndLine() < 1 || location.getEndLine() >= sourceLines.size()) {
-			out.add(this.errorStyler.secondary(String.format("Error end line %d out of bounds (1..%d)", location.getEndLine(), sourceLines.size()+1)));
+		if (location.getEndLine() < 1 || location.getEndLine() > sourceLines.size()) {
+			out.add(this.errorStyler.secondary(String.format("Error end line %d out of bounds (1..%d)", location.getEndLine(), sourceLines.size())));
 			return out;
 		}
 		final List<String> errorLines = sourceLines.subList(location.getStartLine()-1, location.getEndLine());
@@ -324,11 +324,11 @@ public final class ProBKernel extends BaseKernel {
 		final String firstLine = errorLines.get(0);
 		final String lastLine = errorLines.get(errorLines.size() - 1);
 		if (location.getStartColumn() < 0 || location.getStartColumn() > firstLine.length()) {
-			out.add(this.errorStyler.secondary(String.format("Error start column %d out of bounds (0..%d)", location.getStartColumn(), firstLine.length())));
+			out.add(this.errorStyler.secondary(String.format("Error start column %d out of bounds (0..%d)", location.getStartColumn(), firstLine.length()-1)));
 			return out;
 		}
 		if (location.getEndColumn() < 0 || location.getEndColumn() > lastLine.length()) {
-			out.add(this.errorStyler.secondary(String.format("Error end column %d out of bounds (0..%d)", location.getEndColumn(), lastLine.length())));
+			out.add(this.errorStyler.secondary(String.format("Error end column %d out of bounds (0..%d)", location.getEndColumn(), lastLine.length()-1)));
 			return out;
 		}
 		if (errorLines.size() == 1) {
