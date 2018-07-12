@@ -42,6 +42,7 @@ import de.prob2.jupyter.commands.PrettyPrintCommand;
 import de.prob2.jupyter.commands.RenderCommand;
 import de.prob2.jupyter.commands.ShowCommand;
 import de.prob2.jupyter.commands.SolveCommand;
+import de.prob2.jupyter.commands.StatsCommand;
 import de.prob2.jupyter.commands.TableCommand;
 import de.prob2.jupyter.commands.TimeCommand;
 import de.prob2.jupyter.commands.TraceCommand;
@@ -155,6 +156,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":pref", injector.getInstance(PrefCommand.class));
 		this.commands.put(":browse", injector.getInstance(BrowseCommand.class));
 		this.commands.put(":trace", injector.getInstance(TraceCommand.class));
+		this.commands.put(":stats", injector.getInstance(StatsCommand.class));
 		this.commands.put(":exec", injector.getInstance(ExecCommand.class));
 		this.commands.put(":constants", injector.getInstance(ConstantsCommand.class));
 		this.commands.put(":init", injector.getInstance(InitialiseCommand.class));
