@@ -45,7 +45,7 @@ public final class FindCommand implements Command {
 			return trace.getStateSpace().getTraceToState(pred);
 		});
 		this.animationSelector.changeCurrentAnimation(newTrace);
-		return new DisplayData("Found state: " + newTrace.getCurrentState().getId());
+		return new DisplayData("Found a matching state and made it current state");
 	}
 	
 	@Override
