@@ -310,6 +310,10 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private @NotNull List<@NotNull String> formatErrorSource(final @NotNull List<@NotNull String> sourceLines, final @NotNull ErrorItem.Location location) {
+		if (sourceLines.isEmpty()) {
+			return Collections.singletonList(this.errorStyler.primary("// Source code not known"));
+		}
+		
 		final List<String> out = new ArrayList<>();
 		if (location.getStartLine() < 1 || location.getStartLine() > sourceLines.size()) {
 			out.add(this.errorStyler.secondary(String.format("Error start line %d out of bounds (1..%d)", location.getStartLine(), sourceLines.size())));
