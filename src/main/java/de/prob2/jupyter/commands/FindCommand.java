@@ -40,8 +40,10 @@ public final class FindCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final IEvalElement pred = trace.getModel().parseFormula(argString, FormulaExpand.EXPAND);
-		final Trace newTrace = trace.getStateSpace().getTraceToState(pred);
+		final Trace newTrace = CommandUtils.withSourceCode(argString, () -> {
+			final IEvalElement pred = trace.getModel().parseFormula(argString, FormulaExpand.EXPAND);
+			return trace.getStateSpace().getTraceToState(pred);
+		});
 		this.animationSelector.changeCurrentAnimation(newTrace);
 		return new DisplayData("Found state: " + newTrace.getCurrentState().getId());
 	}
