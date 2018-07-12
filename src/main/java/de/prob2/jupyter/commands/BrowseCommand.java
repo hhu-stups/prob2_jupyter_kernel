@@ -44,7 +44,7 @@ public final class BrowseCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "The output shows the names of all sets, constants, and variables defined by the current machine, as well as a list of transitions that are available in the current state. Each transition has a numeric ID, which can be passed to `:exec` to execute that transition.";
+		return "The output shows the names of all sets, constants, and variables defined by the current machine, as well as a list of transitions that are available in the current state.";
 	}
 	
 	private static @NotNull String listToString(final List<String> list) {
@@ -69,13 +69,12 @@ public final class BrowseCommand implements Command {
 		sb.append(listToString(lm.getVariableNames()));
 		sb.append("\nOperations: ");
 		final List<Transition> sortedTransitions = new ArrayList<>(trace.getNextTransitions(true, FormulaExpand.TRUNCATE));
+		// Sort transitions by ID to get a consistent ordering.
 		// Transition IDs are strings, but they almost always contain numbers.
 		sortedTransitions.sort(Comparator.comparing(Transition::getId, new AlphanumericComparator()));
 		for (final Transition t : sortedTransitions) {
 			sb.append('\n');
-			sb.append(t.getId());
-			sb.append(": ");
-			sb.append(t.getRep());
+			sb.append(t.getPrettyRep());
 		}
 		if (trace.getCurrentState().isMaxTransitionsCalculated()) {
 			sb.append("\nMore operations may be available (MAX_OPERATIONS/MAX_INITIALISATIONS reached)");
