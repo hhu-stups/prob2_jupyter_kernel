@@ -99,7 +99,13 @@ public final class DotCommand implements Command {
 			throw new UncheckedIOException("Failed to create temp file", e);
 		}
 		final GetSvgForVisualizationCommand cmd2 = new GetSvgForVisualizationCommand(trace.getCurrentState(), item, outPath.toFile(), args);
-		trace.getStateSpace().execute(cmd2);
+		// Provide source code (if any) to error highlighter
+		final Runnable execute = () -> trace.getStateSpace().execute(cmd2);
+		if (split.size() > 1) {
+			CommandUtils.withSourceCode(split.get(1), execute);
+		} else {
+			execute.run();
+		}
 		final String svg;
 		try (final Stream<String> lines = Files.lines(outPath)) {
 			svg = lines.collect(Collectors.joining("\n"));
