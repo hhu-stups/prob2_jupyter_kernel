@@ -38,6 +38,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class CommandUtils {
+	public interface Completer {
+		public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int offset);
+	}
+	
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
 	
 	public static final @NotNull Pattern ARG_SPLIT_PATTERN = Pattern.compile("\\h+");
@@ -220,6 +224,23 @@ public final class CommandUtils {
 		);
 	}
 	
+	public static @Nullable ReplacementOptions completeArgs(final @NotNull String argString, final int at, final @NotNull Completer @NotNull... completers) {
+		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(argString);
+		int argStart = 0;
+		int argEnd = argString.length();
+		int i = 0;
+		while (argSplitMatcher.find() && i < completers.length) {
+			if (argSplitMatcher.end() > at) {
+				argEnd = argSplitMatcher.start();
+				break;
+			}
+			argStart = argSplitMatcher.end();
+			i++;
+		}
+		final ReplacementOptions replacements = completers[i].complete(argString.substring(argStart, argEnd), at - argStart);
+		return replacements == null ? null : offsetReplacementOptions(replacements, argStart);
+	}
+	
 	public static @NotNull ReplacementOptions completeInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
 		final Matcher identifierMatcher = B_IDENTIFIER_PATTERN.matcher(code);
 		String identifier = "";
@@ -251,6 +272,10 @@ public final class CommandUtils {
 		return new ReplacementOptions(new ArrayList<>(completions), start, end);
 	}
 	
+	public static @NotNull Completer bExpressionCompleter(final @NotNull Trace trace) {
+		return (code, at) -> completeInBExpression(trace, code, at);
+	}
+	
 	public static @Nullable ReplacementOptions completeInPreferences(final @NotNull Trace trace, final @NotNull String code, final int at) {
 		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(code);
 		int prefNameStart = 0;
@@ -268,5 +293,9 @@ public final class CommandUtils {
 		} else {
 			return null;
 		}
+	}
+	
+	public static @NotNull Completer preferencesCompleter(final @NotNull Trace trace) {
+		return (code, at) -> completeInPreferences(trace, code, at);
 	}
 }

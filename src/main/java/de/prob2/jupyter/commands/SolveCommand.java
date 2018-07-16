@@ -3,7 +3,6 @@ package de.prob2.jupyter.commands;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
@@ -20,6 +19,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class SolveCommand implements Command {
 	private static final @NotNull Map<@NotNull String, CbcSolveCommand.@NotNull Solvers> SOLVERS = Arrays.stream(CbcSolveCommand.Solvers.values())
@@ -76,27 +76,18 @@ public final class SolveCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
-		final int solverNameEnd;
-		final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString);
-		if (argSplitMatcher.find()) {
-			solverNameEnd = argSplitMatcher.start();
-		} else {
-			solverNameEnd = argString.length();
-		}
-		
-		if (solverNameEnd < at) {
-			// Cursor is in the predicate part of the arguments, provide B completions.
-			final ReplacementOptions replacements = CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString.substring(solverNameEnd), at - solverNameEnd);
-			return CommandUtils.offsetReplacementOptions(replacements, solverNameEnd);
-		} else {
-			// Cursor is in the solver name.
-			final String prefix = argString.substring(0, at);
-			final List<String> solverNames = SOLVERS.keySet().stream()
-				.filter(s -> s.startsWith(prefix))
-				.sorted()
-				.collect(Collectors.toList());
-			return new ReplacementOptions(solverNames, 0, solverNameEnd);
-		}
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
+		return CommandUtils.completeArgs(
+			argString, at,
+			(solverName, at0) -> {
+				final String prefix = solverName.substring(0, at0);
+				final List<String> solverNames = SOLVERS.keySet().stream()
+					.filter(s -> s.startsWith(prefix))
+					.sorted()
+					.collect(Collectors.toList());
+				return new ReplacementOptions(solverNames, 0, solverName.length());
+			},
+			CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
+		);
 	}
 }

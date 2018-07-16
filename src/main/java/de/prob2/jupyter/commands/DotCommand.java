@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,6 +25,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class DotCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -118,32 +118,23 @@ public final class DotCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
-		final int cmdNameEnd;
-		final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString);
-		if (argSplitMatcher.find()) {
-			cmdNameEnd = argSplitMatcher.start();
-		} else {
-			cmdNameEnd = argString.length();
-		}
-		
-		if (cmdNameEnd < at) {
-			// Cursor is in the formula part of the arguments, provide B completions.
-			final ReplacementOptions replacements = CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString.substring(cmdNameEnd), at - cmdNameEnd);
-			return CommandUtils.offsetReplacementOptions(replacements, cmdNameEnd);
-		} else {
-			// Cursor is in the first part of the arguments, provide possible command names.
-			final Trace trace = this.animationSelector.getCurrentTrace();
-			final GetAllDotCommands cmd = new GetAllDotCommands(trace.getCurrentState());
-			trace.getStateSpace().execute(cmd);
-			final String prefix = argString.substring(0, at);
-			final List<String> commands = cmd.getCommands().stream()
-				.filter(DynamicCommandItem::isAvailable)
-				.map(DynamicCommandItem::getCommand)
-				.filter(s -> s.startsWith(prefix))
-				.sorted()
-				.collect(Collectors.toList());
-			return new ReplacementOptions(commands, 0, argString.length());
-		}
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
+		return CommandUtils.completeArgs(
+			argString, at,
+			(commandName, at0) -> {
+				final Trace trace = this.animationSelector.getCurrentTrace();
+				final GetAllDotCommands cmd = new GetAllDotCommands(trace.getCurrentState());
+				trace.getStateSpace().execute(cmd);
+				final String prefix = commandName.substring(0, at0);
+				final List<String> commands = cmd.getCommands().stream()
+					.filter(DynamicCommandItem::isAvailable)
+					.map(DynamicCommandItem::getCommand)
+					.filter(s -> s.startsWith(prefix))
+					.sorted()
+					.collect(Collectors.toList());
+				return new ReplacementOptions(commands, 0, commandName.length());
+			},
+			CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
+		);
 	}
 }

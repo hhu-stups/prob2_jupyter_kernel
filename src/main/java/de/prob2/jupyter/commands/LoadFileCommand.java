@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -111,41 +110,32 @@ public final class LoadFileCommand implements Command {
 	
 	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		final int fileNameEnd;
-		final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString);
-		if (argSplitMatcher.find()) {
-			fileNameEnd = argSplitMatcher.start();
-		} else {
-			fileNameEnd = argString.length();
-		}
-		
-		if (fileNameEnd < at) {
-			// Cursor is in the preferences, provide preference name completions.
-			final ReplacementOptions replacements = CommandUtils.completeInPreferences(this.animationSelector.getCurrentTrace(), argString.substring(fileNameEnd), at - fileNameEnd);
-			return replacements == null ? null : CommandUtils.offsetReplacementOptions(replacements, fileNameEnd);
-		} else {
-			// Cursor is in the file name, provide machine files from the current directory as completions.
-			final String prefix = argString.substring(0, at);
-			final List<String> fileNames;
-			try (final Stream<Path> list = Files.list(Paths.get(""))) {
-				fileNames = list
-					.map(Path::getFileName)
-					.map(Object::toString)
-					.filter(s -> s.startsWith(prefix))
-					.filter(s -> {
-						final int dotIndex = s.lastIndexOf('.');
-						if (dotIndex == -1) {
-							return false;
-						}
-						final String extension = s.substring(dotIndex+1);
-						return EXTENSION_TO_FACTORY_MAP.containsKey(extension);
-					})
-					.collect(Collectors.toList());
-			} catch (final IOException e) {
-				LOGGER.warn("Could not list contents of the current directory, cannot provide file name completions for :load", e);
-				return null;
-			}
-			return new ReplacementOptions(fileNames, 0, fileNameEnd);
-		}
+		return CommandUtils.completeArgs(
+			argString, at,
+			(filename, at0) -> {
+				final String prefix = filename.substring(0, at0);
+				final List<String> fileNames;
+				try (final Stream<Path> list = Files.list(Paths.get(""))) {
+					fileNames = list
+						.map(Path::getFileName)
+						.map(Object::toString)
+						.filter(s -> s.startsWith(prefix))
+						.filter(s -> {
+							final int dotIndex = s.lastIndexOf('.');
+							if (dotIndex == -1) {
+								return false;
+							}
+							final String extension = s.substring(dotIndex+1);
+							return EXTENSION_TO_FACTORY_MAP.containsKey(extension);
+						})
+						.collect(Collectors.toList());
+				} catch (final IOException e) {
+					LOGGER.warn("Could not list contents of the current directory, cannot provide file name completions for :load", e);
+					return null;
+				}
+				return new ReplacementOptions(fileNames, 0, filename.length());
+			},
+			CommandUtils.preferencesCompleter(this.animationSelector.getCurrentTrace())
+		);
 	}
 }

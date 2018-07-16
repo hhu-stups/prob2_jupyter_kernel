@@ -2,7 +2,6 @@ package de.prob2.jupyter.commands;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
@@ -16,6 +15,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class ExecCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -60,32 +60,23 @@ public final class ExecCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
-		final int opNameEnd;
-		final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString);
-		if (argSplitMatcher.find()) {
-			opNameEnd = argSplitMatcher.start();
-		} else {
-			opNameEnd = argString.length();
-		}
-		
-		if (opNameEnd < at) {
-			// Cursor is in the predicate part of the arguments, provide B completions.
-			final ReplacementOptions replacements = CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString.substring(opNameEnd), at - opNameEnd);
-			return CommandUtils.offsetReplacementOptions(replacements, opNameEnd);
-		} else {
-			// Cursor is in the first part of the arguments, provide possible operation names.
-			final String prefix = argString.substring(0, at);
-			final List<String> opNames = this.animationSelector.getCurrentTrace()
-				.getNextTransitions()
-				.stream()
-				.map(Transition::getName)
-				.map(CommandUtils::prettyOperationName)
-				.distinct()
-				.filter(s -> s.startsWith(prefix))
-				.sorted()
-				.collect(Collectors.toList());
-			return new ReplacementOptions(opNames, 0, opNameEnd);
-		}
+	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
+		return CommandUtils.completeArgs(
+			argString, at,
+			(operation, at0) -> {
+				final String prefix = operation.substring(0, at0);
+				final List<String> opNames = this.animationSelector.getCurrentTrace()
+					.getNextTransitions()
+					.stream()
+					.map(Transition::getName)
+					.map(CommandUtils::prettyOperationName)
+					.distinct()
+					.filter(s -> s.startsWith(prefix))
+					.sorted()
+					.collect(Collectors.toList());
+				return new ReplacementOptions(opNames, 0, operation.length());
+			},
+			CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
+		);
 	}
 }
