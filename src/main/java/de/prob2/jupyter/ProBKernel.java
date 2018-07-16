@@ -22,6 +22,7 @@ import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.commands.AssertCommand;
 import de.prob2.jupyter.commands.BrowseCommand;
+import de.prob2.jupyter.commands.CheckCommand;
 import de.prob2.jupyter.commands.Command;
 import de.prob2.jupyter.commands.CommandExecutionException;
 import de.prob2.jupyter.commands.CommandUtils;
@@ -165,6 +166,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":show", injector.getInstance(ShowCommand.class));
 		this.commands.put(":dot", injector.getInstance(DotCommand.class));
 		this.commands.put(":assert", injector.getInstance(AssertCommand.class));
+		this.commands.put(":check", injector.getInstance(CheckCommand.class));
 		this.commands.put(":time", injector.getInstance(TimeCommand.class));
 		this.commands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		this.commands.put("::render", injector.getInstance(RenderCommand.class));
