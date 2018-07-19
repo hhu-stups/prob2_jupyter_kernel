@@ -238,12 +238,15 @@ public final class CommandUtils {
 		int argStart = 0;
 		int argEnd = argString.length();
 		int i = 0;
-		while (argSplitMatcher.find() && i < inspectors.length) {
+		while (argSplitMatcher.find()) {
 			if (argSplitMatcher.end() > at) {
 				argEnd = argSplitMatcher.start();
 				break;
 			}
 			argStart = argSplitMatcher.end();
+			if (i >= inspectors.length-1) {
+				break;
+			}
 			i++;
 		}
 		return inspectors[i].inspect(argString.substring(argStart, argEnd), at - argStart);
@@ -254,12 +257,15 @@ public final class CommandUtils {
 		int argStart = 0;
 		int argEnd = argString.length();
 		int i = 0;
-		while (argSplitMatcher.find() && i < completers.length) {
+		while (argSplitMatcher.find()) {
 			if (argSplitMatcher.end() > at) {
 				argEnd = argSplitMatcher.start();
 				break;
 			}
 			argStart = argSplitMatcher.end();
+			if (i >= completers.length-1) {
+				break;
+			}
 			i++;
 		}
 		final ReplacementOptions replacements = completers[i].complete(argString.substring(argStart, argEnd), at - argStart);
