@@ -20,6 +20,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class TableCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -85,6 +86,11 @@ public final class TableCommand implements Command {
 		final DisplayData res = new DisplayData(sbPlain.toString());
 		res.putMarkdown(sbMarkdown.toString());
 		return res;
+	}
+	
+	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return CommandUtils.inspectInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 	
 	@Override

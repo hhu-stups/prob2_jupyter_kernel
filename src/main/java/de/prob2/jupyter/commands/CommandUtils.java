@@ -41,8 +41,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class CommandUtils {
+	@FunctionalInterface
+	public interface Inspector {
+		public abstract @Nullable DisplayData inspect(final @NotNull String argString, final int at);
+	}
+	
+	@FunctionalInterface
 	public interface Completer {
-		public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int offset);
+		public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int at);
 	}
 	
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
@@ -227,6 +233,22 @@ public final class CommandUtils {
 		);
 	}
 	
+	public static @Nullable DisplayData inspectArgs(final @NotNull String argString, final int at, final @NotNull Inspector @NotNull... inspectors) {
+		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(argString);
+		int argStart = 0;
+		int argEnd = argString.length();
+		int i = 0;
+		while (argSplitMatcher.find() && i < inspectors.length) {
+			if (argSplitMatcher.end() > at) {
+				argEnd = argSplitMatcher.start();
+				break;
+			}
+			argStart = argSplitMatcher.end();
+			i++;
+		}
+		return inspectors[i].inspect(argString.substring(argStart, argEnd), at - argStart);
+	}
+	
 	public static @Nullable ReplacementOptions completeArgs(final @NotNull String argString, final int at, final @NotNull Completer @NotNull... completers) {
 		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(argString);
 		int argStart = 0;
@@ -296,6 +318,10 @@ public final class CommandUtils {
 		final DisplayData result = new DisplayData(sbPlain.toString());
 		result.putMarkdown(sbMarkdown.toString());
 		return result;
+	}
+	
+	public static @NotNull Inspector bExpressionInspector(final @NotNull Trace trace) {
+		return (code, at) -> inspectInBExpression(trace, code, at);
 	}
 	
 	public static @NotNull ReplacementOptions completeInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {

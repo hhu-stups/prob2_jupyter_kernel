@@ -63,6 +63,18 @@ public final class LoadCellCommand implements Command {
 	}
 	
 	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		final int newlinePos = argString.indexOf('\n');
+		if (newlinePos == -1 || at < newlinePos) {
+			// Cursor is on the first line, provide preference inspections.
+			return null; // TODO
+		} else {
+			// Cursor is in the body, provide B inspections.
+			return CommandUtils.inspectInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
+		}
+	}
+	
+	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		final int newlinePos = argString.indexOf('\n');
 		if (newlinePos == -1 || at < newlinePos) {

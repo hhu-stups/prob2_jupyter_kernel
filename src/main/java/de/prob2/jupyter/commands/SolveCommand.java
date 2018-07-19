@@ -76,6 +76,15 @@ public final class SolveCommand implements Command {
 	}
 	
 	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return CommandUtils.inspectArgs(
+			argString, at,
+			(solverName, at0) -> null, // TODO
+			CommandUtils.bExpressionInspector(this.animationSelector.getCurrentTrace())
+		);
+	}
+	
+	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return CommandUtils.completeArgs(
 			argString, at,

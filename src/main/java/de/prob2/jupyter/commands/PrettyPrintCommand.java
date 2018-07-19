@@ -11,6 +11,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class PrettyPrintCommand implements Command {
 	private final AnimationSelector animationSelector;
@@ -51,6 +52,11 @@ public final class PrettyPrintCommand implements Command {
 		final DisplayData ret = new DisplayData(cmdUnicode.getPrettyPrint());
 		ret.putLatex('$' + cmdLatex.getPrettyPrint() + '$');
 		return ret;
+	}
+	
+	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return CommandUtils.inspectInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 	
 	@Override

@@ -54,6 +54,11 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return this.injector.getInstance(ProBKernel.class).inspect(argString, at, false);
+	}
+	
+	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return this.injector.getInstance(ProBKernel.class).complete(argString, at);
 	}
