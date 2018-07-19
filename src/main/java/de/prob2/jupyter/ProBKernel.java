@@ -255,6 +255,38 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	@Override
+	public @Nullable DisplayData inspect(final @NotNull String code, final int at, final boolean extraDetail) {
+		// Note: We ignore the extraDetail parameter, because in practice it is always false. This is because the inspect_request messages sent by Jupyter Notebook always have their detail_level set to 0.
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code);
+		if (commandMatcher.matches()) {
+			// The code is a valid command.
+			final int argOffset = commandMatcher.start(2);
+			final String name = commandMatcher.group(1);
+			if (this.getCommands().containsKey(name)) {
+				final Command command = this.getCommands().get(name);
+				if (at <= commandMatcher.end(1)) {
+					// The cursor is somewhere in the command name, show help text for the command.
+					return command.renderHelp();
+				} else if (at < commandMatcher.start(2)) {
+					// The cursor is in the whitespace between the command name and arguments, don't show anything.
+					return null;
+				} else {
+					// The cursor is somewhere in the command arguments, ask the command to inspect.
+					assert name != null;
+					final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
+					return command.inspect(argString, at - argOffset);
+				}
+			} else {
+				// Invalid command, can't inspect.
+				return null;
+			}
+		} else {
+			// The code is not a valid command, ask :eval to inspect.
+			return this.getCommands().get(":eval").inspect(code, at);
+		}
+	}
+	
+	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String code, final int at) {
 		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code);
 		if (commandMatcher.matches()) {

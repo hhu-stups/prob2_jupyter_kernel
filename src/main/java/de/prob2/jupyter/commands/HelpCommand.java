@@ -77,19 +77,7 @@ public final class HelpCommand implements Command {
 			if (command == null) {
 				throw new UserErrorException(String.format("Cannot display help for unknown command \"%s\"", commandName));
 			}
-			final StringBuilder sb = new StringBuilder();
-			sb.append("```\n");
-			sb.append(command.getSyntax());
-			sb.append("\n```\n\n");
-			sb.append(command.getShortHelp());
-			final String helpBody = command.getHelpBody();
-			if (!helpBody.isEmpty()) {
-				sb.append("\n\n");
-				sb.append(helpBody);
-			}
-			final DisplayData result = new DisplayData(sb.toString());
-			result.putMarkdown(sb.toString());
-			return result;
+			return command.renderHelp();
 		} else {
 			throw new UserErrorException("Expected at most 1 argument, got " + args.size());
 		}
