@@ -20,7 +20,10 @@ import de.prob.animator.domainobjects.ComputationNotCompletedResult;
 import de.prob.animator.domainobjects.EnumerationWarning;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.EvaluationErrorResult;
+import de.prob.animator.domainobjects.FormulaExpand;
+import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
+import de.prob.animator.domainobjects.TypeCheckResult;
 import de.prob.animator.domainobjects.WDError;
 import de.prob.exception.ProBError;
 import de.prob.statespace.Trace;
@@ -241,29 +244,84 @@ public final class CommandUtils {
 		return replacements == null ? null : offsetReplacementOptions(replacements, argStart);
 	}
 	
-	public static @NotNull ReplacementOptions completeInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
+	public static @Nullable Matcher matchBIdentifierAt(final @NotNull String code, final int at) {
 		final Matcher identifierMatcher = B_IDENTIFIER_PATTERN.matcher(code);
-		String identifier = "";
-		int start = at;
-		int end = at;
-		// Try to find the identifier that the cursor is in.
-		// If the cursor is not on an identifier, default to empty string, i. e. show all possible completions.
 		while (identifierMatcher.find() && identifierMatcher.start() < at) {
 			if (identifierMatcher.end() >= at) {
-				identifier = code.substring(identifierMatcher.start(), at);
-				start = identifierMatcher.start();
-				end = identifierMatcher.end();
-				break;
+				return identifierMatcher;
 			}
 		}
+		return null;
+	}
+	
+	public static @Nullable DisplayData inspectInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
+		final Matcher identifierMatcher = CommandUtils.matchBIdentifierAt(code, at);
+		if (identifierMatcher == null) {
+			return null;
+		}
+		final String identifier = identifierMatcher.group();
+		final IEvalElement formula = trace.getModel().parseFormula(identifier, FormulaExpand.TRUNCATE);
 		
-		final CompleteIdentifierCommand cmdExact = new CompleteIdentifierCommand(identifier);
+		final StringBuilder sbPlain = new StringBuilder();
+		final StringBuilder sbMarkdown = new StringBuilder();
+		sbPlain.append(UnicodeTranslator.toUnicode(identifier));
+		sbPlain.append('\n');
+		sbMarkdown.append('$');
+		sbMarkdown.append(UnicodeTranslator.toLatex(identifier));
+		sbMarkdown.append("$  \n");
+		
+		final TypeCheckResult type = trace.getStateSpace().typeCheck(formula);
+		sbPlain.append("Type: ");
+		sbMarkdown.append("**Type:** ");
+		if (type.isOk()) {
+			sbPlain.append(type.getType());
+			sbMarkdown.append('`');
+			sbMarkdown.append(type.getType());
+			sbMarkdown.append('`');
+		} else {
+			sbPlain.append("Type error: ");
+			sbPlain.append(type.getErrors());
+			sbMarkdown.append("*Type error:* ");
+			sbMarkdown.append(type.getErrors());
+		}
+		sbPlain.append('\n');
+		sbMarkdown.append("  \n");
+		
+		final AbstractEvalResult aer = trace.evalCurrent(formula);
+		sbPlain.append("Current value: ");
+		sbPlain.append(CommandUtils.inlinePlainTextForEvalResult(aer));
+		sbMarkdown.append("**Current value:** ");
+		sbMarkdown.append(inlineMarkdownForEvalResult(aer));
+		
+		final DisplayData result = new DisplayData(sbPlain.toString());
+		result.putMarkdown(sbMarkdown.toString());
+		return result;
+	}
+	
+	public static @NotNull ReplacementOptions completeInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
+		final Matcher identifierMatcher = matchBIdentifierAt(code, at);
+		// Try to find the identifier that the cursor is in.
+		// If the cursor is not on an identifier, default to empty string, i. e. show all possible completions.
+		String prefix;
+		int start;
+		int end;
+		if (identifierMatcher == null) {
+			prefix = "";
+			start = at;
+			end = at;
+		} else {
+			prefix = code.substring(identifierMatcher.start(), at);
+			start = identifierMatcher.start();
+			end = identifierMatcher.end();
+		}
+		
+		final CompleteIdentifierCommand cmdExact = new CompleteIdentifierCommand(prefix);
 		cmdExact.setIncludeKeywords(true);
 		trace.getStateSpace().execute(cmdExact);
 		// Use LinkedHashSet to remove duplicates while maintaining order.
 		final Set<String> completions = new LinkedHashSet<>(cmdExact.getCompletions());
 		
-		final CompleteIdentifierCommand cmdIgnoreCase = new CompleteIdentifierCommand(identifier);
+		final CompleteIdentifierCommand cmdIgnoreCase = new CompleteIdentifierCommand(prefix);
 		cmdIgnoreCase.setIgnoreCase(true);
 		cmdIgnoreCase.setIncludeKeywords(true);
 		trace.getStateSpace().execute(cmdIgnoreCase);

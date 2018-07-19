@@ -9,6 +9,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class EvalCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -39,6 +40,11 @@ public final class EvalCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		return CommandUtils.displayDataForEvalResult(CommandUtils.withSourceCode(argString, () -> this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.EXPAND)));
+	}
+	
+	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return CommandUtils.inspectInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
 	}
 	
 	@Override
