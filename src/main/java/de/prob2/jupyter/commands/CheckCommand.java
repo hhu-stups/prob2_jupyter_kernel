@@ -24,6 +24,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class CheckCommand implements Command {
 	private static final @NotNull Map<@NotNull String, @NotNull String> SECTION_NAME_MAP;
@@ -93,6 +94,11 @@ public final class CheckCommand implements Command {
 		} else {
 			return new DisplayData("Machine has no " + argString);
 		}
+	}
+	
+	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return null;
 	}
 	
 	@Override

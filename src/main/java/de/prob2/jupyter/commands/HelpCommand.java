@@ -14,6 +14,7 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class HelpCommand implements Command {
 	private final @NotNull Injector injector;
@@ -81,6 +82,11 @@ public final class HelpCommand implements Command {
 		} else {
 			throw new UserErrorException("Expected at most 1 argument, got " + args.size());
 		}
+	}
+	
+	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return null;
 	}
 	
 	@Override

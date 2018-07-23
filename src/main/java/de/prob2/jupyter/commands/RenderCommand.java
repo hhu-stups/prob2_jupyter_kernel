@@ -49,6 +49,11 @@ public final class RenderCommand implements Command {
 	}
 	
 	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return null;
+	}
+	
+	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return null;
 	}

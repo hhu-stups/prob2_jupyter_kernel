@@ -39,9 +39,7 @@ public interface Command {
 	
 	public abstract @Nullable DisplayData run(final @NotNull String argString);
 	
-	public default @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return null;
-	}
+	public abstract @Nullable DisplayData inspect(final @NotNull String argString, final int at);
 	
 	public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int at);
 }
