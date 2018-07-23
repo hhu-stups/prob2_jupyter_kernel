@@ -332,6 +332,17 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	@Override
+	public String isComplete(final String code) {
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code);
+		if (commandMatcher.matches() && commandMatcher.group(1).startsWith("::")) {
+			return code.endsWith("\n") ? IS_COMPLETE_MAYBE : "";
+		} else {
+			// TODO Support line continuation for normal commands
+			return IS_COMPLETE_MAYBE;
+		}
+	}
+	
+	@Override
 	public @NotNull LanguageInfo getLanguageInfo() {
 		return new LanguageInfo.Builder("prob")
 			.mimetype("text/x-prob2-jupyter-repl")
