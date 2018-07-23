@@ -67,7 +67,7 @@ public final class LoadCellCommand implements Command {
 		final int newlinePos = argString.indexOf('\n');
 		if (newlinePos == -1 || at < newlinePos) {
 			// Cursor is on the first line, provide preference inspections.
-			return null; // TODO
+			return CommandUtils.inspectInPreferences(this.animationSelector.getCurrentTrace(), argString, at);
 		} else {
 			// Cursor is in the body, provide B inspections.
 			return CommandUtils.inspectInBExpression(this.animationSelector.getCurrentTrace(), argString, at);

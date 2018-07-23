@@ -91,6 +91,11 @@ public final class PrefCommand implements Command {
 	}
 	
 	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return CommandUtils.inspectInPreferences(this.animationSelector.getCurrentTrace(), argString, at);
+	}
+	
+	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return CommandUtils.completeInPreferences(this.animationSelector.getCurrentTrace(), argString, at);
 	}

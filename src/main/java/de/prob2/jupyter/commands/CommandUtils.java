@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 
 import de.prob.animator.command.CompleteIdentifierCommand;
 import de.prob.animator.command.GetCurrentPreferencesCommand;
+import de.prob.animator.command.GetDefaultPreferencesCommand;
+import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.ComputationNotCompletedResult;
 import de.prob.animator.domainobjects.EnumerationWarning;
@@ -23,6 +26,7 @@ import de.prob.animator.domainobjects.EvaluationErrorResult;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
+import de.prob.animator.domainobjects.ProBPreference;
 import de.prob.animator.domainobjects.TypeCheckResult;
 import de.prob.animator.domainobjects.WDError;
 import de.prob.exception.ProBError;
@@ -364,6 +368,72 @@ public final class CommandUtils {
 	
 	public static @NotNull Completer bExpressionCompleter(final @NotNull Trace trace) {
 		return (code, at) -> completeInBExpression(trace, code, at);
+	}
+	
+	public static @Nullable DisplayData inspectInPreferences(final @NotNull Trace trace, final @NotNull String code, final int at) {
+		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(code);
+		int prefNameStart = 0;
+		while (argSplitMatcher.find() && argSplitMatcher.end() <= at) {
+			prefNameStart = argSplitMatcher.end();
+		}
+		final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
+		prefNameMatcher.region(prefNameStart, code.length());
+		if (prefNameMatcher.lookingAt()) {
+			final String name = prefNameMatcher.group();
+			final GetPreferenceCommand cmdCurrent = new GetPreferenceCommand(name);
+			final GetDefaultPreferencesCommand cmdDefaults = new GetDefaultPreferencesCommand();
+			trace.getStateSpace().execute(cmdCurrent, cmdDefaults);
+			final String currentValue = cmdCurrent.getValue();
+			final ProBPreference pref = cmdDefaults.getPreferences()
+				.stream()
+				.filter(p -> name.equals(p.name))
+				.findAny()
+				.orElseThrow(NoSuchElementException::new);
+			
+			final StringBuilder sbPlain = new StringBuilder();
+			final StringBuilder sbMarkdown = new StringBuilder();
+			sbPlain.append(name);
+			sbPlain.append(" = ");
+			sbPlain.append(currentValue);
+			sbPlain.append(" (");
+			sbPlain.append(pref.type);
+			sbPlain.append(")\n");
+			sbMarkdown.append(name);
+			sbMarkdown.append(" = `");
+			sbMarkdown.append(currentValue);
+			sbMarkdown.append("` (");
+			sbMarkdown.append(pref.type);
+			sbMarkdown.append(")  \n");
+			
+			sbPlain.append(pref.description);
+			sbPlain.append('\n');
+			sbMarkdown.append(pref.description);
+			sbMarkdown.append("  \n");
+			
+			sbPlain.append("Default value: ");
+			sbPlain.append(pref.defaultValue);
+			sbPlain.append('\n');
+			sbMarkdown.append("**Default value:** `");
+			sbMarkdown.append(pref.defaultValue);
+			sbMarkdown.append("`  \n");
+			
+			sbPlain.append("Category: ");
+			sbPlain.append(pref.category);
+			sbPlain.append('\n');
+			sbMarkdown.append("**Category:** `");
+			sbMarkdown.append(pref.category);
+			sbMarkdown.append("`  \n");
+			
+			final DisplayData result = new DisplayData(sbPlain.toString());
+			result.putMarkdown(sbMarkdown.toString());
+			return result;
+		} else {
+			return null;
+		}
+	}
+	
+	public static @NotNull Inspector preferencesInspector(final @NotNull Trace trace) {
+		return (code, at) -> inspectInPreferences(trace, code, at);
 	}
 	
 	public static @Nullable ReplacementOptions completeInPreferences(final @NotNull Trace trace, final @NotNull String code, final int at) {

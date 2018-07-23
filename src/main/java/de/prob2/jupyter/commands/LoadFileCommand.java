@@ -109,6 +109,15 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		return CommandUtils.inspectArgs(
+			argString, at,
+			(filename, at0) -> null,
+			CommandUtils.preferencesInspector(this.animationSelector.getCurrentTrace())
+		);
+	}
+	
+	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		return CommandUtils.completeArgs(
 			argString, at,
