@@ -1,0 +1,11 @@
+{
+	"argv": [
+		"java",%s
+		"-jar",
+		"%s",
+		"run",
+		"{connection_file}"
+	],
+	"display_name": "ProB 2",
+	"language": "prob"
+}

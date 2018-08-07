@@ -2,9 +2,6 @@
 .gradle/
 /build/
 
-# Generated
-/kernelspec/prob2/kernel.json
-
 # Python virtual environment
 /env/
 
