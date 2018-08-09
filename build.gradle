@@ -76,6 +76,6 @@ task createKernelSpec(type: JavaExec) {
 
 task installKernelSpec(type: Exec) {
 	dependsOn = [createKernelSpec]
-	executable = project.hasProperty("pythonInterpreter") ? project.pythonInterpreter : "python3"
-	args = ["-m", "jupyter", "kernelspec", "install", "--sys-prefix", "--name=prob2", KERNEL_SPEC_OUTPUT_PATH.toString()]
+	executable = project.hasProperty("jupyterCommand") ? project.jupyterCommand : "jupyter"
+	args = ["kernelspec", "install", "--sys-prefix", "--name=prob2", KERNEL_SPEC_OUTPUT_PATH.toString()]
 }
