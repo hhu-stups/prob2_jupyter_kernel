@@ -275,11 +275,13 @@ define([
 									// Command found, switch to the appropriate state or mode.
 									switch (command[0]) {
 										case "::load":
+										case ":assert":
 										case ":constants":
+										case ":dot":
 										case ":eval":
 										case ":exec":
+										case ":find":
 										case ":init":
-										case ":initialise":
 										case ":prettyprint":
 										case ":solve":
 										case ":table":
