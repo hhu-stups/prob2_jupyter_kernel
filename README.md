@@ -9,25 +9,44 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 * Java 8
 	* Newer Java versions may work, but are not tested.
 * A Python 3 interpeter with Jupyter installed (`python3 -m pip install jupyter`)
-	* Tested with CPython 3.6 and jupyter-client 5.2.3.
+	* Tested with CPython 3.6, jupyter-core 4.4.0, jupyter-client 5.2.3, notebook 5.6.0.
 	* Newer Jupyter versions should also work.
 	* Older Jupyter versions may work, as long as they support version 5.0 of the Jupyter message protocol.
 	* The Python version does not matter, as long as it is supported by Jupyter.
 
 ## Installation
 
+### For end users
+
+**Note:** Prebuilt jar files are not available yet, so this installation method currently requires downloading the source code and building the jar manually. This is done using `./gradlew shadowJar`, and the built jar is placed at `build/libs/prob2-jupyter-kernel-all.jar`. Once you have built the jar:
+
+1. If Jupyter is installed in a virtual environment, activate it.
+2. Run `java -jar <jarfile> install` to install the kernel.
+	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, pass it as an argument after `install`, e. g. `java -jar <jarfile> install /path/to/jupyter`.
+	* To use a different ProB home directory than the default, pass `-Dprob.home=/path/to/prob/home` before the `-jar` option. (The path must be absolute.)
+3. (Optional) The jar file can be deleted after installation.
+
+To update the kernel, follow the same instructions with the new jar file. 
+
+### For developers
+
 1. Clone this repository (`git clone https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel.git`) or download an archive from [the repository page](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel).
 2. If Jupyter is installed in a virtual environment, activate it.
 3. In the root directory of the repository, run `./gradlew installKernelSpec`.
-	* By default, this looks for a Python interpreter named `python3` in the PATH and uses it to install the kernel spec. If your Python interpreter is named differently, you can pass `-PpythonInterpreter=/path/to/python3` to the `./gradlew` command to use a different Python interpreter for the installation.
+	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, you can pass `-PjupyterCommand=/path/to/jupyter` to the `./gradlew` command.
+	* To use a different ProB home directory than the default, pass `-PprobHome=/path/to/prob/home` to the `./gradlew` command. (The path must be absolute.)
 
-To update the kernel, follow the same instructions as for installation. (If you cloned the repository using Git, you can update your existing copy using `git pull` instead of cloning it again.)
+To update the kernel, update the source code, then follow the same instructions. To speed up the process, you can usually use `./gradlew shadowJar` instead of `./gradlew installKernelSpec` - the kernel spec does not need to be reinstalled every time, unless any of the kernel spec files (`src/main/resources/de/prob2/jupyter/kernelspecfiles`) have changed.
 
-**Note:** The compiled kernel jar is currently stored in the Gradle `build` output folder, and the generated kernel spec has this path hardcoded on installation. If the location of the repository directory changes, you must install the kernel spec again.
+## Uninstalling
+
+To remove the kernel from Jupyter, run `jupyter kernelspec remove prob2`.
+
+If the kernel was installed using `java -jar <jarfile> install`, the kernel jar has been copied into `prob2-<version>/jupyter` in your ProB home directory (`~/.prob` by default). To uninstall the kernel completely, delete this `jupyter` folder.
 
 ## Usage
 
-After installation, start the Jupyter Notebook web interface using `python3 -m jupyter notebook`. The ProB 2 kernel can be selected when creating a new notebook.
+After installation, start the Jupyter Notebook web interface using `jupyter notebook`. The ProB 2 kernel can be selected when creating a new notebook.
 
 You can also use the kernel with other frontends, such as `jupyter console` and `jupyter qtconsole`, by specifying `--kernel=prob2` on the command line.
 
