@@ -104,7 +104,7 @@ public final class ShowCommand implements Command {
 					contents = "";
 				} else if (entry instanceof Integer) {
 					padding = imagePadding;
-					contents = String.format("![%d](%s)", entry, images.get(entry));
+					contents = String.format("<img alt=\"%d\" src=\"%s\"/>", entry, images.get(entry));
 				} else if (entry instanceof String) {
 					padding = stringPadding;
 					contents = (String)entry;
