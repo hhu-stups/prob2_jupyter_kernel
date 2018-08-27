@@ -4,7 +4,8 @@ rebuild:
 	./gradlew shadowJar
 install:
 	./gradlew installKernelSpec
-PHOME=/Users/NAME/git_root/prob_prolog
+USERNAME=
+PHOME=/Users/$(USERNAME)/git_root/prob_prolog
 installph:
 	./gradlew -PprobHome=$(PHOME) installKernelSpec
 
