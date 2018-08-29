@@ -18,13 +18,12 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 
 ### For end users
 
-**Note:** Prebuilt jar files are not available yet, so this installation method currently requires downloading the source code and building the jar manually. This is done using `./gradlew shadowJar`, and the built jar is placed at `build/libs/prob2-jupyter-kernel-all.jar`. Once you have built the jar:
-
-1. If Jupyter is installed in a virtual environment, activate it.
-2. Run `java -jar <jarfile> install` to install the kernel.
+1. Download the latest version of the kernel [here](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/blob/master/releases/prob2-jupyter-kernel-1.0.0-all.jar).
+2. If Jupyter is installed in a virtual environment, activate it.
+3. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
 	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, pass it as an argument after `install`, e. g. `java -jar <jarfile> install /path/to/jupyter`.
 	* To use a different ProB home directory than the default, pass `-Dprob.home=/path/to/prob/home` before the `-jar` option. (The path must be absolute.)
-3. (Optional) The jar file can be deleted after installation.
+4. (Optional) The jar file can be deleted after installation.
 
 To update the kernel, follow the same instructions with the new jar file. 
 
