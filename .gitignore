@@ -8,10 +8,16 @@
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# LaTeX
+# nbconvert HTML/slides output
+/notebooks/**/*.html
+
+# nbconvert LaTeX output
 /notebooks/**/*.aux
+/notebooks/**/*.dvi
 /notebooks/**/*.log
 /notebooks/**/*.out
+/notebooks/**/*.pdf
+/notebooks/**/*.tex
 
 # Kodkod log files
 probkodkod.log
