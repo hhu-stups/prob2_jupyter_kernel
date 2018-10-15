@@ -50,6 +50,12 @@ public final class LetCommand implements Command {
 	}
 	
 	@Override
+	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+		// TODO
+		return null;
+	}
+	
+	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
 		// TODO
 		return null;
