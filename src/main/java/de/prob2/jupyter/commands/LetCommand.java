@@ -36,7 +36,7 @@ public final class LetCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "Variables are available in all states and are not affected by machine loads. A variable created by `:let` shadows any identifier from the machine with the same name.";
+		return "Variables are available in all states and are not affected by machine loads. A variable created by `:let` shadows any identifier from the machine with the same name.\n\n**Note:** Local variables are currently stored in text form. Values must have a syntactically valid text representation, and large values may cause performance issues.";
 	}
 	
 	@Override
