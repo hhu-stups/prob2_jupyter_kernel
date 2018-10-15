@@ -35,6 +35,7 @@ import de.prob2.jupyter.commands.GotoCommand;
 import de.prob2.jupyter.commands.GroovyCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.InitialiseCommand;
+import de.prob2.jupyter.commands.LetCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.LoadFileCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
@@ -48,6 +49,7 @@ import de.prob2.jupyter.commands.TableCommand;
 import de.prob2.jupyter.commands.TimeCommand;
 import de.prob2.jupyter.commands.TraceCommand;
 import de.prob2.jupyter.commands.TypeCommand;
+import de.prob2.jupyter.commands.UnletCommand;
 import de.prob2.jupyter.commands.VersionCommand;
 import de.prob2.jupyter.commands.WithSourceCodeException;
 
@@ -136,6 +138,7 @@ public final class ProBKernel extends BaseKernel {
 	private final @NotNull AnimationSelector animationSelector;
 	
 	private final @NotNull Map<@NotNull String, @NotNull Command> commands;
+	private final @NotNull Map<@NotNull String, @NotNull String> variables;
 	
 	@Inject
 	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
@@ -152,6 +155,8 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":type", injector.getInstance(TypeCommand.class));
 		this.commands.put(":table", injector.getInstance(TableCommand.class));
 		this.commands.put(":solve", injector.getInstance(SolveCommand.class));
+		this.commands.put(":let", injector.getInstance(LetCommand.class));
+		this.commands.put(":unlet", injector.getInstance(UnletCommand.class));
 		this.commands.put(":load", injector.getInstance(LoadFileCommand.class));
 		this.commands.put("::load", injector.getInstance(LoadCellCommand.class));
 		this.commands.put(":pref", injector.getInstance(PrefCommand.class));
@@ -172,11 +177,17 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put("::render", injector.getInstance(RenderCommand.class));
 		this.commands.put(":prettyprint", injector.getInstance(PrettyPrintCommand.class));
 		
+		this.variables = new HashMap<>();
+		
 		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").load()));
 	}
 	
 	public @NotNull Map<@NotNull String, @NotNull Command> getCommands() {
 		return Collections.unmodifiableMap(this.commands);
+	}
+	
+	public @NotNull Map<@NotNull String, @NotNull String> getVariables() {
+		return this.variables;
 	}
 	
 	@Override

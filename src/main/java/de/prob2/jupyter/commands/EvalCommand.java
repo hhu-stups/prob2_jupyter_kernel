@@ -1,9 +1,15 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Map;
+import java.util.StringJoiner;
+
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
+
+import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -12,12 +18,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class EvalCommand implements Command {
+	private final @NotNull Injector injector;
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private EvalCommand(final @NotNull AnimationSelector animationSelector) {
+	private EvalCommand(final @NotNull Injector injector, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
+		this.injector = injector;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -39,7 +47,20 @@ public final class EvalCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
-		return CommandUtils.displayDataForEvalResult(CommandUtils.withSourceCode(argString, () -> this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.EXPAND)));
+		final Map<String, String> variables = this.injector.getInstance(ProBKernel.class).getVariables();
+		final String code;
+		if (variables.isEmpty()) {
+			code = argString;
+		} else {
+			final StringJoiner varNames = new StringJoiner(",");
+			final StringJoiner varAssignments = new StringJoiner("&");
+			variables.forEach((name, value) -> {
+				varNames.add(name);
+				varAssignments.add(name + "=(" + value + ')');
+			});
+			code = String.format("LET %s BE %s IN(%s)END", varNames, varAssignments, argString);
+		}
+		return CommandUtils.displayDataForEvalResult(CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().evalCurrent(code, FormulaExpand.EXPAND)));
 	}
 	
 	@Override
