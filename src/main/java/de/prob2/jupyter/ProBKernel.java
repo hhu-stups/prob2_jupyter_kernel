@@ -451,7 +451,7 @@ public final class ProBKernel extends BaseKernel {
 				}
 				return out;
 			} else {
-				return super.formatError(e);
+				return this.errorStyler.secondaryLines(e.toString());
 			}
 		} catch (final RuntimeException e2) {
 			LOGGER.error("Exception in error formatting", e2);
