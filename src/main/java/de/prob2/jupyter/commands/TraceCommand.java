@@ -62,11 +62,11 @@ public final class TraceCommand implements Command {
 			sbPlain.append('\n');
 			sbPlain.append(i);
 			sbPlain.append(": ");
-			sbPlain.append(transition);
+			sbPlain.append(transition.getPrettyRep());
 			sbMarkdown.append("\n* ");
 			sbMarkdown.append(i);
 			sbMarkdown.append(": `");
-			sbMarkdown.append(transition);
+			sbMarkdown.append(transition.getPrettyRep());
 			sbMarkdown.append('`');
 			
 			if (trace.getCurrent().getIndex() == i) {
