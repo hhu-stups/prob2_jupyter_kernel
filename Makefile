@@ -9,6 +9,9 @@ PHOME=/Users/$(USERNAME)/git_root/prob_prolog
 installph:
 	./gradlew -PprobHome=$(PHOME) installKernelSpec
 
+console:
+	jupyter console --kernel prob2
+
 NOTEBOOKS = notebooks/tutorials/prob_solver_intro.ipynb \
                notebooks/manual/ExternalFunctions.ipynb
 latex:
