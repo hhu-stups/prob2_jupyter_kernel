@@ -11,6 +11,9 @@
 # nbconvert HTML/slides output
 /notebooks/**/*.html
 
+# Local reveal.js for nbconvert slides
+/notebooks/**/reveal.js
+
 # nbconvert LaTeX output
 /notebooks/**/*.aux
 /notebooks/**/*.dvi
