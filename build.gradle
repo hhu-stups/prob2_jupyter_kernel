@@ -79,5 +79,11 @@ task createKernelSpec(type: JavaExec) {
 task installKernelSpec(type: Exec) {
 	dependsOn = [createKernelSpec]
 	executable = project.hasProperty("jupyterCommand") ? project.jupyterCommand : "jupyter"
-	args = ["kernelspec", "install", "--sys-prefix", "--name=prob2", KERNEL_SPEC_OUTPUT_PATH.toString()]
+	final installFlag
+	if (project.hasProperty("kernelspecUserInstall") && project.kernelspecUserInstall == "true") {
+		installFlag = "--user"
+	} else {
+		installFlag = "--sys-prefix"
+	}
+	args = ["kernelspec", "install", installFlag, "--name=prob2", KERNEL_SPEC_OUTPUT_PATH.toString()]
 }

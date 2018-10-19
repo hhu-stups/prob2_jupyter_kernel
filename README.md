@@ -21,6 +21,7 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 1. Download the latest version of the kernel [here](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/blob/master/releases/prob2-jupyter-kernel-1.0.0-all.jar).
 2. If Jupyter is installed in a virtual environment, activate it.
 3. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
+	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
 	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, pass it as an argument after `install`, e. g. `java -jar <jarfile> install /path/to/jupyter`.
 	* To use a different ProB home directory than the default, pass `-Dprob.home=/path/to/prob/home` before the `-jar` option. (The path must be absolute.)
 4. (Optional) The jar file can be deleted after installation.
@@ -32,6 +33,7 @@ To update the kernel, follow the same instructions with the new jar file.
 1. Clone this repository (`git clone https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel.git`) or download an archive from [the repository page](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel).
 2. If Jupyter is installed in a virtual environment, activate it.
 3. In the root directory of the repository, run `./gradlew installKernelSpec`.
+	* If you get a permission error when installing the kernel spec, pass `-PkernelspecUserInstall=true` to the `./gradlew` command. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
 	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, you can pass `-PjupyterCommand=/path/to/jupyter` to the `./gradlew` command.
 	* To use a different ProB home directory than the default, pass `-PprobHome=/path/to/prob/home` to the `./gradlew` command. (The path must be absolute.)
 

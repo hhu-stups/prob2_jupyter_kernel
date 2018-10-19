@@ -124,11 +124,11 @@ public final class Main {
 		System.out.println("Kernel spec created");
 	}
 	
-	private static void installKernelSpec(final String jupyterCommand, final Path kernelSpecDir) {
+	private static void installKernelSpec(final String jupyterCommand, final boolean userInstall, final Path kernelSpecDir) {
 		System.out.println("Installing kernel spec...");
 		System.out.println("Jupyter command: " + jupyterCommand);
 		System.out.println("Kernel spec directory: " + kernelSpecDir);
-		final ProcessBuilder pb = new ProcessBuilder(jupyterCommand, "kernelspec", "install", "--sys-prefix", "--name=prob2", kernelSpecDir.toString());
+		final ProcessBuilder pb = new ProcessBuilder(jupyterCommand, "kernelspec", "install", userInstall ? "--user" : "--sys-prefix", "--name=prob2", kernelSpecDir.toString());
 		pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
 		pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 		pb.redirectError(ProcessBuilder.Redirect.INHERIT);
@@ -156,14 +156,14 @@ public final class Main {
 		System.out.println("Kernel spec installed");
 	}
 	
-	private static void install(final String jupyterCommand) {
+	private static void install(final String jupyterCommand, final boolean userInstall) {
 		final Path jarPath = getJarPath();
 		final Path destPath = getDestPath(jarPath);
 		copyJar(jarPath, destPath);
 		try {
 			final Path kernelSpecDir = Files.createTempDirectory("prob2kernelspec");
 			createKernelSpec(destPath, kernelSpecDir);
-			installKernelSpec(jupyterCommand, kernelSpecDir);
+			installKernelSpec(jupyterCommand, userInstall, kernelSpecDir);
 			try (final Stream<Path> contents = Files.list(kernelSpecDir)) {
 				contents.forEach(path -> {
 					try {
@@ -199,9 +199,10 @@ public final class Main {
 	
 	public static void main(final String[] args) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
 		if (args.length < 1 || args.length == 1 && "--help".equals(args[0])) {
-			System.err.println("Usage: java -jar prob2-jupyter-kernel-all.jar [--help | install [JUPYTER] | createKernelSpec KERNELSPECDIR | run CONNECTIONFILE]");
+			System.err.println("Usage: java -jar prob2-jupyter-kernel-all.jar [--help | install [--user] [JUPYTER] | createKernelSpec KERNELSPECDIR | run CONNECTIONFILE]");
 			System.err.println("--help: Prints this information.");
 			System.err.println("install: Copies the kernel into the ProB home directory, and installs the kernel in Jupyter.");
+			System.err.println("\tBy default the kernel spec is installed into the sys.prefix of Jupyter's Python installation. If the sys.prefix is not writable (for example when using the system Python installation instead of a virtual environment), the --user flag can be used to install the kernel only for the current user.");
 			System.err.println("\tBy default the command \"jupyter\" is used to install the kernel. If the kernel should be installed in a different Jupyter installation, a different Jupyter command can be passed as an argument to the install command.");
 			System.err.println("createKernelSpec: Creates a Jupyter kernel spec for this jar file at the given location.");
 			System.err.println("\tThis option is for advanced users or developers, who don't want the jar file to be copied, or who want to install the kernel spec manually.");
@@ -211,12 +212,24 @@ public final class Main {
 		}
 		switch (args[0]) {
 			case "install":
-				if (args.length > 2) {
-					System.err.println("install expects at most one argument, not " + (args.length-1));
-					System.err.println("Use --help for more info.");
-					throw die(2);
+				final boolean userInstall = args.length > 1 && "--user".equals(args[1]);
+				final String jupyterCommand;
+				if (userInstall) {
+					if (args.length > 3) {
+						System.err.println("install --user expects at most one argument, not " + (args.length-2));
+						System.err.println("Use --help for more info.");
+						throw die(2);
+					}
+					jupyterCommand = args.length > 2 ? args[2] : "jupyter";
+				} else {
+					if (args.length > 2) {
+						System.err.println("install expects at most one argument, not " + (args.length-1));
+						System.err.println("Use --help for more info.");
+						throw die(2);
+					}
+					jupyterCommand = args.length > 1 ? args[1] : "jupyter";
 				}
-				install(args.length > 1 ? args[1] : "jupyter");
+				install(jupyterCommand, userInstall);
 				break;
 			
 			case "createKernelSpec":
