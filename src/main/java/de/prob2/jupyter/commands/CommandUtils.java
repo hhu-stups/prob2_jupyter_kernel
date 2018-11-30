@@ -2,7 +2,6 @@ package de.prob2.jupyter.commands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,7 +31,6 @@ import de.prob.animator.domainobjects.WDError;
 import de.prob.exception.ProBError;
 import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
-
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -40,7 +38,6 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +54,7 @@ public final class CommandUtils {
 	
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
 	
-	public static final @NotNull Pattern ARG_SPLIT_PATTERN = Pattern.compile("\\h+");
+	public static final @NotNull Pattern ARG_SPLIT_PATTERN = Pattern.compile("\\s+");
 	private static final @NotNull Pattern B_IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
 	
 	private CommandUtils() {
@@ -93,12 +90,11 @@ public final class CommandUtils {
 	}
 	
 	public static @NotNull List<String> splitArgs(final @NotNull String args, final int limit) {
-		final String[] split = ARG_SPLIT_PATTERN.split(args, limit);
-		if (split.length == 1 && split[0].isEmpty()) {
-			return Collections.emptyList();
-		} else {
-			return Arrays.asList(split);
+		final List<String> split = new ArrayList<>(Arrays.asList(ARG_SPLIT_PATTERN.split(args, limit)));
+		if (!split.isEmpty() && split.get(split.size()-1).isEmpty()) {
+			split.remove(split.size()-1);
 		}
+		return split;
 	}
 	
 	public static @NotNull List<String> splitArgs(final @NotNull String args) {
