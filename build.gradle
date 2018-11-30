@@ -6,7 +6,7 @@ plugins {
 	id("java")
 	id("wrapper")
 	
-	id("com.github.johnrengelman.shadow").version("2.0.4")
+	id("com.github.johnrengelman.shadow").version("4.0.3")
 }
 
 version = "1.0.1-SNAPSHOT"
@@ -14,7 +14,7 @@ version = "1.0.1-SNAPSHOT"
 final SOURCE_ENCODING = "UTF-8"
 
 wrapper {
-	gradleVersion = "4.9"
+	gradleVersion = "5.0"
 	distributionType = Wrapper.DistributionType.ALL
 }
 
@@ -79,7 +79,7 @@ task createKernelSpec(type: JavaExec) {
 task installKernelSpec(type: Exec) {
 	dependsOn = [createKernelSpec]
 	executable = project.hasProperty("jupyterCommand") ? project.jupyterCommand : "jupyter"
-	final installFlag
+	def installFlag
 	if (project.hasProperty("kernelspecUserInstall") && project.kernelspecUserInstall == "true") {
 		installFlag = "--user"
 	} else {
