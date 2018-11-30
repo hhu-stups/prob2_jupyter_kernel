@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import de.prob.animator.command.GetAnimationMatrixForStateCommand;
 import de.prob.animator.command.GetImagesForMachineCommand;
 import de.prob.animator.command.GetPreferenceCommand;
+import de.prob.animator.domainobjects.AnimationMatrixEntry;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
@@ -94,20 +95,21 @@ public final class ShowCommand implements Command {
 			tableBuilder.append("px");
 		}
 		tableBuilder.append("\"><tbody>");
-		for (final List<Object> row : cmdMatrix.getMatrix()) {
+		for (final List<AnimationMatrixEntry> row : cmdMatrix.getMatrix()) {
 			tableBuilder.append("\n<tr>");
-			for (final Object entry : row) {
+			for (final AnimationMatrixEntry entry : row) {
 				final int padding;
 				final String contents;
 				if (entry == null) {
 					padding = 0;
 					contents = "";
-				} else if (entry instanceof Integer) {
+				} else if (entry instanceof AnimationMatrixEntry.Image) {
+					final AnimationMatrixEntry.Image imageEntry = (AnimationMatrixEntry.Image)entry;
 					padding = imagePadding;
-					contents = String.format("<img alt=\"%d\" src=\"%s\"/>", entry, images.get(entry));
-				} else if (entry instanceof String) {
+					contents = String.format("<img alt=\"%d\" src=\"%s\"/>", imageEntry.getImageNumber(), images.get(imageEntry.getImageNumber()));
+				} else if (entry instanceof AnimationMatrixEntry.Text) {
 					padding = stringPadding;
-					contents = (String)entry;
+					contents = ((AnimationMatrixEntry.Text)entry).getText();
 				} else {
 					throw new AssertionError("Unhandled animation matrix entry type: " + entry.getClass());
 				}
