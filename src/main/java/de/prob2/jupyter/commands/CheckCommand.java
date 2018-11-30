@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class CheckCommand implements Command {
-	private static final @NotNull Map<@NotNull String, @NotNull String> SECTION_NAME_MAP;
+	private static final @NotNull Map<String, String> SECTION_NAME_MAP;
 	static {
 		final Map<String, String> sectionNameMap = new HashMap<>();
 		sectionNameMap.put("properties", "PROPERTIES");

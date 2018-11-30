@@ -74,7 +74,7 @@ public final class ProBKernel extends BaseKernel {
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
 	private static final @NotNull Pattern LATEX_FORMULA_PATTERN = Pattern.compile("(\\$\\$?)([^\\$]+)\\1");
 	
-	private static final @NotNull Map<@NotNull String, @NotNull String> BSYMB_COMMAND_DEFINITIONS;
+	private static final @NotNull Map<String, String> BSYMB_COMMAND_DEFINITIONS;
 	static {
 		final Map<String, String> map = new HashMap<>();
 		map.put("bfalse", "\\newcommand{\\bfalse}{\\mathord\\bot}");
@@ -137,8 +137,8 @@ public final class ProBKernel extends BaseKernel {
 	
 	private final @NotNull AnimationSelector animationSelector;
 	
-	private final @NotNull Map<@NotNull String, @NotNull Command> commands;
-	private final @NotNull Map<@NotNull String, @NotNull String> variables;
+	private final @NotNull Map<String, Command> commands;
+	private final @NotNull Map<String, String> variables;
 	
 	@Inject
 	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
@@ -182,11 +182,11 @@ public final class ProBKernel extends BaseKernel {
 		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").load()));
 	}
 	
-	public @NotNull Map<@NotNull String, @NotNull Command> getCommands() {
+	public @NotNull Map<String, Command> getCommands() {
 		return Collections.unmodifiableMap(this.commands);
 	}
 	
-	public @NotNull Map<@NotNull String, @NotNull String> getVariables() {
+	public @NotNull Map<String, String> getVariables() {
 		return this.variables;
 	}
 	
@@ -196,7 +196,7 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	@Override
-	public @NotNull List<LanguageInfo.@NotNull Help> getHelpLinks() {
+	public @NotNull List<LanguageInfo.Help> getHelpLinks() {
 		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://www3.hhu.de/stups/prob/index.php/User_Manual"));
 	}
 	
@@ -367,7 +367,7 @@ public final class ProBKernel extends BaseKernel {
 		this.animationSelector.getCurrentTrace().getStateSpace().kill();
 	}
 	
-	private @NotNull List<@NotNull String> formatErrorSource(final @NotNull List<@NotNull String> sourceLines, final @NotNull ErrorItem.Location location) {
+	private @NotNull List<String> formatErrorSource(final @NotNull List<String> sourceLines, final @NotNull ErrorItem.Location location) {
 		if (sourceLines.isEmpty()) {
 			return Collections.singletonList(this.errorStyler.primary("// Source code not known"));
 		}
@@ -414,7 +414,7 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	@Override
-	public @NotNull List<@NotNull String> formatError(final Exception e) {
+	public @NotNull List<String> formatError(final Exception e) {
 		try {
 			LOGGER.warn("Exception while executing command from user", e);
 			if (e instanceof UserErrorException) {

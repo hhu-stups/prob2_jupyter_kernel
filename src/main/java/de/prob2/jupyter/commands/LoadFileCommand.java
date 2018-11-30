@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public final class LoadFileCommand implements Command {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LoadFileCommand.class);
 	
-	private static final @NotNull Map<@NotNull String, @NotNull Class<? extends ModelFactory<?>>> EXTENSION_TO_FACTORY_MAP;
+	private static final @NotNull Map<String, Class<? extends ModelFactory<?>>> EXTENSION_TO_FACTORY_MAP;
 	static {
 		final Map<String, Class<? extends ModelFactory<?>>> extensionToFactoryMap = new HashMap<>();
 		extensionToFactoryMap.put("mch", ClassicalBFactory.class);

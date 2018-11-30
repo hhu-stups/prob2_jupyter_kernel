@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class SolveCommand implements Command {
-	private static final @NotNull Map<@NotNull String, CbcSolveCommand.@NotNull Solvers> SOLVERS = Arrays.stream(CbcSolveCommand.Solvers.values())
+	private static final @NotNull Map<String, CbcSolveCommand.Solvers> SOLVERS = Arrays.stream(CbcSolveCommand.Solvers.values())
 		.collect(Collectors.toMap(s -> s.name().toLowerCase(), s -> s));
 	
 	private final @NotNull AnimationSelector animationSelector;
