@@ -43,6 +43,7 @@ public final class LoadFileCommand implements Command {
 		extensionToFactoryMap.put("mch", ClassicalBFactory.class);
 		extensionToFactoryMap.put("ref", ClassicalBFactory.class);
 		extensionToFactoryMap.put("imp", ClassicalBFactory.class);
+		extensionToFactoryMap.put("sys", ClassicalBFactory.class);
 		extensionToFactoryMap.put("eventb", EventBFactory.class);
 		extensionToFactoryMap.put("bum", EventBFactory.class);
 		extensionToFactoryMap.put("buc", EventBFactory.class);
