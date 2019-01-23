@@ -6,8 +6,8 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 
 ## Requirements
 
-* Java 8
-	* Newer Java versions may work, but are not tested.
+* Java 8 or newer
+	* Tested up to Java 11.
 * A Python 3 interpeter with Jupyter installed (`python3 -m pip install jupyter`)
 	* Tested with CPython 3.6, jupyter-core 4.4.0, jupyter-client 5.2.3, notebook 5.6.0.
 	* Newer Jupyter versions should also work.
@@ -26,8 +26,6 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 	* To use a different ProB home directory than the default, pass `-Dprob.home=/path/to/prob/home` before the `-jar` option. (The path must be absolute.)
 4. (Optional) The jar file can be deleted after installation.
 
-To update the kernel, follow the same instructions with the new jar file. 
-
 ### For developers
 
 1. Clone this repository (`git clone https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel.git`) or download an archive from [the repository page](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel).
@@ -37,7 +35,9 @@ To update the kernel, follow the same instructions with the new jar file.
 	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, you can pass `-PjupyterCommand=/path/to/jupyter` to the `./gradlew` command.
 	* To use a different ProB home directory than the default, pass `-PprobHome=/path/to/prob/home` to the `./gradlew` command. (The path must be absolute.)
 
-To update the kernel, update the source code, then follow the same instructions. To speed up the process, you can usually use `./gradlew shadowJar` instead of `./gradlew installKernelSpec` - the kernel spec does not need to be reinstalled every time, unless any of the kernel spec files (`src/main/resources/de/prob2/jupyter/kernelspecfiles`) have changed.
+## Updating
+
+To update from an older version of the kernel, follow the installation instructions above. (It's not necessary to uninstall the old version first.) See the [changelog](./CHANGELOG.md) for a list of changes in each release.
 
 ## Uninstalling
 
