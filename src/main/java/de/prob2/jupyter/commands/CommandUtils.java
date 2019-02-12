@@ -89,7 +89,7 @@ public final class CommandUtils {
 		}
 	}
 	
-	public static @NotNull List<String> splitArgs(final @NotNull String args, final int limit) {
+	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args, final int limit) {
 		final List<String> split = new ArrayList<>(Arrays.asList(ARG_SPLIT_PATTERN.split(args, limit)));
 		if (!split.isEmpty() && split.get(split.size()-1).isEmpty()) {
 			split.remove(split.size()-1);
@@ -97,11 +97,11 @@ public final class CommandUtils {
 		return split;
 	}
 	
-	public static @NotNull List<String> splitArgs(final @NotNull String args) {
+	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args) {
 		return splitArgs(args, 0);
 	}
 	
-	public static @NotNull Map<String, String> parsePreferences(final @NotNull List<String> args) {
+	public static @NotNull Map<@NotNull String, @NotNull String> parsePreferences(final @NotNull List<@NotNull String> args) {
 		final Map<String, String> preferences = new HashMap<>();
 		for (final String arg : args) {
 			final String[] split = arg.split("=", 2);
@@ -233,7 +233,7 @@ public final class CommandUtils {
 		);
 	}
 	
-	public static @Nullable DisplayData inspectArgs(final @NotNull String argString, final int at, final @NotNull Inspector... inspectors) {
+	public static @Nullable DisplayData inspectArgs(final @NotNull String argString, final int at, final @NotNull Inspector @NotNull... inspectors) {
 		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(argString);
 		int argStart = 0;
 		int argEnd = argString.length();
@@ -252,7 +252,7 @@ public final class CommandUtils {
 		return inspectors[i].inspect(argString.substring(argStart, argEnd), at - argStart);
 	}
 	
-	public static @Nullable ReplacementOptions completeArgs(final @NotNull String argString, final int at, final @NotNull Completer... completers) {
+	public static @Nullable ReplacementOptions completeArgs(final @NotNull String argString, final int at, final @NotNull Completer @NotNull... completers) {
 		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(argString);
 		int argStart = 0;
 		int argEnd = argString.length();
