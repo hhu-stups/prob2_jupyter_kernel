@@ -22,6 +22,9 @@
 /notebooks/**/*.pdf
 /notebooks/**/*.tex
 
+# These PDFs are for embedding in a notebook, they are not generated
+!/notebooks/presentations/img/*.pdf
+
 # Kodkod log files
 probkodkod.log
 probkodkod.log.lck
