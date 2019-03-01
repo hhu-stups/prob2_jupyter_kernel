@@ -1,14 +1,16 @@
 package de.prob2.jupyter.commands;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
-
+import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -20,13 +22,19 @@ import org.jetbrains.annotations.Nullable;
 public final class LoadCellCommand implements Command {
 	private final @NotNull ClassicalBFactory classicalBFactory;
 	private final @NotNull AnimationSelector animationSelector;
+	private final @NotNull Provider<ProBKernel> proBKernelProvider;
 	
 	@Inject
-	private LoadCellCommand(final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
+	private LoadCellCommand(
+		final @NotNull ClassicalBFactory classicalBFactory,
+		final @NotNull AnimationSelector animationSelector,
+		final @NotNull Provider<ProBKernel> proBKernelProvider
+	) {
 		super();
 		
 		this.classicalBFactory = classicalBFactory;
 		this.animationSelector = animationSelector;
+		this.proBKernelProvider = proBKernelProvider;
 	}
 	
 	@Override
@@ -59,6 +67,7 @@ public final class LoadCellCommand implements Command {
 		this.animationSelector.changeCurrentAnimation(new Trace(CommandUtils.withSourceCode(body, () ->
 			this.classicalBFactory.create("(machine from Jupyter cell)", body).load(preferences)
 		)));
+		this.proBKernelProvider.get().setCurrentMachineDirectory(Paths.get(""));
 		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getStateSpace().getMainComponent());
 	}
 	

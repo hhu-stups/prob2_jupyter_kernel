@@ -1,5 +1,7 @@
 package de.prob2.jupyter;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +21,6 @@ import de.prob.exception.ProBError;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
-
 import de.prob2.jupyter.commands.AssertCommand;
 import de.prob2.jupyter.commands.BrowseCommand;
 import de.prob2.jupyter.commands.CheckCommand;
@@ -61,7 +62,6 @@ import io.github.spencerpark.jupyter.kernel.display.mime.MIMEType;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,6 +140,8 @@ public final class ProBKernel extends BaseKernel {
 	private final @NotNull Map<@NotNull String, @NotNull Command> commands;
 	private final @NotNull Map<@NotNull String, @NotNull String> variables;
 	
+	private @NotNull Path currentMachineDirectory;
+	
 	@Inject
 	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
 		super();
@@ -180,6 +182,7 @@ public final class ProBKernel extends BaseKernel {
 		this.variables = new HashMap<>();
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").load()));
+		this.currentMachineDirectory = Paths.get("");
 	}
 	
 	public @NotNull Map<@NotNull String, @NotNull Command> getCommands() {
@@ -188,6 +191,14 @@ public final class ProBKernel extends BaseKernel {
 	
 	public @NotNull Map<@NotNull String, @NotNull String> getVariables() {
 		return this.variables;
+	}
+	
+	public @NotNull Path getCurrentMachineDirectory() {
+		return this.currentMachineDirectory;
+	}
+	
+	public void setCurrentMachineDirectory(final @NotNull Path currentMachineDirectory) {
+		this.currentMachineDirectory = currentMachineDirectory;
 	}
 	
 	@Override

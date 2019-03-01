@@ -9,6 +9,7 @@
 * Added support for Java 11.
 * Updated ProB 2 to version 3.2.12.
 * Fixed confusing handling of trailing spaces in commands.
+* Fixed `:show` not displaying animation images correctly for machines outside of the kernel's working directory.
 * Fixed `:trace` not showing the parameters and return values of executed transitions.
 * Changed error handling so exception stack traces are no longer shown in the notebook. (They are still logged to the console.)
 

@@ -1,9 +1,13 @@
 package de.prob2.jupyter.commands;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.prob.animator.command.GetAnimationMatrixForStateCommand;
 import de.prob.animator.command.GetImagesForMachineCommand;
@@ -11,7 +15,7 @@ import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.animator.domainobjects.AnimationMatrixEntry;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
-
+import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -22,12 +26,14 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ShowCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
+	private final @NotNull Provider<ProBKernel> proBKernelProvider;
 	
 	@Inject
-	private ShowCommand(final @NotNull AnimationSelector animationSelector) {
+	private ShowCommand(final @NotNull AnimationSelector animationSelector, final @NotNull Provider<ProBKernel> proBKernelProvider) {
 		super();
 		
 		this.animationSelector = animationSelector;
+		this.proBKernelProvider = proBKernelProvider;
 	}
 	
 	@Override
@@ -76,7 +82,11 @@ public final class ShowCommand implements Command {
 			throw new UserErrorException("No animation function visualisation available");
 		}
 		
-		final Map<Integer, String> images = cmdImages.getImages();
+		final Path machineDirectory = this.proBKernelProvider.get().getCurrentMachineDirectory();
+		final Map<Integer, String> images = new HashMap<>(cmdImages.getImages());
+		// Animation image paths are relative to the machine directory, which may not be the same as the kernel's working directory.
+		images.replaceAll((k, v) -> machineDirectory.resolve(v).toString());
+		
 		final int imagePadding = Integer.parseInt(cmdImagePadding.getValue());
 		final int stringPadding = Integer.parseInt(cmdStringPadding.getValue());
 		final String fontName = cmdFontName.getValue();
@@ -106,7 +116,11 @@ public final class ShowCommand implements Command {
 				} else if (entry instanceof AnimationMatrixEntry.Image) {
 					final AnimationMatrixEntry.Image imageEntry = (AnimationMatrixEntry.Image)entry;
 					padding = imagePadding;
-					contents = String.format("<img alt=\"%d\" src=\"%s\"/>", imageEntry.getImageNumber(), images.get(imageEntry.getImageNumber()));
+					contents = String.format(
+						"<img alt=\"%d\" src=\"%s\"/>",
+						imageEntry.getImageNumber(),
+						images.get(imageEntry.getImageNumber()).replace(File.separator, "/")
+					);
 				} else if (entry instanceof AnimationMatrixEntry.Text) {
 					padding = stringPadding;
 					contents = ((AnimationMatrixEntry.Text)entry).getText();

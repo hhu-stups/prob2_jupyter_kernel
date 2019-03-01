@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 
 import de.prob.scripting.CSPFactory;
 import de.prob.scripting.ClassicalBFactory;
@@ -22,7 +23,7 @@ import de.prob.scripting.ModelTranslationError;
 import de.prob.scripting.TLAFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
-
+import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -30,7 +31,6 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,13 +57,19 @@ public final class LoadFileCommand implements Command {
 	
 	private final @NotNull Injector injector;
 	private final @NotNull AnimationSelector animationSelector;
+	private final @NotNull Provider<ProBKernel> proBKernelProvider;
 	
 	@Inject
-	private LoadFileCommand(final @NotNull Injector injector, final @NotNull AnimationSelector animationSelector) {
+	private LoadFileCommand(
+		final @NotNull Injector injector,
+		final @NotNull AnimationSelector animationSelector,
+		final @NotNull Provider<ProBKernel> proBKernelProvider
+	) {
 		super();
 		
 		this.injector = injector;
 		this.animationSelector = animationSelector;
+		this.proBKernelProvider = proBKernelProvider;
 	}
 	
 	@Override
@@ -89,12 +95,14 @@ public final class LoadFileCommand implements Command {
 			throw new UserErrorException("Missing machine file name");
 		}
 		
-		final String fileName = args.get(0);
-		final int dotIndex = fileName.lastIndexOf('.');
+		final Path machineFilePath = Paths.get(args.get(0));
+		final String machineFileName = machineFilePath.getFileName().toString();
+		final Path machineFileDirectory = machineFilePath.getParent() == null ? Paths.get("") : machineFilePath.getParent();
+		final int dotIndex = machineFileName.lastIndexOf('.');
 		if (dotIndex == -1) {
-			throw new UserErrorException("File has no extension, unable to determine language: " + fileName);
+			throw new UserErrorException("File has no extension, unable to determine language: " + machineFileName);
 		}
-		final String extension = fileName.substring(dotIndex+1);
+		final String extension = machineFileName.substring(dotIndex+1);
 		if (!EXTENSION_TO_FACTORY_MAP.containsKey(extension)) {
 			throw new UserErrorException("Unsupported file type: ." + extension);
 		}
@@ -102,7 +110,8 @@ public final class LoadFileCommand implements Command {
 		
 		try {
 			final ModelFactory<?> factory = this.injector.getInstance(EXTENSION_TO_FACTORY_MAP.get(extension));
-			this.animationSelector.changeCurrentAnimation(new Trace(factory.extract(fileName).load(preferences)));
+			this.animationSelector.changeCurrentAnimation(new Trace(factory.extract(machineFilePath.toString()).load(preferences)));
+			this.proBKernelProvider.get().setCurrentMachineDirectory(machineFileDirectory);
 		} catch (IOException | ModelTranslationError e) {
 			throw new RuntimeException(e);
 		}
