@@ -183,7 +183,7 @@ define([
 								} else if (stream.match(/^[\s()\[\]{},]+/)) {
 									return null;
 								} else {
-									const variable = stream.match(/^[\p{L}_][\p{L}0-9_]*/);
+									const variable = stream.match(/^[\p{L}_][\p{L}0-9_]*/u);
 									if (variable) {
 										// Check if the variable name is actually a keyword that should be highlighted differently.
 										if (variable in keywordClasses) {
