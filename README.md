@@ -31,6 +31,7 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 1. Clone this repository (`git clone https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel.git`) or download an archive from [the repository page](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel).
 2. If Jupyter is installed in a virtual environment, activate it.
 3. In the root directory of the repository, run `./gradlew installKernelSpec`.
+	* If Jupyter is installed in a virtual environment and you get an error that the `jupyter` command could not be found/executed, try running the Gradle command with the `--no-daemon` option. This ensures that Gradle sees all environment changes performed by the activation of the virtual environment.
 	* If you get a permission error when installing the kernel spec, pass `-PkernelspecUserInstall=true` to the `./gradlew` command. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
 	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, you can pass `-PjupyterCommand=/path/to/jupyter` to the `./gradlew` command.
 	* To use a different ProB home directory than the default, pass `-PprobHome=/path/to/prob/home` to the `./gradlew` command. (The path must be absolute.)
