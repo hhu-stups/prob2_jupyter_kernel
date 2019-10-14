@@ -18,6 +18,7 @@ import com.google.inject.Provider;
 import de.prob.scripting.CSPFactory;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.scripting.EventBFactory;
+import de.prob.scripting.EventBPackageFactory;
 import de.prob.scripting.ModelFactory;
 import de.prob.scripting.ModelTranslationError;
 import de.prob.scripting.TLAFactory;
@@ -44,7 +45,7 @@ public final class LoadFileCommand implements Command {
 		extensionToFactoryMap.put("ref", ClassicalBFactory.class);
 		extensionToFactoryMap.put("imp", ClassicalBFactory.class);
 		extensionToFactoryMap.put("sys", ClassicalBFactory.class);
-		extensionToFactoryMap.put("eventb", EventBFactory.class);
+		extensionToFactoryMap.put("eventb", EventBPackageFactory.class);
 		extensionToFactoryMap.put("bum", EventBFactory.class);
 		extensionToFactoryMap.put("buc", EventBFactory.class);
 		extensionToFactoryMap.put("csp", CSPFactory.class);
