@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,13 +13,9 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 
-import de.prob.scripting.CSPFactory;
-import de.prob.scripting.ClassicalBFactory;
-import de.prob.scripting.EventBFactory;
-import de.prob.scripting.EventBPackageFactory;
+import de.prob.scripting.FactoryProvider;
 import de.prob.scripting.ModelFactory;
 import de.prob.scripting.ModelTranslationError;
-import de.prob.scripting.TLAFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.ProBKernel;
@@ -37,24 +31,6 @@ import org.slf4j.LoggerFactory;
 
 public final class LoadFileCommand implements Command {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LoadFileCommand.class);
-	
-	private static final @NotNull Map<@NotNull String, @NotNull Class<? extends ModelFactory<?>>> EXTENSION_TO_FACTORY_MAP;
-	static {
-		final Map<String, Class<? extends ModelFactory<?>>> extensionToFactoryMap = new HashMap<>();
-		extensionToFactoryMap.put("mch", ClassicalBFactory.class);
-		extensionToFactoryMap.put("ref", ClassicalBFactory.class);
-		extensionToFactoryMap.put("imp", ClassicalBFactory.class);
-		extensionToFactoryMap.put("sys", ClassicalBFactory.class);
-		extensionToFactoryMap.put("eventb", EventBPackageFactory.class);
-		extensionToFactoryMap.put("bum", EventBFactory.class);
-		extensionToFactoryMap.put("buc", EventBFactory.class);
-		extensionToFactoryMap.put("csp", CSPFactory.class);
-		extensionToFactoryMap.put("cspm", CSPFactory.class);
-		extensionToFactoryMap.put("tla", TLAFactory.class);
-		// FIXME Not currently possible, because RulesModelFactory does not implement the ModelFactory interface
-		//extensionToFactoryMap.put("rmch", RulesModelFactory.class);
-		EXTENSION_TO_FACTORY_MAP = Collections.unmodifiableMap(extensionToFactoryMap);
-	}
 	
 	private final @NotNull Injector injector;
 	private final @NotNull AnimationSelector animationSelector;
@@ -104,13 +80,13 @@ public final class LoadFileCommand implements Command {
 			throw new UserErrorException("File has no extension, unable to determine language: " + machineFileName);
 		}
 		final String extension = machineFileName.substring(dotIndex+1);
-		if (!EXTENSION_TO_FACTORY_MAP.containsKey(extension)) {
+		if (!FactoryProvider.isExtensionKnown(extension)) {
 			throw new UserErrorException("Unsupported file type: ." + extension);
 		}
 		final Map<String, String> preferences = CommandUtils.parsePreferences(args.subList(1, args.size()));
 		
 		try {
-			final ModelFactory<?> factory = this.injector.getInstance(EXTENSION_TO_FACTORY_MAP.get(extension));
+			final ModelFactory<?> factory = this.injector.getInstance(FactoryProvider.factoryClassFromExtension(extension));
 			this.animationSelector.changeCurrentAnimation(new Trace(factory.extract(machineFilePath.toString()).load(preferences)));
 			this.proBKernelProvider.get().setCurrentMachineDirectory(machineFileDirectory);
 		} catch (IOException | ModelTranslationError e) {
@@ -146,7 +122,7 @@ public final class LoadFileCommand implements Command {
 								return false;
 							}
 							final String extension = s.substring(dotIndex+1);
-							return EXTENSION_TO_FACTORY_MAP.containsKey(extension);
+							return FactoryProvider.isExtensionKnown(extension);
 						})
 						.collect(Collectors.toList());
 				} catch (final IOException e) {
