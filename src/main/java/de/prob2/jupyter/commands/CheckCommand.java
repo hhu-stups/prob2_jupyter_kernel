@@ -71,7 +71,7 @@ public final class CheckCommand implements Command {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		// Find all children of a subclass of childrenBaseClass.
 		// This needs to be done manually, because getChildrenOfType only returns children whose class *exactly* matches the given class.
-		// For example, getChildrenOfType(Invariant.class) doesn't return children with class ClassicalBInvariant.
+		// For example, getChildrenOfType(Axiom.class) doesn't return children of class Property (which is a subclass of Axiom).
 		final List<IEvalElement> formulas = new ArrayList<>();
 		trace.getStateSpace().getMainComponent().getChildren().forEach((clazz, children) -> {
 			if (childrenBaseClass.isAssignableFrom(clazz)) {
