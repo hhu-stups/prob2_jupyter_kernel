@@ -1,5 +1,9 @@
 package de.prob2.jupyter.commands;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
+import com.google.common.base.Stopwatch;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -12,8 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class TimeCommand implements Command {
-	private static final long NANOSECONDS_PER_SECOND = 1000000000L;
-	
 	private final @NotNull Injector injector;
 	
 	@Inject
@@ -35,18 +37,18 @@ public final class TimeCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "The time is measured using Java's [`System.nanoTime()`](https://docs.oracle.com/javase/8/docs/api/java/lang/System.html#nanoTime--) method. The measured time is displayed with the full number of decimal places, but no guarantees are made about the actual resolution of the time measurement.\n\n"
+		return "The time is internally measured using Java's [`System.nanoTime()`](https://docs.oracle.com/javase/8/docs/api/java/lang/System.html#nanoTime--) method. The measured time is displayed with nanosecond precision, but the actual resolution of the measurement is system-dependent and often much larger than nanoseconds.\n\n"
 			+ "As with any measurement of execution time, there will likely be small differences between two measurements of the same command. The time is measured by the kernel rather than ProB, so it will include some overhead due to processing of the command by the kernel and communication with ProB.";
 	}
 	
 	@Override
 	public @Nullable DisplayData run(final @NotNull String argString) {
 		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
-		final long startTime = System.nanoTime();
+		final Stopwatch stopwatch = Stopwatch.createStarted();
 		final DisplayData result = kernel.eval(argString);
-		final long stopTime = System.nanoTime();
-		final long diff = stopTime - startTime;
-		final String text = String.format("Execution time: %d.%09d seconds", diff / NANOSECONDS_PER_SECOND, diff % NANOSECONDS_PER_SECOND);
+		stopwatch.stop();
+		final Duration elapsed = stopwatch.elapsed();
+		final String text = String.format("Execution time: %d.%09d seconds", elapsed.get(ChronoUnit.SECONDS), elapsed.get(ChronoUnit.NANOS));
 		final DisplayData timeDisplay = new DisplayData(text);
 		timeDisplay.putMarkdown(text);
 		kernel.display(timeDisplay);
