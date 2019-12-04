@@ -39,6 +39,7 @@ import de.prob2.jupyter.commands.InitialiseCommand;
 import de.prob2.jupyter.commands.LetCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.LoadFileCommand;
+import de.prob2.jupyter.commands.ModelCheckCommand;
 import de.prob2.jupyter.commands.NoSuchCommandException;
 import de.prob2.jupyter.commands.PrefCommand;
 import de.prob2.jupyter.commands.PrettyPrintCommand;
@@ -178,6 +179,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		this.commands.put("::render", injector.getInstance(RenderCommand.class));
 		this.commands.put(":prettyprint", injector.getInstance(PrettyPrintCommand.class));
+		this.commands.put(":modelcheck", injector.getInstance(ModelCheckCommand.class));
 		
 		this.variables = new HashMap<>();
 		

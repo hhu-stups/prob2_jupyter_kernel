@@ -5,6 +5,7 @@
 * Added a `--user` flag to the installer to allow installing the kernel into the user home directory. This allows installing the kernel without `sudo` when not using a virtual environment.
 * Added `:let` and `:unlet` commands to (un)define local variables.
 	* **Note:** Local variables are currently stored and expanded in text form. Values whose text form is not parsable cannot be stored in local variables, and storing large values may cause performance issues.
+* Added a `:modelcheck` command to run the ProB model checker.
 * Added support for additional languages and file extensions. The `:load` command now recognizes all languages and file extensions supported by ProB 2.
 	* **Note:** Some languages are not fully working yet (for example XTL).
 * Added support for Java 11.
