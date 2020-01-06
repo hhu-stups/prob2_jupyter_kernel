@@ -178,6 +178,7 @@ public final class ProBKernel extends BaseKernel {
 		this.commands.put(":time", injector.getInstance(TimeCommand.class));
 		this.commands.put(":groovy", injector.getInstance(GroovyCommand.class));
 		this.commands.put("::render", injector.getInstance(RenderCommand.class));
+		this.commands.put(":bsymb", injector.getInstance(BsymbCommand.class));
 		this.commands.put(":prettyprint", injector.getInstance(PrettyPrintCommand.class));
 		this.commands.put(":modelcheck", injector.getInstance(ModelCheckCommand.class));
 		
@@ -242,6 +243,15 @@ public final class ProBKernel extends BaseKernel {
 		}
 	}
 	
+	private static @NotNull String addAllBsymbDefinitions() {
+		final StringBuilder defs = new StringBuilder("$");
+		BSYMB_COMMAND_DEFINITIONS.forEach((k, v) -> {
+			defs.append(v);
+		});
+		defs.append("\\text{All bsymb.sty definitions have been loaded.}$");
+		return defs.toString();
+	}
+	
 	private @Nullable DisplayData executeCommand(final @NotNull String name, final @NotNull String argString) {
 		final Command command = this.getCommands().get(name);
 		if (command == null) {
@@ -255,9 +265,13 @@ public final class ProBKernel extends BaseKernel {
 		}
 		
 		if (result != null && result.hasDataForType(MIMEType.TEXT_MARKDOWN)) {
-			// Add definitions for any used bsymb LaTeX commands to Markdown output.
 			final String markdown = (String)result.getData(MIMEType.TEXT_MARKDOWN);
-			result.putMarkdown(addBsymbDefinitions(markdown));
+			if (command instanceof BsymbCommand) {
+				result.putMarkdown(addAllBsymbDefinitions());
+			} else {
+				// Add definitions for any used bsymb LaTeX commands to Markdown output.
+				result.putMarkdown(addBsymbDefinitions(markdown));
+			}
 		}
 		
 		return result;

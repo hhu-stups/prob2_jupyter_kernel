@@ -8,6 +8,7 @@
 * Added a `:modelcheck` command to run the ProB model checker.
 * Added support for additional languages and file extensions. The `:load` command now recognizes all languages and file extensions supported by ProB 2.
 	* **Note:** Some languages are not fully working yet (for example XTL).
+* Added a `:bsymb` command to load ProB's custom bsymb.sty LaTeX definitions on demand. After this command is executed, bsymb commands can be used in LaTeX formulas in Markdown cells.
 * Added support for Java 11.
 * Updated ProB 2 to version 3.2.12.
 * Fixed confusing handling of trailing spaces in commands.
