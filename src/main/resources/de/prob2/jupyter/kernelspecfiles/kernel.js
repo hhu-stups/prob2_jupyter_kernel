@@ -335,7 +335,7 @@ define([
 			});
 			
 			CodeMirror.defineMIME("text/x-classicalb", "classicalb");
-			CodeMirror.defineMIME("text/x-prob2-jupyter-repl", "prob2_jupter_repl");
+			CodeMirror.defineMIME("text/x-prob2-jupyter-repl", "prob2_jupyter_repl");
 			
 			// CodeMirror doesn't understand the text/latex MIME type by default.
 			CodeMirror.defineMIME("text/latex", "stex");
