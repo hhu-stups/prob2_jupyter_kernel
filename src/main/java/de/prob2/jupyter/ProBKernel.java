@@ -277,19 +277,29 @@ public final class ProBKernel extends BaseKernel {
 		return result;
 	}
 	
+	private static boolean isMachineCode(final @NotNull String code) {
+		return code.startsWith("MACHINE");
+	}
+	
 	@Override
 	public @Nullable DisplayData eval(final String expr) {
 		assert expr != null;
 		
 		final Matcher commandMatcher = COMMAND_PATTERN.matcher(expr);
 		if (commandMatcher.matches()) {
+			// The input is a command, execute it directly.
 			final String name = commandMatcher.group(1);
 			assert name != null;
 			final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
 			return this.executeCommand(name, argString);
+		} else if (isMachineCode(expr)) {
+			// The input appears to be a machine, load it.
+			// The leading newline here is important. ::load expects the first input line to contain preference assignments; the actual machine code has to start on the second line.
+			return this.executeCommand("::load", "\n" + expr);
+		} else {
+			// By default, assume that the input is an expression and evaluate it.
+			return this.executeCommand(":eval", expr);
 		}
-		
-		return this.executeCommand(":eval", expr);
 	}
 	
 	@Override

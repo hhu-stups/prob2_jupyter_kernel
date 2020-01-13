@@ -309,7 +309,7 @@ define([
 									}
 									return "meta";
 								} else {
-									// No command found, switch to B mode.
+									// No command found, meaning the input is a B machine or expression, so switch to B mode.
 									switchToMode(state, "classicalb");
 									return state.innerMode.token(stream, state.innerState);
 								}
