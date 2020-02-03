@@ -34,8 +34,8 @@ configurations.all {
 
 dependencies {
 	implementation(group: "de.hhu.stups", name: "de.prob2.kernel", version: "4.0.0-SNAPSHOT")
-	implementation(group: "io.github.spencerpark", name: "jupyter-jvm-basekernel", version: "2.2.3")
-	implementation(group: "org.jetbrains", name: "annotations", version: "17.0.0")
+	implementation(group: "io.github.spencerpark", name: "jupyter-jvm-basekernel", version: "2.3.0")
+	implementation(group: "org.jetbrains", name: "annotations", version: "18.0.0")
 	implementation(group: "se.sawano.java", name: "alphanumeric-comparator", version: "1.4.1")
 }
 
