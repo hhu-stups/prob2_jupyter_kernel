@@ -33,10 +33,10 @@ configurations.all {
 }
 
 dependencies {
-	compile(group: "de.hhu.stups", name: "de.prob2.kernel", version: "4.0.0-SNAPSHOT")
-	compile(group: "io.github.spencerpark", name: "jupyter-jvm-basekernel", version: "2.2.3")
-	compile(group: "org.jetbrains", name: "annotations", version: "17.0.0")
-	compile(group: "se.sawano.java", name: "alphanumeric-comparator", version: "1.4.1")
+	implementation(group: "de.hhu.stups", name: "de.prob2.kernel", version: "4.0.0-SNAPSHOT")
+	implementation(group: "io.github.spencerpark", name: "jupyter-jvm-basekernel", version: "2.2.3")
+	implementation(group: "org.jetbrains", name: "annotations", version: "17.0.0")
+	implementation(group: "se.sawano.java", name: "alphanumeric-comparator", version: "1.4.1")
 }
 
 sourceCompatibility = "1.8"
