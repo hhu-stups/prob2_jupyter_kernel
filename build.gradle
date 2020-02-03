@@ -19,7 +19,6 @@ wrapper {
 }
 
 repositories {
-	mavenLocal()
 	jcenter()
 	maven {
 		name("Sonatype snapshots")
