@@ -1,11 +1,13 @@
 package de.prob2.jupyter.commands;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
+import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -14,12 +16,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class FindCommand implements Command {
+	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private FindCommand(final @NotNull AnimationSelector animationSelector) {
+	private FindCommand(final @NotNull Provider<@NotNull ProBKernel> kernelProvider, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
+		this.kernelProvider = kernelProvider;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -41,8 +45,9 @@ public final class FindCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final Trace newTrace = CommandUtils.withSourceCode(argString, () -> {
-			final IEvalElement pred = trace.getModel().parseFormula(argString, FormulaExpand.EXPAND);
+		final String code = this.kernelProvider.get().insertLetVariables(argString);
+		final Trace newTrace = CommandUtils.withSourceCode(code, () -> {
+			final IEvalElement pred = trace.getModel().parseFormula(code, FormulaExpand.EXPAND);
 			return trace.getStateSpace().getTraceToState(pred);
 		});
 		this.animationSelector.changeCurrentAnimation(newTrace);

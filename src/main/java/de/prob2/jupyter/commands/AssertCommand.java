@@ -1,12 +1,13 @@
 package de.prob2.jupyter.commands;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
-
+import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -17,12 +18,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class AssertCommand implements Command {
+	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private AssertCommand(final @NotNull AnimationSelector animationSelector) {
+	private AssertCommand(final @NotNull Provider<@NotNull ProBKernel> kernelProvider, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
+		this.kernelProvider = kernelProvider;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -44,7 +47,8 @@ public final class AssertCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
-		final AbstractEvalResult result = CommandUtils.withSourceCode(argString, () -> this.animationSelector.getCurrentTrace().evalCurrent(argString, FormulaExpand.TRUNCATE));
+		final String code = this.kernelProvider.get().insertLetVariables(argString);
+		final AbstractEvalResult result = CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().evalCurrent(code, FormulaExpand.TRUNCATE));
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
 			// Use EvalResult.TRUE instead of the real result so that solution variables are not displayed.
 			return CommandUtils.displayDataForEvalResult(EvalResult.TRUE);

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.prob.animator.command.GetAllDotCommands;
 import de.prob.animator.command.GetSvgForVisualizationCommand;
@@ -18,7 +19,7 @@ import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
-
+import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -28,12 +29,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class DotCommand implements Command {
+	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private DotCommand(final @NotNull AnimationSelector animationSelector) {
+	private DotCommand(final @NotNull Provider<@NotNull ProBKernel> kernelProvider, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
+		this.kernelProvider = kernelProvider;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -76,11 +79,13 @@ public final class DotCommand implements Command {
 		assert !split.isEmpty();
 		final String command = split.get(0);
 		final List<IEvalElement> args;
+		final String code;
 		if (split.size() > 1) {
-			final String code = split.get(1);
+			code = this.kernelProvider.get().insertLetVariables(split.get(1));
 			final IEvalElement formula = CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().getModel().parseFormula(code, FormulaExpand.EXPAND));
 			args = Collections.singletonList(formula);
 		} else {
+			code = null;
 			args = Collections.emptyList();
 		}
 		
@@ -101,8 +106,8 @@ public final class DotCommand implements Command {
 		final GetSvgForVisualizationCommand cmd2 = new GetSvgForVisualizationCommand(trace.getCurrentState(), item, outPath.toFile(), args);
 		// Provide source code (if any) to error highlighter
 		final Runnable execute = () -> trace.getStateSpace().execute(cmd2);
-		if (split.size() > 1) {
-			CommandUtils.withSourceCode(split.get(1), execute);
+		if (code != null) {
+			CommandUtils.withSourceCode(code, execute);
 		} else {
 			execute.run();
 		}

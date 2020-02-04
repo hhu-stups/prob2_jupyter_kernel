@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.prob.animator.command.CbcSolveCommand;
 import de.prob.animator.domainobjects.FormulaExpand;
@@ -13,6 +14,7 @@ import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
+import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -25,12 +27,14 @@ public final class SolveCommand implements Command {
 	private static final @NotNull Map<@NotNull String, CbcSolveCommand.@NotNull Solvers> SOLVERS = Arrays.stream(CbcSolveCommand.Solvers.values())
 		.collect(Collectors.toMap(s -> s.name().toLowerCase(), s -> s));
 	
+	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private SolveCommand(final @NotNull AnimationSelector animationSelector) {
+	private SolveCommand(final @NotNull Provider<@NotNull ProBKernel> kernelProvider, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
+		this.kernelProvider = kernelProvider;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -67,7 +71,7 @@ public final class SolveCommand implements Command {
 		if (solver == null) {
 			throw new UserErrorException("Unknown solver: " + split.get(0));
 		}
-		final String code = split.get(1);
+		final String code = this.kernelProvider.get().insertLetVariables(split.get(1));
 		final IEvalElement predicate = CommandUtils.withSourceCode(code, () -> trace.getModel().parseFormula(code, FormulaExpand.EXPAND));
 		
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());

@@ -495,4 +495,8 @@ public final class ProBKernel extends BaseKernel {
 			throw e2;
 		}
 	}
+	
+	public @NotNull String insertLetVariables(final @NotNull String code) {
+		return CommandUtils.insertLetVariables(code, this.getVariables());
+	}
 }

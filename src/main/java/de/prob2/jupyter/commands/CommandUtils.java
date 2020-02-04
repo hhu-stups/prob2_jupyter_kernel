@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -126,6 +127,20 @@ public final class CommandUtils {
 			action.run();
 			return null;
 		});
+	}
+	
+	public static @NotNull String insertLetVariables(final @NotNull String code, final @NotNull Map<@NotNull String, @NotNull String> variables) {
+		if (variables.isEmpty()) {
+			return code;
+		} else {
+			final StringJoiner varNames = new StringJoiner(",");
+			final StringJoiner varAssignments = new StringJoiner("&");
+			variables.forEach((name, value) -> {
+				varNames.add(name);
+				varAssignments.add(name + "=(" + value + ')');
+			});
+			return String.format("LET %s BE %s IN(%s)END", varNames, varAssignments, code);
+		}
 	}
 	
 	public static @NotNull DisplayData displayDataForEvalResult(final @NotNull AbstractEvalResult aer) {

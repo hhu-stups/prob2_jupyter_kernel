@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
+import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -18,12 +20,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ExecCommand implements Command {
+	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	private ExecCommand(final @NotNull AnimationSelector animationSelector) {
+	private ExecCommand(final @NotNull Provider<@NotNull ProBKernel> kernelProvider, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
+		this.kernelProvider = kernelProvider;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -49,7 +53,12 @@ public final class ExecCommand implements Command {
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final String translatedOpName = CommandUtils.unprettyOperationName(split.get(0));
-		final String predicate = split.size() < 2 ? "1=1" : split.get(1);
+		final String predicate;
+		if (split.size() < 2) {
+			predicate = "1=1";
+		} else {
+			predicate = this.kernelProvider.get().insertLetVariables(split.get(1));
+		}
 		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, predicate, 1);
 		assert !ops.isEmpty();
 		final Transition op = ops.get(0);

@@ -1,14 +1,10 @@
 package de.prob2.jupyter.commands;
 
-import java.util.Map;
-import java.util.StringJoiner;
-
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
-
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -47,19 +43,7 @@ public final class EvalCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull String argString) {
-		final Map<String, String> variables = this.injector.getInstance(ProBKernel.class).getVariables();
-		final String code;
-		if (variables.isEmpty()) {
-			code = argString;
-		} else {
-			final StringJoiner varNames = new StringJoiner(",");
-			final StringJoiner varAssignments = new StringJoiner("&");
-			variables.forEach((name, value) -> {
-				varNames.add(name);
-				varAssignments.add(name + "=(" + value + ')');
-			});
-			code = String.format("LET %s BE %s IN(%s)END", varNames, varAssignments, argString);
-		}
+		final String code = this.injector.getInstance(ProBKernel.class).insertLetVariables(argString);
 		return CommandUtils.displayDataForEvalResult(CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().evalCurrent(code, FormulaExpand.EXPAND)));
 	}
 	

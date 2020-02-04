@@ -3,7 +3,7 @@ package de.prob2.jupyter.commands;
 import java.util.List;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
+import com.google.inject.Provider;
 
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.EvalResult;
@@ -19,14 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class LetCommand implements Command {
-	private final @NotNull Injector injector;
+	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
-	public LetCommand(final @NotNull Injector injector, final @NotNull AnimationSelector animationSelector) {
+	public LetCommand(final @NotNull Provider<@NotNull ProBKernel> kernelProvider, final @NotNull AnimationSelector animationSelector) {
 		super();
 		
-		this.injector = injector;
+		this.kernelProvider = kernelProvider;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -52,10 +52,10 @@ public final class LetCommand implements Command {
 			throw new UserErrorException("Expected 2 arguments, not " + split.size());
 		}
 		final String name = split.get(0);
-		final String expr = split.get(1);
+		final String expr = this.kernelProvider.get().insertLetVariables(split.get(1));
 		final AbstractEvalResult evaluated = CommandUtils.withSourceCode(expr, () -> this.animationSelector.getCurrentTrace().evalCurrent(expr, FormulaExpand.EXPAND));
 		if (evaluated instanceof EvalResult) {
-			this.injector.getInstance(ProBKernel.class).getVariables().put(name, evaluated.toString());
+			this.kernelProvider.get().getVariables().put(name, evaluated.toString());
 		}
 		return CommandUtils.displayDataForEvalResult(evaluated);
 	}
