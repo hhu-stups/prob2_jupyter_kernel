@@ -41,7 +41,7 @@ public final class TypeCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "The returned types are *not* standard B types. They are human-readable, but cannot be used in code.";
+		return "";
 	}
 	
 	@Override
