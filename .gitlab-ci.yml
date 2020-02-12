@@ -10,11 +10,21 @@ default:
       - .gradle/native
       - .gradle/wrapper
   before_script:
+    - apt-get update
+    - apt-get install --assume-yes jupyter-client jupyter-console
     - export GRADLE_USER_HOME="${PWD}/.gradle"
 
 test:
   stage: test
-  script: ./gradlew ${GRADLE_OPTIONS} check shadowJar
+  script:
+    - ./gradlew ${GRADLE_OPTIONS} check shadowJar
+    # Test installation of kernel into Jupyter.
+    - java -jar build/libs/prob2-jupyter-kernel-*-all.jar install --user
+    # Test basic functionality of the installed kernel.
+    - |
+      jupyter console --kernel=prob2 --simple-prompt << EOF
+      :version
+      EOF
   artifacts:
     expire_in: 1 week
     paths:
