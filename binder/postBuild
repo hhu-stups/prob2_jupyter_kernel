@@ -5,7 +5,7 @@ set -o nounset
 set -o pipefail
 set -o verbose
 
-GRADLE_USER_HOME="${PWD}" ./gradlew shadowJar
+GRADLE_USER_HOME="${PWD}/.gradle" ./gradlew shadowJar
 java -jar build/libs/prob2-jupyter-kernel-*-all.jar install --user
 # Remove no longer needed files to reduce size of image.
 rm -r .gradle/ build/ releases/
