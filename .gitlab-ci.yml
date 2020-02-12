@@ -1,0 +1,22 @@
+variables:
+  DEBIAN_FRONTEND: noninteractive
+  GRADLE_OPTIONS: --info --stacktrace --warning-mode=all
+
+default:
+  image: openjdk:8-jdk-slim
+  cache:
+    paths:
+      - .gradle/caches
+      - .gradle/native
+      - .gradle/wrapper
+  before_script:
+    - export GRADLE_USER_HOME="${PWD}/.gradle"
+
+test:
+  stage: test
+  script: ./gradlew ${GRADLE_OPTIONS} check shadowJar
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build/distributions
+      - build/libs
