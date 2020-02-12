@@ -1,6 +1,6 @@
 # ProB 2 Jupyter Kernel
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.cs.uni-duesseldorf.de%2Fdgelessus%2Fprob2-jupyter-kernel.git/master?filepath=notebooks)
+[![GitLab CI](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/badges/master/pipeline.svg)](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/pipelines) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.cs.uni-duesseldorf.de%2Fdgelessus%2Fprob2-jupyter-kernel.git/master?filepath=notebooks)
 
 This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and model checker](https://www3.hhu.de/stups/prob/), based on the [ProB 2 Java API](https://github.com/bendisposto/prob2) and the [Jupyter JVM BaseKernel](https://github.com/SpencerPark/jupyter-jvm-basekernel) library.
 
