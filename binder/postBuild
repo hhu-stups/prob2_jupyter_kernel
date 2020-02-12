@@ -4,4 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-./gradlew installKernelSpec -PkernelspecUserInstall=true
+GRADLE_USER_HOME="${PWD}" ./gradlew shadowJar
+java -jar build/libs/prob2-jupyter-kernel-*-all.jar install --user
+# Remove no longer needed files to reduce size of image.
+rm -r .gradle/ build/ releases/
