@@ -3,6 +3,7 @@
 set -o errexit
 set -o nounset
 set -o pipefail
+set -o verbose
 
 GRADLE_USER_HOME="${PWD}" ./gradlew shadowJar
 java -jar build/libs/prob2-jupyter-kernel-*-all.jar install --user
