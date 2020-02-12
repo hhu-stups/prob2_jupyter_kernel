@@ -8,4 +8,4 @@ set -o verbose
 GRADLE_USER_HOME="${PWD}/.gradle" ./gradlew --no-daemon shadowJar
 java -jar build/libs/prob2-jupyter-kernel-*-all.jar install --user
 # Remove no longer needed files to reduce size of image.
-rm -r .gradle/ build/ releases/
+rm -r .git/lfs/ .gradle/ build/ releases/
