@@ -12,6 +12,7 @@
 * Added a `:bsymb` command to load ProB's custom bsymb.sty LaTeX definitions on demand. After this command is executed, bsymb commands can be used in LaTeX formulas in Markdown cells.
 * Added support for Java 11.
 * Updated ProB 2 to version 3.2.12.
+* Fixed installation problems under Windows (paths in the kernel metadata are now escaped correctly).
 * Fixed confusing handling of trailing spaces in commands.
 * Fixed `:show` not displaying animation images correctly for machines outside of the kernel's working directory.
 * Fixed `:trace` not showing the parameters and return values of executed transitions.

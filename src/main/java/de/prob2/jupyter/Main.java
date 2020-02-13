@@ -1,10 +1,9 @@
 package de.prob2.jupyter;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,10 +13,13 @@ import java.nio.file.StandardCopyOption;
 import java.security.CodeSource;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
@@ -28,6 +30,16 @@ import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import org.jetbrains.annotations.Nullable;
 
 public final class Main {
+	private static final class KernelJsonData {
+		List<String> argv;
+		@SerializedName("display_name") String displayName;
+		String language;
+		
+		KernelJsonData() {
+			super();
+		}
+	}
+	
 	private Main() {
 		super();
 		
@@ -98,24 +110,35 @@ public final class Main {
 			}
 		});
 		
+		final List<String> kernelJsonArgv = new ArrayList<>();
+		kernelJsonArgv.add("java");
+		
 		final String probHome = System.getProperty("prob.home");
-		final String probHomeDef;
 		if (probHome != null) {
 			System.out.println("prob.home is set, adding a corresponding prob.home defintion to kernel.json: " + probHome);
-			probHomeDef = String.format("\n\t\t\"-Dprob.home=%s\",", probHome);
+			kernelJsonArgv.add("-Dprob.home=" + probHome);
 		} else {
 			System.out.println("prob.home is not set, not adding a prob.home definition to kernel.json");
-			probHomeDef = "";
 		}
 		
+		kernelJsonArgv.add("-jar");
+		kernelJsonArgv.add(jarPath.toString());
+		kernelJsonArgv.add("run");
+		kernelJsonArgv.add("{connection_file}");
+		
+		final Main.KernelJsonData kernelJsonData = new Main.KernelJsonData();
+		kernelJsonData.argv = kernelJsonArgv;
+		kernelJsonData.displayName = "ProB 2";
+		kernelJsonData.language = "prob";
+		
+		final Gson gson = new GsonBuilder()
+			.setPrettyPrinting()
+			.serializeNulls()
+			.create();
+		
 		System.out.println("Creating kernel.json");
-		try (
-			final InputStream is = Main.class.getResourceAsStream("kernelspecfiles/kernel.json.template");
-			final InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
-			final BufferedReader br = new BufferedReader(isr);
-		) {
-			final String kernelJsonText = String.format(br.lines().collect(Collectors.joining("\n")), probHomeDef, jarPath);
-			Files.write(kernelSpecDir.resolve("kernel.json"), Arrays.asList(kernelJsonText.split("\n")));
+		try (final Writer writer = Files.newBufferedWriter(kernelSpecDir.resolve("kernel.json"))) {
+			gson.toJson(kernelJsonData, writer);
 		} catch (final IOException e) {
 			System.err.println("Failed to create kernel.json");
 			e.printStackTrace();
