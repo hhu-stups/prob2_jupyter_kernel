@@ -24,6 +24,7 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.commands.AssertCommand;
 import de.prob2.jupyter.commands.BrowseCommand;
+import de.prob2.jupyter.commands.BsymbCommand;
 import de.prob2.jupyter.commands.CheckCommand;
 import de.prob2.jupyter.commands.Command;
 import de.prob2.jupyter.commands.CommandExecutionException;
