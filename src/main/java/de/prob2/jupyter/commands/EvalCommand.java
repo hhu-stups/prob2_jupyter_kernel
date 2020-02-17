@@ -26,6 +26,11 @@ public final class EvalCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":eval";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":eval FORMULA";
 	}

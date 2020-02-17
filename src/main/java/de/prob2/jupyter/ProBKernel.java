@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +75,38 @@ public final class ProBKernel extends BaseKernel {
 	private static final @NotNull Pattern SPACE_PATTERN = Pattern.compile("\\s*");
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
 	private static final @NotNull Pattern LATEX_FORMULA_PATTERN = Pattern.compile("(\\$\\$?)([^\\$]+)\\1");
+	
+	private static final @NotNull Collection<@NotNull Class<? extends Command>> COMMAND_CLASSES = Collections.unmodifiableList(Arrays.asList(
+		HelpCommand.class,
+		VersionCommand.class,
+		EvalCommand.class,
+		TypeCommand.class,
+		TableCommand.class,
+		SolveCommand.class,
+		LetCommand.class,
+		UnletCommand.class,
+		LoadFileCommand.class,
+		LoadCellCommand.class,
+		PrefCommand.class,
+		BrowseCommand.class,
+		TraceCommand.class,
+		StatsCommand.class,
+		ExecCommand.class,
+		ConstantsCommand.class,
+		InitialiseCommand.class,
+		GotoCommand.class,
+		FindCommand.class,
+		ShowCommand.class,
+		DotCommand.class,
+		AssertCommand.class,
+		CheckCommand.class,
+		TimeCommand.class,
+		GroovyCommand.class,
+		RenderCommand.class,
+		BsymbCommand.class,
+		PrettyPrintCommand.class,
+		ModelCheckCommand.class
+	));
 	
 	private static final @NotNull Map<@NotNull String, @NotNull String> BSYMB_COMMAND_DEFINITIONS;
 	static {
@@ -151,36 +184,9 @@ public final class ProBKernel extends BaseKernel {
 		
 		this.animationSelector = animationSelector;
 		
-		this.commands = new HashMap<>();
-		this.commands.put(":help", injector.getInstance(HelpCommand.class));
-		this.commands.put(":version", injector.getInstance(VersionCommand.class));
-		this.commands.put(":eval", injector.getInstance(EvalCommand.class));
-		this.commands.put(":type", injector.getInstance(TypeCommand.class));
-		this.commands.put(":table", injector.getInstance(TableCommand.class));
-		this.commands.put(":solve", injector.getInstance(SolveCommand.class));
-		this.commands.put(":let", injector.getInstance(LetCommand.class));
-		this.commands.put(":unlet", injector.getInstance(UnletCommand.class));
-		this.commands.put(":load", injector.getInstance(LoadFileCommand.class));
-		this.commands.put("::load", injector.getInstance(LoadCellCommand.class));
-		this.commands.put(":pref", injector.getInstance(PrefCommand.class));
-		this.commands.put(":browse", injector.getInstance(BrowseCommand.class));
-		this.commands.put(":trace", injector.getInstance(TraceCommand.class));
-		this.commands.put(":stats", injector.getInstance(StatsCommand.class));
-		this.commands.put(":exec", injector.getInstance(ExecCommand.class));
-		this.commands.put(":constants", injector.getInstance(ConstantsCommand.class));
-		this.commands.put(":init", injector.getInstance(InitialiseCommand.class));
-		this.commands.put(":goto", injector.getInstance(GotoCommand.class));
-		this.commands.put(":find", injector.getInstance(FindCommand.class));
-		this.commands.put(":show", injector.getInstance(ShowCommand.class));
-		this.commands.put(":dot", injector.getInstance(DotCommand.class));
-		this.commands.put(":assert", injector.getInstance(AssertCommand.class));
-		this.commands.put(":check", injector.getInstance(CheckCommand.class));
-		this.commands.put(":time", injector.getInstance(TimeCommand.class));
-		this.commands.put(":groovy", injector.getInstance(GroovyCommand.class));
-		this.commands.put("::render", injector.getInstance(RenderCommand.class));
-		this.commands.put(":bsymb", injector.getInstance(BsymbCommand.class));
-		this.commands.put(":prettyprint", injector.getInstance(PrettyPrintCommand.class));
-		this.commands.put(":modelcheck", injector.getInstance(ModelCheckCommand.class));
+		this.commands = COMMAND_CLASSES.stream()
+			.map(injector::getInstance)
+			.collect(Collectors.toMap(Command::getName, cmd -> cmd));
 		
 		this.variables = new HashMap<>();
 		

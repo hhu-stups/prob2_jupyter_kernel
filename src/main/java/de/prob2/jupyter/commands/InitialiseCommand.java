@@ -31,6 +31,11 @@ public final class InitialiseCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":init";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":init [PREDICATE]";
 	}

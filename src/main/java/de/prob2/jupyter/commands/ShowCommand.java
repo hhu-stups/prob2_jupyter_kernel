@@ -37,6 +37,11 @@ public final class ShowCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":show";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":show";
 	}

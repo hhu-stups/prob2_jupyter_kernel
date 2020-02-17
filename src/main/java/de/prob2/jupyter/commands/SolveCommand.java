@@ -39,6 +39,11 @@ public final class SolveCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":solve";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":solve SOLVER PREDICATE";
 	}

@@ -41,6 +41,11 @@ public final class DotCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":dot";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":dot COMMAND [FORMULA]";
 	}

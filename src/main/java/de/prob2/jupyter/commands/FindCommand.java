@@ -28,6 +28,11 @@ public final class FindCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":find";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":find PREDICATE";
 	}

@@ -27,6 +27,11 @@ public final class TraceCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":trace";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":trace";
 	}

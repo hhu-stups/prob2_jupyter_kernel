@@ -40,6 +40,11 @@ public final class ModelCheckCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":modelcheck";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":modelcheck";
 	}

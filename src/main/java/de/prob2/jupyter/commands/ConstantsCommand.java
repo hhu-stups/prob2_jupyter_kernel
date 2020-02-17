@@ -31,6 +31,11 @@ public final class ConstantsCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":constants";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":constants [PREDICATE]";
 	}

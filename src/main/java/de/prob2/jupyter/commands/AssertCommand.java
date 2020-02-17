@@ -30,6 +30,11 @@ public final class AssertCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":assert";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":assert PREDICATE";
 	}

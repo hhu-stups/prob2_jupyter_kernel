@@ -24,6 +24,11 @@ public final class GotoCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":goto";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":goto INDEX";
 	}

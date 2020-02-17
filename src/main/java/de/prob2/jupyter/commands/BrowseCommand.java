@@ -33,6 +33,11 @@ public final class BrowseCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":browse";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":browse";
 	}

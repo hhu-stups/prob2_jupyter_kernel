@@ -31,6 +31,11 @@ public final class PrefCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":pref";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":pref [NAME ...]\n:pref NAME=VALUE [NAME=VALUE ...]";
 	}

@@ -48,6 +48,11 @@ public final class CheckCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":check";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":check WHAT";
 	}

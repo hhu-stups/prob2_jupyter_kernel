@@ -17,6 +17,11 @@ public final class RenderCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return "::render";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return "::render MIMETYPE\nCONTENT";
 	}

@@ -27,6 +27,11 @@ public final class HelpCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":help";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":help [COMMAND]";
 	}

@@ -26,6 +26,11 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":time";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":time COMMAND [ARGS ...]";
 	}

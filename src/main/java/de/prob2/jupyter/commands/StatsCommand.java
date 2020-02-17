@@ -25,6 +25,11 @@ public final class StatsCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":stats";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":stats";
 	}

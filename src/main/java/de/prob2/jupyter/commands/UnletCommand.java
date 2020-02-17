@@ -25,6 +25,11 @@ public final class UnletCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":unlet";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":unlet NAME";
 	}

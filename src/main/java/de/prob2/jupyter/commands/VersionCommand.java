@@ -23,6 +23,11 @@ public final class VersionCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":version";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":version";
 	}

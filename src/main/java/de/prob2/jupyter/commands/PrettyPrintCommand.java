@@ -24,6 +24,11 @@ public final class PrettyPrintCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":prettyprint";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":prettyprint PREDICATE";
 	}

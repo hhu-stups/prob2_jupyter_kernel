@@ -50,6 +50,11 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":load";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":load FILENAME [PREF=VALUE ...]";
 	}

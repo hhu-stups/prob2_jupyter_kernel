@@ -17,6 +17,11 @@ public final class BsymbCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":bsymb";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":bsymb";
 	}

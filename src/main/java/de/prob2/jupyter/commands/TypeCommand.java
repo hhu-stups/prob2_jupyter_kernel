@@ -30,6 +30,11 @@ public final class TypeCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":type";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":type FORMULA";
 	}

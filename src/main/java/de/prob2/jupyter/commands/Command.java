@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface Command {
+	public abstract @NotNull String getName();
+	
 	public abstract @NotNull String getSyntax();
 	
 	public abstract @NotNull String getShortHelp();

@@ -31,6 +31,11 @@ public final class LetCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":let";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":let NAME EXPR";
 	}

@@ -31,6 +31,11 @@ public final class GroovyCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":groovy";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":groovy EXPRESSION";
 	}

@@ -32,6 +32,11 @@ public final class ExecCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":exec";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":exec OPERATION [PREDICATE]";
 	}

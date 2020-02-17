@@ -37,6 +37,11 @@ public final class TableCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return ":table";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":table EXPRESSION";
 	}

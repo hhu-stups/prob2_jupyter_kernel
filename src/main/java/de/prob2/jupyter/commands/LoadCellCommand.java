@@ -38,6 +38,11 @@ public final class LoadCellCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull String getName() {
+		return "::load";
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return "::load [PREF=VALUE ...]\nMACHINE\n...\nEND";
 	}
