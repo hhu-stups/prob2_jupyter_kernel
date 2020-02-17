@@ -50,12 +50,12 @@ public final class HelpCommand implements Command {
 			final StringBuilder sbMarkdown = new StringBuilder("Type a valid B expression, or one of the following commands:\n\n");
 			new TreeMap<>(kernel.getCommands()).forEach((commandName, command) -> {
 				sb.append(commandName);
-				sb.append(' ');
+				sb.append(" - ");
 				sb.append(command.getShortHelp());
 				sb.append('\n');
 				sbMarkdown.append("* `");
 				sbMarkdown.append(commandName);
-				sbMarkdown.append("` ");
+				sbMarkdown.append("` - ");
 				sbMarkdown.append(command.getShortHelp());
 				sbMarkdown.append('\n');
 			});
