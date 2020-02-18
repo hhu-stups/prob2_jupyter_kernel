@@ -68,11 +68,6 @@ public final class DotCommand implements Command {
 			sb.append(item.getName());
 			sb.append(": ");
 			sb.append(item.getDescription());
-			if (!item.isAvailable()) {
-				sb.append(" (**Not available for this machine/state**: ");
-				sb.append(item.getAvailable());
-				sb.append(')');
-			}
 			sb.append('\n');
 		}
 		return sb.toString();
