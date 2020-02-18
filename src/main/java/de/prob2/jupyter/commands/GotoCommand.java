@@ -40,7 +40,8 @@ public final class GotoCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "Use the `:trace` command to view the current trace and the indices of its states. Index -1 refers to the root state and is always available.\n\nGoing backwards in the current trace does *not* discard any parts of the trace, so it is possible to go forward again afterwards. However, executing an operation in a state *will* discard any parts of the trace after that state (and replace them with the destination state of the executed transition).";
+		return "Use the `:trace` command to view the current trace and the indices of its states. Index -1 refers to the root state and is always available.\n\n"
+			+ "Going backwards in the current trace does *not* discard any parts of the trace, so it is possible to go forward again afterwards. However, executing an operation in an older state *will* discard any parts of the trace after that state, and replace them with the new state reached after executing the operation.";
 	}
 	
 	@Override

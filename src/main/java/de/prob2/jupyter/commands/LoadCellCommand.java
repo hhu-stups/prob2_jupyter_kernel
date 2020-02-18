@@ -44,18 +44,19 @@ public final class LoadCellCommand implements Command {
 	
 	@Override
 	public @NotNull String getSyntax() {
-		return "::load [PREF=VALUE ...]\nMACHINE\n...\nEND";
+		return "MACHINE\n...\nEND\n\n// or\n\n::load [PREF=VALUE ...]\nMACHINE\n...\nEND";
 	}
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Load the machine source code given in the cell body.";
+		return "Load a B machine from the given source code.";
 	}
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "There must be a newline between the `::load` command name and the machine code.\n\n"
-			+ "Any number of preference assignments may be included after `::load` (only on the first line). Preferences can also be changed on a loaded machine using the `:pref` command, however certain preferences do not take full effect when set using `:pref` and must be set when the machine is loaded.";
+		return "Normally you do not need to explicitly call `::load` to load a machine from a cell. If you input the source code for a B machine without any command before it, it is loaded automatically.\n\n"
+			+ "There must be a newline between the `::load` command name and the machine code.\n\n"
+			+ "If you use an explicit `::load` command, there must be a newline between `::load` and the machine source code. On the same line as `::load`, you can set the values of one or more ProB preferences that should be applied to the newly loaded machine. Preferences can also be changed using the `:pref` command after a machine has been loaded, however certain preferences do not take full effect when set using `:pref` and must be set when the machine is loaded.";
 	}
 	
 	@Override

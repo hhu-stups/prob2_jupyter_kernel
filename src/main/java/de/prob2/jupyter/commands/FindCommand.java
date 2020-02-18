@@ -44,7 +44,8 @@ public final class FindCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "If such a state is found, it is made the current state, otherwise an error is displayed.\n\nNote that this command does not necessarily find a valid *trace* to the found state. Instead, in some cases a single \"fake\" transition is added to the trace, which goes directly to the found state and does not use the machine's operations to reach it.";
+		return "If such a state is found, it is made the current state, otherwise an error is displayed.\n\n"
+			+ "Note that this command does not necessarily find a valid *trace* to the found state. Instead, this command may a single \"fake\" transition to the trace, which goes directly to the found state and does not use the machine's operations to reach it. Such a state may or may not be reachable by a sequence of normal operations.";
 	}
 	
 	@Override

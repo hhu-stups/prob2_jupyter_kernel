@@ -41,12 +41,12 @@ public final class TypeCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Display the type of a formula.";
+		return "Display the static type of a formula.";
 	}
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "";
+		return "The type is displayed in B syntax. If the formula is a predicate, the type is `predicate`.";
 	}
 	
 	@Override

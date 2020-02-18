@@ -91,8 +91,8 @@ public final class HelpCommand implements Command {
 		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
 		final List<String> args = CommandUtils.splitArgs(argString);
 		if (args.isEmpty()) {
-			final StringBuilder sb = new StringBuilder("Enter a B expression or predicate to evaluate it.\nYou can also use any of the following commands. For more help on a particular command, run :help commandname.\n");
-			final StringBuilder sbMarkdown = new StringBuilder("Enter a B expression or predicate to evaluate it.\n\nYou can also use any of the following commands. For more help on a particular command, run `:help commandname`.\n");
+			final StringBuilder sb = new StringBuilder("Enter a B expression or predicate to evaluate it. To load a B machine, enter its source code directly, or use :load to load an external machine file.\nYou can also use any of the following commands. For more help on a particular command, run :help commandname.\n");
+			final StringBuilder sbMarkdown = new StringBuilder("Enter a B expression or predicate to evaluate it. To load a B machine, enter its source code directly, or use `:load` to load an external machine file.\n\nYou can also use any of the following commands. For more help on a particular command, run `:help commandname`.\n");
 			
 			final Map<Class<? extends Command>, Command> commandsByClass = kernel.getCommands()
 				.values()

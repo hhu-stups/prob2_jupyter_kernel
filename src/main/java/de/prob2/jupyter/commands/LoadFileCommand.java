@@ -61,13 +61,13 @@ public final class LoadFileCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Load the machine from the given path.";
+		return "Load a machine from a file.";
 	}
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "The path is relative to the kernel's current directory (i. e. the directory in which the notebook is located).\n\n"
-			+ "Any number of preference assignments may be included after the file path. Preferences can also be changed on a loaded machine using the `:pref` command, however certain preferences do not take full effect when set using `:pref` and must be set when the machine is loaded.";
+		return "The file path is relative to the kernel's current directory (i. e. the directory in which the notebook is located).\n\n"
+			+ "After the file path, you can set the values of one or more ProB preferences that should be applied to the newly loaded machine. Preferences can also be changed using the `:pref` command after a machine has been loaded, however certain preferences do not take full effect when set using `:pref` and must be set when the machine is loaded.";
 	}
 	
 	@Override

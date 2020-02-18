@@ -42,7 +42,7 @@ public final class TimeCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "The time is internally measured using Java's [`System.nanoTime()`](https://docs.oracle.com/javase/8/docs/api/java/lang/System.html#nanoTime--) method. The measured time is displayed with nanosecond precision, but the actual resolution of the measurement is system-dependent and often much larger than nanoseconds.\n\n"
+		return "The time is internally measured using Java's [`System.nanoTime()`](https://docs.oracle.com/javase/8/docs/api/java/lang/System.html#nanoTime--) method. The measured time is displayed with nanosecond precision, but the actual resolution of the measurement is system-dependent and often much less accurate than nanoseconds.\n\n"
 			+ "As with any measurement of execution time, there will likely be small differences between two measurements of the same command. The time is measured by the kernel rather than ProB, so it will include some overhead due to processing of the command by the kernel and communication with ProB.";
 	}
 	

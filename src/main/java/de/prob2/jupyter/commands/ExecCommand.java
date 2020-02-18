@@ -48,7 +48,8 @@ public final class ExecCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "A transition for the given operation is found and executed. If the optional predicate is specified, a transition is found for which the predicate is $\\mathit{TRUE}$. The predicate can be used to restrict what values the operation's parameters or the variables in the next state may have.";
+		return "The predicate is used to select the operation's parameter values. The parameters can be fully specified explicitly (e. g. `:exec op param1 = 123 & param2 = {1, 2}`), or they can be partially constrained (e. g. `:exec op param1 > 100 & card(param2) >= 2`) to let ProB find a valid combination of parameters. If there are multiple valid combinations of parameters that satisfy the predicate, it is undefined which one is selected by ProB.\n\n"
+			+ "If no predicate is specified, the parameters are not constrained, and ProB will select an arbitrary valid combination of parameters.";
 	}
 	
 	@Override

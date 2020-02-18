@@ -38,12 +38,13 @@ public final class TraceCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Display all states and transitions in the current trace.";
+		return "Display all states and executed operations in the current trace.";
 	}
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "Each state has an index, which can be passed to the `:goto` command to go to that state.\n\nThe first state (index -1) is always the root state. All other states are reached from the root state by following (previously executed) transitions.";
+		return "Each state has an index, which can be passed to the `:goto` command to go to that state.\n\n"
+			+ "The first state (index -1) is always the root state. All other states are reached from the root state by following previously executed operations.";
 	}
 	
 	@Override

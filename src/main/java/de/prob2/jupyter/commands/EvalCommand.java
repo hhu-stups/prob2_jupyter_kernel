@@ -32,7 +32,7 @@ public final class EvalCommand implements Command {
 	
 	@Override
 	public @NotNull String getSyntax() {
-		return ":eval FORMULA";
+		return "FORMULA\n// or\n:eval FORMULA";
 	}
 	
 	@Override
@@ -42,8 +42,8 @@ public final class EvalCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "This is equivalent to inputting the formula without a command name.\n\n"
-			+ "If the formula is a $\\mathit{TRUE}$ predicate with free variables, the variable values found while solving are displayed.";
+		return "Normally you do not need to explicitly call `:eval` to evaluate formulas. If you input a formula without any command before it, it is evaluated automatically (e. g. `:eval 1 + 2` is equivalent to just `1 + 2`).\n\n"
+			+ "If the formula is a $\\mathit{TRUE}$ predicate with free variables, the variable values found while solving are displayed. For more control about which solver is used to solve the predicate, use the `:solve` command.";
 	}
 	
 	@Override

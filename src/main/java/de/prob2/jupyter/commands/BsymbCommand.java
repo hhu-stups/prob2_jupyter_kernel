@@ -31,7 +31,7 @@ public final class BsymbCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "";
+		return "If you want to use bsymb.sty commands in your Markdown cells, you *must* run `:bsymb` first. Otherwise the commands may not be reliably available after reopening the notebook.";
 	}
 	
 	@Override

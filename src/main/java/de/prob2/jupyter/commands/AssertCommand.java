@@ -46,8 +46,9 @@ public final class AssertCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "This command is intended for verifying that a predicate is always true at a certain point in a notebook. Unlike normal evaluation (`:eval`), this command treats a $\\mathit{FALSE}$ result as an error. If the result is $\\mathit{TRUE}$, solutions for free variables (if any) are not displayed.\n\n"
-			+ "Only predicates and $\\mathit{BOOL}$ expressions are accepted. Expressions of other types cause an error.";
+		return "Unlike normal evaluation (`:eval`), this command treats a $\\mathit{FALSE}$ result as an error. If the result is $\\mathit{TRUE}$, solutions for free variables (if any) are not displayed.\n\n"
+			+ "Only predicates and $\\mathit{BOOL}$ expressions are accepted. Expressions of other types cause an error.\n\n"
+			+ "This command is intended for verifying that a condition holds at a certain point in the notebook. It may also be used in combination with the Jupyter Notebook [nbgrader](https://nbgrader.readthedocs.io/) extension for automatic checking/grading of exercises.";
 	}
 	
 	@Override

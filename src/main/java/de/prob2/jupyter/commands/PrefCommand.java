@@ -37,7 +37,7 @@ public final class PrefCommand implements Command {
 	
 	@Override
 	public @NotNull String getSyntax() {
-		return ":pref [NAME ...]\n:pref NAME=VALUE [NAME=VALUE ...]";
+		return ":pref [NAME ...]\n// or\n:pref NAME=VALUE [NAME=VALUE ...]";
 	}
 	
 	@Override
@@ -47,8 +47,8 @@ public final class PrefCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "In the first form, the values of all given preferences are displayed (or all preferences, if none are given). In the second form, the given preference assignments are performed. The two forms cannot be mixed; it is not possible to view and change preferences in a single command.\n\n"
-			+ "Certain preference changes do not take full effect when performed on a loaded machine. Such preferences must be assigned when the machine is loaded using the `::load` or `:load` command.";
+		return "In the first form, the values of the given preferences are displayed (or all preferences, if no preference names are given). In the second form, the values of the given preferences are changed. The two forms cannot be mixed; it is not possible to view and change preferences in a single command.\n\n"
+			+ "Certain preference changes do not take full effect when performed on an already loaded machine. Such preferences must be set when the machine is loaded using the `::load` or `:load` command.";
 	}
 	
 	@Override

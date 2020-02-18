@@ -49,7 +49,7 @@ public final class BrowseCommand implements Command {
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "The output shows the names of all sets, constants, and variables defined by the current machine, as well as a list of transitions that are available in the current state.";
+		return "The output shows the names of all sets, constants, and variables defined by the current machine, as well as a list of enabled operations (and possible parameter values) in the current state.";
 	}
 	
 	private static @NotNull String listToString(final List<String> list) {
