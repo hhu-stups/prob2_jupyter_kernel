@@ -73,6 +73,7 @@ public final class ProBKernel extends BaseKernel {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
 	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
+	private static final @NotNull Pattern MACHINE_CODE_PATTERN = Pattern.compile("MACHINE\\W.*");
 	private static final @NotNull Pattern SPACE_PATTERN = Pattern.compile("\\s*");
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
 	private static final @NotNull Pattern LATEX_FORMULA_PATTERN = Pattern.compile("(\\$\\$?)([^\\$]+)\\1");
@@ -285,7 +286,7 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private static boolean isMachineCode(final @NotNull String code) {
-		return code.startsWith("MACHINE");
+		return MACHINE_CODE_PATTERN.matcher(code).matches();
 	}
 	
 	@Override
