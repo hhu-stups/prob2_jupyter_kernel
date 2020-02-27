@@ -1,6 +1,6 @@
 # Changelog
 
-## [(next version)](./README.md#for-developers)
+## [1.1.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.1.0-all.jar)
 
 * Added a `--user` flag to the installer to allow installing the kernel into the user home directory. This allows installing the kernel without `sudo` when not using a virtual environment.
 * Added `:let` and `:unlet` commands to (un)define local variables.
