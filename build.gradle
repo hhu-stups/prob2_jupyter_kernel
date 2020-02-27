@@ -77,7 +77,7 @@ task cleanKernelSpec(type: Delete) {
 clean.dependsOn << cleanKernelSpec
 
 task createKernelSpec(type: JavaExec) {
-	dependsOn = [cleanKernelSpec, shadowJar]
+	dependsOn = [shadowJar]
 	main = project.mainClassName
 	args = ["createKernelSpec", KERNEL_SPEC_OUTPUT_PATH.toString()]
 	classpath(shadowJar.archiveFile)
@@ -86,6 +86,7 @@ task createKernelSpec(type: JavaExec) {
 	}
 	outputs.dir(KERNEL_SPEC_OUTPUT_PATH.toFile())
 	doFirst {
+		delete(KERNEL_SPEC_OUTPUT_PATH)
 		mkdir(KERNEL_SPEC_OUTPUT_PATH)
 	}
 }
