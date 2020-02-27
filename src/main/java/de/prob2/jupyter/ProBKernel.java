@@ -1,5 +1,9 @@
 package de.prob2.jupyter;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -9,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -70,6 +75,24 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class ProBKernel extends BaseKernel {
+	/**
+	 * Inner class for safe lazy loading of the build info.
+	 */
+	private static final class BuildInfo {
+		static final Properties buildInfo;
+		static {
+			buildInfo = new Properties();
+			try (final Reader reader = new InputStreamReader(
+				ProBKernel.class.getResourceAsStream("/de/prob2/jupyter/build.properties"),
+				StandardCharsets.UTF_8
+			)) {
+				buildInfo.load(reader);
+			} catch (final IOException e) {
+				throw new AssertionError("Failed to load build info", e);
+			}
+		}
+	}
+	
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
 	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
@@ -194,6 +217,18 @@ public final class ProBKernel extends BaseKernel {
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").load()));
 		this.currentMachineDirectory = Paths.get("");
+	}
+	
+	private static @NotNull Properties getBuildInfo() {
+		return ProBKernel.BuildInfo.buildInfo;
+	}
+	
+	public static @NotNull String getVersion() {
+		return getBuildInfo().getProperty("version");
+	}
+	
+	public static @NotNull String getCommit() {
+		return getBuildInfo().getProperty("commit");
 	}
 	
 	public @NotNull Map<@NotNull String, @NotNull Command> getCommands() {

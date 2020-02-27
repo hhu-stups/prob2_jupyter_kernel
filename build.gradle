@@ -52,6 +52,21 @@ tasks.withType(JavaCompile) {
 	options.encoding = SOURCE_ENCODING
 }
 
+def readCurrentGitCommit() {
+	def proc = ["git", "rev-parse", "HEAD"].execute(null, project.projectDir)
+	def exitCode = proc.waitFor()
+	if (exitCode != 0) {
+		throw new IllegalStateException("git rev-parse command exited with status code ${exitCode}:\n" + proc.err.readLines().join("\n"))
+	}
+	return proc.in.readLines()[0]
+}
+
+processResources {
+	filesMatching("de/prob2/jupyter/build.properties") {
+		expand(version: project.version, commit: readCurrentGitCommit())
+	}
+}
+
 mainClassName = "de.prob2.jupyter.Main"
 
 final KERNEL_SPEC_FILES_PATH = sourceSets.main.resources.sourceDirectories.singleFile.toPath().resolve(Paths.get("de", "prob2", "jupyter", "kernelspecfiles"))
