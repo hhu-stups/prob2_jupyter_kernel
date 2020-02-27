@@ -20,7 +20,7 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 
 ### For end users
 
-1. Download the latest version of the kernel [here](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/blob/master/releases/prob2-jupyter-kernel-1.0.0-all.jar).
+1. Download the latest version of the kernel [here](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.0.0-all.jar).
 2. If Jupyter is installed in a virtual environment, activate it.
 3. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
 	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).

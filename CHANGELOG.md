@@ -18,6 +18,6 @@
 * Fixed `:trace` not showing the parameters and return values of executed transitions.
 * Changed error handling so exception stack traces are no longer shown in the notebook. (They are still logged to the console.)
 
-## [1.0.0](./releases/prob2-jupyter-kernel-1.0.0-all.jar)
+## [1.0.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.0.0-all.jar)
 
 * Initial release.
