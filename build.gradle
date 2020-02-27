@@ -69,7 +69,6 @@ processResources {
 
 mainClassName = "de.prob2.jupyter.Main"
 
-final KERNEL_SPEC_FILES_PATH = sourceSets.main.resources.sourceDirectories.singleFile.toPath().resolve(Paths.get("de", "prob2", "jupyter", "kernelspecfiles"))
 final KERNEL_SPEC_OUTPUT_PATH = project.buildDir.toPath().resolve(Paths.get("kernelspec"))
 
 task cleanKernelSpec(type: Delete) {
@@ -85,7 +84,6 @@ task createKernelSpec(type: JavaExec) {
 	if (project.hasProperty("probHome")) {
 		systemProperty("prob.home", project.probHome)
 	}
-	inputs.dir(KERNEL_SPEC_FILES_PATH.toFile())
 	outputs.dir(KERNEL_SPEC_OUTPUT_PATH.toFile())
 	doFirst {
 		mkdir(KERNEL_SPEC_OUTPUT_PATH)
