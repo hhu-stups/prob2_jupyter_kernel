@@ -11,7 +11,7 @@ default:
       - .gradle/wrapper
   before_script:
     - apt-get update
-    - apt-get install --assume-yes jupyter-client jupyter-console
+    - apt-get install --assume-yes git jupyter-client jupyter-console
     - export GRADLE_USER_HOME="${PWD}/.gradle"
 
 test:
