@@ -80,7 +80,7 @@ task createKernelSpec(type: JavaExec) {
 	dependsOn = [cleanKernelSpec, shadowJar]
 	main = project.mainClassName
 	args = ["createKernelSpec", KERNEL_SPEC_OUTPUT_PATH.toString()]
-	classpath(shadowJar.archivePath)
+	classpath(shadowJar.archiveFile)
 	if (project.hasProperty("probHome")) {
 		systemProperty("prob.home", project.probHome)
 	}
