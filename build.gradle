@@ -11,6 +11,8 @@ plugins {
 
 version = "1.0.1-SNAPSHOT"
 
+final isSnapshot = project.version.endsWith("-SNAPSHOT")
+
 final SOURCE_ENCODING = "UTF-8"
 
 wrapper {
@@ -20,9 +22,11 @@ wrapper {
 
 repositories {
 	jcenter()
-	maven {
-		name("Sonatype snapshots")
-		url("https://oss.sonatype.org/content/repositories/snapshots")
+	if (isSnapshot) {
+		maven {
+			name("Sonatype snapshots")
+			url("https://oss.sonatype.org/content/repositories/snapshots")
+		}
 	}
 }
 
