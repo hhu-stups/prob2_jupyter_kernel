@@ -71,11 +71,6 @@ mainClassName = "de.prob2.jupyter.Main"
 
 final KERNEL_SPEC_OUTPUT_PATH = project.buildDir.toPath().resolve(Paths.get("kernelspec"))
 
-task cleanKernelSpec(type: Delete) {
-	delete = [KERNEL_SPEC_OUTPUT_PATH.toFile()]
-}
-clean.dependsOn << cleanKernelSpec
-
 task createKernelSpec(type: JavaExec) {
 	dependsOn = [shadowJar]
 	main = project.mainClassName
