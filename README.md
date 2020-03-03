@@ -2,9 +2,11 @@
 
 [![GitLab CI](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/badges/master/pipeline.svg)](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/pipelines) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.cs.uni-duesseldorf.de%2Fdgelessus%2Fprob2-jupyter-kernel.git/master?filepath=notebooks)
 
-This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and model checker](https://www3.hhu.de/stups/prob/), based on the [ProB 2 Java API](https://github.com/bendisposto/prob2) and the [Jupyter JVM BaseKernel](https://github.com/SpencerPark/jupyter-jvm-basekernel) library.
+This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and model checker](https://www3.hhu.de/stups/prob/), based on the [ProB 2 Java API](https://github.com/hhu-stups/prob2_kernel) and the [Jupyter JVM BaseKernel](https://github.com/SpencerPark/jupyter-jvm-basekernel) library.
 
-**Note:** This project is still in development, features and functionality are not yet stable and may change at any time.
+The latest version of the kernel can be downloaded [here][current-download]. Download links for previous versions can be found in the [changelog]. See the [requirements](#requirements) and [installation instructions](#installation) for information on how to install and use the downloaded jar file.
+
+**Note:** The project is still in development, but the syntax and commands accepted by the kernel are relatively stable. Small breaking changes in future versions are possible, but unlikely.
 
 ## Requirements
 
@@ -20,7 +22,7 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 
 ### For end users
 
-1. Download the latest version of the kernel [here](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.1.0-all.jar).
+1. Download the latest version of the kernel [here][current-download].
 2. If Jupyter is installed in a virtual environment, activate it.
 3. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
 	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
@@ -40,7 +42,7 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 
 ## Updating
 
-To update from an older version of the kernel, follow the installation instructions above. (It's not necessary to uninstall the old version first.) See the [changelog](./CHANGELOG.md) for a list of changes in each release.
+To update from an older version of the kernel, follow the installation instructions above. (It's not necessary to uninstall the old version first.) See the [changelog] for a list of changes in each release.
 
 ## Uninstalling
 
@@ -55,3 +57,6 @@ After installation, start the Jupyter Notebook web interface using `jupyter note
 You can also use the kernel with other frontends, such as `jupyter console` and `jupyter qtconsole`, by specifying `--kernel=prob2` on the command line.
 
 For information on how to use the kernel, run the built-in `:help` command, or see the included [example notebooks](./notebooks).
+
+[current-download]: https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.1.0-all.jar
+[changelog]: ./CHANGELOG.md
