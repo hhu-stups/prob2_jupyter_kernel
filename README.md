@@ -1,6 +1,6 @@
 # ProB 2 Jupyter Kernel
 
-[![GitLab CI](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/badges/master/pipeline.svg)](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel/pipelines) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.cs.uni-duesseldorf.de%2Fdgelessus%2Fprob2-jupyter-kernel.git/master?filepath=notebooks)
+[![GitLab CI](https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel/badges/master/pipeline.svg)](https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel/pipelines) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.cs.uni-duesseldorf.de%2Fgeneral%2Fstups%2Fprob2-jupyter-kernel.git/master?filepath=notebooks)
 
 This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and model checker](https://www3.hhu.de/stups/prob/), based on the [ProB 2 Java API](https://github.com/hhu-stups/prob2_kernel) and the [Jupyter JVM BaseKernel](https://github.com/SpencerPark/jupyter-jvm-basekernel) library.
 
@@ -32,7 +32,7 @@ The latest version of the kernel can be downloaded [here][current-download]. Dow
 
 ### For developers
 
-1. Clone this repository (`git clone https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel.git`) or download an archive from [the repository page](https://gitlab.cs.uni-duesseldorf.de/dgelessus/prob2-jupyter-kernel).
+1. Clone this repository (`git clone https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel.git`) or download an archive from [the repository page](https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel).
 2. If Jupyter is installed in a virtual environment, activate it.
 3. In the root directory of the repository, run `./gradlew installKernelSpec`.
 	* If Jupyter is installed in a virtual environment and you get an error that the `jupyter` command could not be found/executed, try running the Gradle command with the `--no-daemon` option. This ensures that Gradle sees all environment changes performed by the activation of the virtual environment.
