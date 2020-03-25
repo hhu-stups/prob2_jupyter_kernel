@@ -10,6 +10,7 @@ import com.google.inject.Injector;
 
 import de.prob.scripting.ScriptEngineProvider;
 
+import de.prob2.jupyter.Command;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;

@@ -1,4 +1,4 @@
-package de.prob2.jupyter.commands;
+package de.prob2.jupyter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +32,6 @@ import de.prob.animator.domainobjects.WDError;
 import de.prob.exception.ProBError;
 import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
-import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;

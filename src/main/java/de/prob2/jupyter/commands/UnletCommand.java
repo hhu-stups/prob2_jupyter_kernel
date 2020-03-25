@@ -5,6 +5,7 @@ import java.util.Map;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
+import de.prob2.jupyter.Command;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 

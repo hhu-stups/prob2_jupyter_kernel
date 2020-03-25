@@ -15,6 +15,7 @@ import de.prob.check.NotYetFinished;
 import de.prob.check.StateSpaceStats;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.StateSpace;
+import de.prob2.jupyter.Command;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 

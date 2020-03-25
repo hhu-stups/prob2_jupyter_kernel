@@ -12,6 +12,8 @@ import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.animator.command.SetPreferenceCommand;
 import de.prob.statespace.AnimationSelector;
 
+import de.prob2.jupyter.Command;
+import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;

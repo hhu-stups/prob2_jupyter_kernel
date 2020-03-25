@@ -6,6 +6,8 @@ import de.prob.animator.command.PrettyPrintFormulaCommand;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
+import de.prob2.jupyter.Command;
+import de.prob2.jupyter.CommandUtils;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;

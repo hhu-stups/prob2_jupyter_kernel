@@ -15,6 +15,7 @@ import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.animator.domainobjects.AnimationMatrixEntry;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
+import de.prob2.jupyter.Command;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 

@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.prob.Main;
 import de.prob.animator.command.GetVersionCommand;
 import de.prob.statespace.AnimationSelector;
+import de.prob2.jupyter.Command;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;

@@ -2,6 +2,8 @@ package de.prob2.jupyter.commands;
 
 import com.google.inject.Inject;
 
+import de.prob2.jupyter.Command;
+
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 

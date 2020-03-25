@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
+import de.prob2.jupyter.Command;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;

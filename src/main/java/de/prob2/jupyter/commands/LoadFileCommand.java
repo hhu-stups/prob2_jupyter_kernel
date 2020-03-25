@@ -18,6 +18,8 @@ import de.prob.scripting.ModelFactory;
 import de.prob.scripting.ModelTranslationError;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
+import de.prob2.jupyter.Command;
+import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 

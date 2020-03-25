@@ -1,4 +1,4 @@
-package de.prob2.jupyter.commands;
+package de.prob2.jupyter;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;

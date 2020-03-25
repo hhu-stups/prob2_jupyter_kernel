@@ -1,6 +1,4 @@
-package de.prob2.jupyter.commands;
-
-import de.prob2.jupyter.UserErrorException;
+package de.prob2.jupyter;
 
 import org.jetbrains.annotations.NotNull;
 

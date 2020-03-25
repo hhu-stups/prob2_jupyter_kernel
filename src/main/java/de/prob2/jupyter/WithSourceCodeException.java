@@ -1,4 +1,4 @@
-package de.prob2.jupyter.commands;
+package de.prob2.jupyter;
 
 import de.prob.exception.ProBError;
 
