@@ -4,6 +4,7 @@
 
 * Added support for Java 14.
 * Fixed a parse error when a line comment is used on the last line of an expression while any `:let` variables are defined.
+* Fixed detection of B machines in cells without `::load`. Previously only single-line machines were recognized.
 
 ## [1.1.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.1.0-all.jar)
 
