@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,6 +22,9 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -33,6 +38,9 @@ import org.slf4j.LoggerFactory;
 
 public final class LoadFileCommand implements Command {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LoadFileCommand.class);
+	
+	private static final @NotNull PositionalParameter.RequiredSingle FILE_NAME_PARAM = new PositionalParameter.RequiredSingle("fileName");
+	private static final @NotNull PositionalParameter.OptionalRemainder PREFS_PARAM = new PositionalParameter.OptionalRemainder("prefs");
 	
 	private final @NotNull Injector injector;
 	private final @NotNull AnimationSelector animationSelector;
@@ -57,6 +65,11 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Arrays.asList(FILE_NAME_PARAM, PREFS_PARAM));
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":load FILENAME [PREF=VALUE ...]";
 	}
@@ -73,13 +86,8 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final List<String> args = CommandUtils.splitArgs(argString);
-		if (args.isEmpty()) {
-			throw new UserErrorException("Missing machine file name");
-		}
-		
-		final Path machineFilePath = Paths.get(args.get(0));
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final Path machineFilePath = Paths.get(args.get(FILE_NAME_PARAM));
 		final String machineFileName = machineFilePath.getFileName().toString();
 		final Path machineFileDirectory = machineFilePath.getParent() == null ? Paths.get("") : machineFilePath.getParent();
 		final int dotIndex = machineFileName.lastIndexOf('.');
@@ -90,7 +98,12 @@ public final class LoadFileCommand implements Command {
 		if (!FactoryProvider.isExtensionKnown(extension)) {
 			throw new UserErrorException("Unsupported file type: ." + extension);
 		}
-		final Map<String, String> preferences = CommandUtils.parsePreferences(args.subList(1, args.size()));
+		final Map<String, String> preferences;
+		if (args.get(PREFS_PARAM).isPresent()) {
+			preferences = CommandUtils.parsePreferences(CommandUtils.splitArgs(args.get(PREFS_PARAM).get()));
+		} else {
+			preferences = Collections.emptyMap();
+		}
 		
 		try {
 			final ModelFactory<?> factory = this.injector.getInstance(FactoryProvider.factoryClassFromExtension(extension));

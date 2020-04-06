@@ -5,9 +5,9 @@ import com.google.inject.Inject;
 import de.prob.animator.command.ComputeStateSpaceStatsCommand;
 import de.prob.check.StateSpaceStats;
 import de.prob.statespace.AnimationSelector;
-
 import de.prob2.jupyter.Command;
-import de.prob2.jupyter.UserErrorException;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -31,6 +31,11 @@ public final class StatsCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return Parameters.NONE;
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":stats";
 	}
@@ -46,10 +51,7 @@ public final class StatsCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		if (!argString.isEmpty()) {
-			throw new UserErrorException("Expected no arguments");
-		}
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final ComputeStateSpaceStatsCommand cmd = new ComputeStateSpaceStatsCommand();
 		this.animationSelector.getCurrentTrace().getStateSpace().execute(cmd);
 		final StateSpaceStats stats = cmd.getResult();

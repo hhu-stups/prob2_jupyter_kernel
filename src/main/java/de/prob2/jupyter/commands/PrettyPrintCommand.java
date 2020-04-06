@@ -1,5 +1,7 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Collections;
+
 import com.google.inject.Inject;
 
 import de.prob.animator.command.PrettyPrintFormulaCommand;
@@ -8,6 +10,9 @@ import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -16,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class PrettyPrintCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredRemainder PREDICATE_PARAM = new PositionalParameter.RequiredRemainder("predicate");
+	
 	private final AnimationSelector animationSelector;
 	
 	@Inject
@@ -28,6 +35,11 @@ public final class PrettyPrintCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":prettyprint";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(PREDICATE_PARAM));
 	}
 	
 	@Override
@@ -47,14 +59,15 @@ public final class PrettyPrintCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final IEvalElement formula = this.animationSelector.getCurrentTrace().getModel().parseFormula(argString, FormulaExpand.EXPAND);
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final String code = args.get(PREDICATE_PARAM);
+		final IEvalElement formula = this.animationSelector.getCurrentTrace().getModel().parseFormula(code, FormulaExpand.EXPAND);
 		
 		final PrettyPrintFormulaCommand cmdUnicode = new PrettyPrintFormulaCommand(formula, PrettyPrintFormulaCommand.Mode.UNICODE);
 		cmdUnicode.setOptimize(false);
 		final PrettyPrintFormulaCommand cmdLatex = new PrettyPrintFormulaCommand(formula, PrettyPrintFormulaCommand.Mode.LATEX);
 		cmdLatex.setOptimize(false);
-		CommandUtils.withSourceCode(argString, () -> this.animationSelector.getCurrentTrace().getStateSpace().execute(cmdUnicode, cmdLatex));
+		CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().getStateSpace().execute(cmdUnicode, cmdLatex));
 		
 		final DisplayData ret = new DisplayData(cmdUnicode.getPrettyPrint());
 		ret.putLatex('$' + cmdLatex.getPrettyPrint() + '$');

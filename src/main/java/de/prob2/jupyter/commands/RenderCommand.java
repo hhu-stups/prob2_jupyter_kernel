@@ -1,8 +1,13 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Collections;
+
 import com.google.inject.Inject;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -12,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class RenderCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredRemainder MIME_TYPE_AND_CONTENT_PARAM = new PositionalParameter.RequiredRemainder("mimeTypeAndContent");
+	
 	@Inject
 	private RenderCommand() {
 		super();
@@ -20,6 +27,11 @@ public final class RenderCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return "::render";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(MIME_TYPE_AND_CONTENT_PARAM));
 	}
 	
 	@Override
@@ -39,8 +51,8 @@ public final class RenderCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final String[] split = argString.split("\n", 2);
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final String[] split = args.get(MIME_TYPE_AND_CONTENT_PARAM).split("\n", 2);
 		if (split.length != 2) {
 			throw new UserErrorException("Missing content (the content cannot be placed on the same line as the command)");
 		}

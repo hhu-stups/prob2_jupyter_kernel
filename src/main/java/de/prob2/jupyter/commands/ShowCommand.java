@@ -16,6 +16,8 @@ import de.prob.animator.domainobjects.AnimationMatrixEntry;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -43,6 +45,11 @@ public final class ShowCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return Parameters.NONE;
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":show";
 	}
@@ -58,11 +65,7 @@ public final class ShowCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		if (!argString.isEmpty()) {
-			throw new UserErrorException("Expected no arguments");
-		}
-		
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		
 		if (!trace.getCurrentState().isInitialised()) {

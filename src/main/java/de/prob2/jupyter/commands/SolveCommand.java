@@ -16,6 +16,9 @@ import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -26,6 +29,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class SolveCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredSingle SOLVER_PARAM = new PositionalParameter.RequiredSingle("solver");
+	private static final @NotNull PositionalParameter.RequiredRemainder PREDICATE_PARAM = new PositionalParameter.RequiredRemainder("predicate");
+	
 	private static final @NotNull Map<@NotNull String, CbcSolveCommand.@NotNull Solvers> SOLVERS = Arrays.stream(CbcSolveCommand.Solvers.values())
 		.collect(Collectors.toMap(s -> s.name().toLowerCase(), s -> s));
 	
@@ -43,6 +49,11 @@ public final class SolveCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":solve";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Arrays.asList(SOLVER_PARAM, PREDICATE_PARAM));
 	}
 	
 	@Override
@@ -67,18 +78,13 @@ public final class SolveCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final List<String> split = CommandUtils.splitArgs(argString, 2);
-		if (split.size() != 2) {
-			throw new UserErrorException("Expected 2 arguments, got 1");
-		}
-		
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final CbcSolveCommand.Solvers solver = SOLVERS.get(split.get(0));
+		final CbcSolveCommand.Solvers solver = SOLVERS.get(args.get(SOLVER_PARAM));
 		if (solver == null) {
-			throw new UserErrorException("Unknown solver: " + split.get(0));
+			throw new UserErrorException("Unknown solver: " + args.get(SOLVER_PARAM));
 		}
-		final String code = this.kernelProvider.get().insertLetVariables(split.get(1));
+		final String code = this.kernelProvider.get().insertLetVariables(args.get(PREDICATE_PARAM));
 		final IEvalElement predicate = CommandUtils.withSourceCode(code, () -> trace.getModel().parseFormula(code, FormulaExpand.EXPAND));
 		
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());

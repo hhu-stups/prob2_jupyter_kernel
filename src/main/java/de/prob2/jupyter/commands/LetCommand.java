@@ -1,6 +1,6 @@
 package de.prob2.jupyter.commands;
 
-import java.util.List;
+import java.util.Arrays;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -11,8 +11,10 @@ import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
-import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -21,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class LetCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredSingle NAME_PARAM = new PositionalParameter.RequiredSingle("name");
+	private static final @NotNull PositionalParameter.RequiredRemainder EXPRESSION_PARAM = new PositionalParameter.RequiredRemainder("expression");
+	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -35,6 +40,11 @@ public final class LetCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":let";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Arrays.asList(NAME_PARAM, EXPRESSION_PARAM));
 	}
 	
 	@Override
@@ -55,13 +65,9 @@ public final class LetCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final List<String> split = CommandUtils.splitArgs(argString, 2);
-		if (split.size() != 2) {
-			throw new UserErrorException("Expected 2 arguments, not " + split.size());
-		}
-		final String name = split.get(0);
-		final String expr = this.kernelProvider.get().insertLetVariables(split.get(1));
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final String name = args.get(NAME_PARAM);
+		final String expr = this.kernelProvider.get().insertLetVariables(args.get(EXPRESSION_PARAM));
 		final AbstractEvalResult evaluated = CommandUtils.withSourceCode(expr, () -> this.animationSelector.getCurrentTrace().evalCurrent(expr, FormulaExpand.EXPAND));
 		if (evaluated instanceof EvalResult) {
 			this.kernelProvider.get().getVariables().put(name, evaluated.toString());

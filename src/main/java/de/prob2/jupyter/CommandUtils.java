@@ -2,6 +2,7 @@ package de.prob2.jupyter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -99,6 +100,41 @@ public final class CommandUtils {
 	
 	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args) {
 		return splitArgs(args, 0);
+	}
+	
+	private static <T> @NotNull String parseSingleArg(final @NotNull ParsedArguments parsed, final @NotNull String remainingArgs, final @NotNull PositionalParameter<T> param) {
+		final Parameter.ParseResult<T> parsedSingleArg = param.parse(remainingArgs);
+		parsed.put(param, parsedSingleArg.getParsedArg());
+		return parsedSingleArg.getRemainingArgString();
+	}
+	
+	private static <T> void checkParsedParameter(final @NotNull ParsedArguments parsed, final @NotNull PositionalParameter<T> param) {
+		if (!parsed.containsKey(param)) {
+			if (param.isOptional()) {
+				parsed.put(param, param.getDefaultValue());
+			} else {
+				throw new UserErrorException("Missing required parameter " + param.getIdentifier());
+			}
+		}
+	}
+	
+	public static @NotNull ParsedArguments parseArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
+		final ParsedArguments parsed = new ParsedArguments(Collections.emptyMap());
+		String remainingArgs = argString;
+		for (final PositionalParameter<?> param : parameters.getPositionalParameters()) {
+			if (remainingArgs.isEmpty()) {
+				break;
+			}
+			
+			remainingArgs = parseSingleArg(parsed, remainingArgs, param);
+		}
+		if (!remainingArgs.isEmpty()) {
+			throw new UserErrorException("Expected at most " + parameters.getPositionalParameters().size() + " arguments, got extra argument: " + remainingArgs);
+		}
+		for (final PositionalParameter<?> param : parameters.getPositionalParameters()) {
+			checkParsedParameter(parsed, param);
+		}
+		return parsed;
 	}
 	
 	public static @NotNull Map<@NotNull String, @NotNull String> parsePreferences(final @NotNull List<@NotNull String> args) {

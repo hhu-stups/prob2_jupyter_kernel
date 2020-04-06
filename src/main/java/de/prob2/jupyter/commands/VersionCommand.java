@@ -6,6 +6,8 @@ import de.prob.Main;
 import de.prob.animator.command.GetVersionCommand;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -30,6 +32,11 @@ public final class VersionCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return Parameters.NONE;
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":version";
 	}
@@ -45,7 +52,7 @@ public final class VersionCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final StringBuilder sb = new StringBuilder("ProB 2 Jupyter kernel: ");
 		sb.append(ProBKernel.getVersion());
 		sb.append(" (");

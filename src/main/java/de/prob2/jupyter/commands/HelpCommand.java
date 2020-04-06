@@ -13,7 +13,9 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
-import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -24,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class HelpCommand implements Command {
+	private static final @NotNull PositionalParameter.OptionalSingle COMMAND_NAME_PARAM = new PositionalParameter.OptionalSingle("commandName");
+	
 	private static final @NotNull Map<@NotNull String, @NotNull List<@NotNull Class<? extends Command>>> COMMAND_CLASS_CATEGORIES;
 	static {
 		final Map<String, List<Class<? extends Command>>> commandCategories = new LinkedHashMap<>();
@@ -74,6 +78,11 @@ public final class HelpCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(COMMAND_NAME_PARAM));
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":help [COMMAND]";
 	}
@@ -89,10 +98,9 @@ public final class HelpCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
-		final List<String> args = CommandUtils.splitArgs(argString);
-		if (args.isEmpty()) {
+		if (!args.get(COMMAND_NAME_PARAM).isPresent()) {
 			final StringBuilder sb = new StringBuilder("Enter a B expression or predicate to evaluate it. To load a B machine, enter its source code directly, or use :load to load an external machine file.\nYou can also use any of the following commands. For more help on a particular command, run :help commandname.\n");
 			final StringBuilder sbMarkdown = new StringBuilder("Enter a B expression or predicate to evaluate it. To load a B machine, enter its source code directly, or use `:load` to load an external machine file.\n\nYou can also use any of the following commands. For more help on a particular command, run `:help commandname`.\n");
 			
@@ -141,8 +149,8 @@ public final class HelpCommand implements Command {
 			final DisplayData result = new DisplayData(sb.toString());
 			result.putMarkdown(sbMarkdown.toString());
 			return result;
-		} else if (args.size() == 1) {
-			String commandName = args.get(0);
+		} else {
+			String commandName = args.get(COMMAND_NAME_PARAM).get();
 			// If the user entered a command name without colons, add one or two colons as appropriate.
 			// (If the command cannot be found, no colons are added, because we'll error out later anyway.)
 			if (!commandName.startsWith(":")) {
@@ -158,8 +166,6 @@ public final class HelpCommand implements Command {
 				throw new UserErrorException(String.format("Cannot display help for unknown command \"%s\"", commandName));
 			}
 			return command.renderHelp();
-		} else {
-			throw new UserErrorException("Expected at most 1 argument, got " + args.size());
 		}
 	}
 	

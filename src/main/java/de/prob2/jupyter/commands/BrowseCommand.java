@@ -11,9 +11,9 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.LoadedMachine;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
-
 import de.prob2.jupyter.Command;
-import de.prob2.jupyter.UserErrorException;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -39,6 +39,11 @@ public final class BrowseCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return Parameters.NONE;
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":browse";
 	}
@@ -58,11 +63,7 @@ public final class BrowseCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		if (!argString.isEmpty()) {
-			throw new UserErrorException("Unexpected argument: " + argString);
-		}
-		
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final StringBuilder sb = new StringBuilder("Machine: ");
 		sb.append(trace.getStateSpace().getMainComponent());

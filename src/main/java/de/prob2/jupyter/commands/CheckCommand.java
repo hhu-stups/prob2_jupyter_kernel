@@ -22,6 +22,9 @@ import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -31,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class CheckCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredSingle WHAT_PARAM = new PositionalParameter.RequiredSingle("what");
+	
 	private static final @NotNull Map<@NotNull String, @NotNull Class<? extends AbstractTheoremElement>> CHILDREN_BASE_CLASS_MAP;
 	static {
 		final Map<String, Class<? extends AbstractTheoremElement>> childrenBaseClassMap = new HashMap<>();
@@ -55,6 +60,11 @@ public final class CheckCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(WHAT_PARAM));
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":check WHAT";
 	}
@@ -70,11 +80,12 @@ public final class CheckCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		if (!CHILDREN_BASE_CLASS_MAP.containsKey(argString)) {
-			throw new UserErrorException("Don't know how to check " + argString);
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final String what = args.get(WHAT_PARAM);
+		if (!CHILDREN_BASE_CLASS_MAP.containsKey(what)) {
+			throw new UserErrorException("Don't know how to check " + what);
 		}
-		final Class<? extends AbstractTheoremElement> childrenBaseClass = CHILDREN_BASE_CLASS_MAP.get(argString);
+		final Class<? extends AbstractTheoremElement> childrenBaseClass = CHILDREN_BASE_CLASS_MAP.get(what);
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		// Find all children of a subclass of childrenBaseClass.
 		// This needs to be done manually, because getChildrenOfType only returns children whose class *exactly* matches the given class.

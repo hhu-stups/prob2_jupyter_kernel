@@ -2,12 +2,16 @@ package de.prob2.jupyter.commands;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 
 import com.google.common.base.Stopwatch;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -17,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class TimeCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredRemainder COMMAND_AND_ARGS_PARAM = new PositionalParameter.RequiredRemainder("commandAndArgs");
+	
 	private final @NotNull Injector injector;
 	
 	@Inject
@@ -29,6 +35,11 @@ public final class TimeCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":time";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(COMMAND_AND_ARGS_PARAM));
 	}
 	
 	@Override
@@ -48,10 +59,10 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData run(final @NotNull String argString) {
+	public @Nullable DisplayData run(final @NotNull ParsedArguments args) {
 		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
 		final Stopwatch stopwatch = Stopwatch.createStarted();
-		final DisplayData result = kernel.eval(argString);
+		final DisplayData result = kernel.eval(args.get(COMMAND_AND_ARGS_PARAM));
 		stopwatch.stop();
 		final Duration elapsed = stopwatch.elapsed();
 		final String text = String.format("Execution time: %d.%09d seconds", elapsed.get(ChronoUnit.SECONDS), elapsed.get(ChronoUnit.NANOS));

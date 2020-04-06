@@ -1,11 +1,15 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Collections;
 import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -16,6 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class UnletCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredSingle NAME_PARAM = new PositionalParameter.RequiredSingle("name");
+	
 	private final @NotNull Injector injector;
 	
 	@Inject
@@ -28,6 +34,11 @@ public final class UnletCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":unlet";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(NAME_PARAM));
 	}
 	
 	@Override
@@ -46,12 +57,13 @@ public final class UnletCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData run(final @NotNull String argString) {
+	public @Nullable DisplayData run(final @NotNull ParsedArguments args) {
 		final Map<String, String> variables = this.injector.getInstance(ProBKernel.class).getVariables();
-		if (!variables.containsKey(argString)) {
-			throw new UserErrorException("There is no local variable " + argString);
+		final String name = args.get(NAME_PARAM);
+		if (!variables.containsKey(name)) {
+			throw new UserErrorException("There is no local variable " + name);
 		}
-		variables.remove(argString);
+		variables.remove(name);
 		return null;
 	}
 	

@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 public interface Command {
 	public abstract @NotNull String getName();
 	
+	public abstract @NotNull Parameters getParameters();
+	
 	public abstract @NotNull String getSyntax();
 	
 	public abstract @NotNull String getShortHelp();
@@ -39,7 +41,7 @@ public interface Command {
 		return result;
 	}
 	
-	public abstract @Nullable DisplayData run(final @NotNull String argString);
+	public abstract @Nullable DisplayData run(final @NotNull ParsedArguments args);
 	
 	public abstract @Nullable DisplayData inspect(final @NotNull String argString, final int at);
 	

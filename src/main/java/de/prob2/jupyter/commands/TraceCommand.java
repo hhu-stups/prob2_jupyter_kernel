@@ -7,9 +7,9 @@ import com.google.inject.Inject;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
-
 import de.prob2.jupyter.Command;
-import de.prob2.jupyter.UserErrorException;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -33,6 +33,11 @@ public final class TraceCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return Parameters.NONE;
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":trace";
 	}
@@ -49,11 +54,7 @@ public final class TraceCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		if (!argString.isEmpty()) {
-			throw new UserErrorException("Expected no arguments");
-		}
-		
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final StringBuilder sbPlain = new StringBuilder("-1: Root state");
 		final StringBuilder sbMarkdown = new StringBuilder("* -1: Root state");

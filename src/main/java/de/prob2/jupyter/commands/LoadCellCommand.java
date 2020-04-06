@@ -1,6 +1,7 @@
 package de.prob2.jupyter.commands;
 
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,9 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -22,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class LoadCellCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredRemainder PREFS_AND_CODE_PARAM = new PositionalParameter.RequiredRemainder("prefsAndCode");
+	
 	private final @NotNull ClassicalBFactory classicalBFactory;
 	private final @NotNull AnimationSelector animationSelector;
 	private final @NotNull Provider<ProBKernel> proBKernelProvider;
@@ -45,6 +51,11 @@ public final class LoadCellCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(PREFS_AND_CODE_PARAM));
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return "MACHINE\n...\nEND\n\n// or\n\n::load [PREF=VALUE ...]\nMACHINE\n...\nEND";
 	}
@@ -62,15 +73,15 @@ public final class LoadCellCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final String[] split = argString.split("\n", 2);
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final String[] split = args.get(PREFS_AND_CODE_PARAM).split("\n", 2);
 		if (split.length != 2) {
 			throw new UserErrorException("Missing command body");
 		}
 		final String prefsString = split[0];
 		final String body = split[1];
-		final List<String> args = CommandUtils.splitArgs(prefsString);
-		final Map<String, String> preferences = CommandUtils.parsePreferences(args);
+		final List<String> prefsSplit = CommandUtils.splitArgs(prefsString);
+		final Map<String, String> preferences = CommandUtils.parsePreferences(prefsSplit);
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(CommandUtils.withSourceCode(body, () ->
 			this.classicalBFactory.create("(machine from Jupyter cell)", body).load(preferences)

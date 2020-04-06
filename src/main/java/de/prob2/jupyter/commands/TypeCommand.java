@@ -1,5 +1,7 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Collections;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -11,6 +13,9 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -20,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class TypeCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredRemainder FORMULA_PARAM = new PositionalParameter.RequiredRemainder("formula");
+	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -34,6 +41,11 @@ public final class TypeCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":type";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(FORMULA_PARAM));
 	}
 	
 	@Override
@@ -52,9 +64,9 @@ public final class TypeCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String code = this.kernelProvider.get().insertLetVariables(argString);
+		final String code = this.kernelProvider.get().insertLetVariables(args.get(FORMULA_PARAM));
 		final IEvalElement formula = CommandUtils.withSourceCode(code, () -> trace.getModel().parseFormula(code, FormulaExpand.EXPAND));
 		final TypeCheckResult result = trace.getStateSpace().typeCheck(formula);
 		if (result.isOk()) {

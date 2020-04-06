@@ -1,5 +1,6 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +14,9 @@ import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -22,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ExecCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredSingle OPERATION_PARAM = new PositionalParameter.RequiredSingle("operation");
+	private static final @NotNull PositionalParameter.OptionalRemainder PREDICATE_PARAM = new PositionalParameter.OptionalRemainder("predicate");
+	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -36,6 +43,11 @@ public final class ExecCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":exec";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Arrays.asList(OPERATION_PARAM, PREDICATE_PARAM));
 	}
 	
 	@Override
@@ -55,17 +67,14 @@ public final class ExecCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final List<String> split = CommandUtils.splitArgs(argString, 2);
-		assert !split.isEmpty();
-		
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String translatedOpName = CommandUtils.unprettyOperationName(split.get(0));
+		final String translatedOpName = CommandUtils.unprettyOperationName(args.get(OPERATION_PARAM));
 		final String predicate;
-		if (split.size() < 2) {
+		if (!args.get(PREDICATE_PARAM).isPresent()) {
 			predicate = "1=1";
 		} else {
-			predicate = this.kernelProvider.get().insertLetVariables(split.get(1));
+			predicate = this.kernelProvider.get().insertLetVariables(args.get(PREDICATE_PARAM).get());
 		}
 		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, predicate, 1);
 		assert !ops.isEmpty();

@@ -1,11 +1,16 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Collections;
+
 import com.google.inject.Inject;
 
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -15,6 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class GotoCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredSingle INDEX_PARAM = new PositionalParameter.RequiredSingle("index");
+	
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
@@ -27,6 +34,11 @@ public final class GotoCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":goto";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(INDEX_PARAM));
 	}
 	
 	@Override
@@ -46,8 +58,8 @@ public final class GotoCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final int index = Integer.parseInt(argString);
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final int index = Integer.parseInt(args.get(INDEX_PARAM));
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		if (index < -1 || index >= trace.size()) {
 			throw new UserErrorException(String.format("Invalid trace index %d, must be in -1..%d", index, trace.size()-1));

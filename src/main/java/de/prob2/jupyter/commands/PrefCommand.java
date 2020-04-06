@@ -1,6 +1,7 @@
 package de.prob2.jupyter.commands;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -14,6 +15,9 @@ import de.prob.statespace.AnimationSelector;
 
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -23,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class PrefCommand implements Command {
+	private static final @NotNull PositionalParameter.OptionalRemainder PREFS_PARAM = new PositionalParameter.OptionalRemainder("prefs");
+	
 	private final @NotNull AnimationSelector animationSelector;
 	
 	@Inject
@@ -35,6 +41,11 @@ public final class PrefCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":pref";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(PREFS_PARAM));
 	}
 	
 	@Override
@@ -54,10 +65,9 @@ public final class PrefCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final List<String> args = CommandUtils.splitArgs(argString);
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final StringBuilder sb = new StringBuilder();
-		if (args.isEmpty()) {
+		if (!args.get(PREFS_PARAM).isPresent()) {
 			final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();
 			this.animationSelector.getCurrentTrace().getStateSpace().execute(cmd);
 			// TreeMap is used to sort the preferences by name.
@@ -67,31 +77,34 @@ public final class PrefCommand implements Command {
 				sb.append(v);
 				sb.append('\n');
 			});
-		} else if (args.get(0).contains("=")) {
-			final List<SetPreferenceCommand> cmds = new ArrayList<>();
-			CommandUtils.parsePreferences(args).forEach((pref, value) -> {
-				cmds.add(new SetPreferenceCommand(pref, value));
-				sb.append("Preference changed: ");
-				sb.append(pref);
-				sb.append(" = ");
-				sb.append(value);
-				sb.append('\n');
-			});
-			this.animationSelector.getCurrentTrace().getStateSpace().execute(new ComposedCommand(cmds));
 		} else {
-			final List<GetPreferenceCommand> cmds = new ArrayList<>();
-			for (final String arg : args) {
-				if (arg.contains("=")) {
-					throw new UserErrorException(String.format("Cannot view and change preferences in the same command (attempted to assign preference %s)", arg));
+			final List<String> prefsSplit = CommandUtils.splitArgs(args.get(PREFS_PARAM).get());
+			if (prefsSplit.get(0).contains("=")) {
+				final List<SetPreferenceCommand> cmds = new ArrayList<>();
+				CommandUtils.parsePreferences(prefsSplit).forEach((pref, value) -> {
+					cmds.add(new SetPreferenceCommand(pref, value));
+					sb.append("Preference changed: ");
+					sb.append(pref);
+					sb.append(" = ");
+					sb.append(value);
+					sb.append('\n');
+				});
+				this.animationSelector.getCurrentTrace().getStateSpace().execute(new ComposedCommand(cmds));
+			} else {
+				final List<GetPreferenceCommand> cmds = new ArrayList<>();
+				for (final String arg : prefsSplit) {
+					if (arg.contains("=")) {
+						throw new UserErrorException(String.format("Cannot view and change preferences in the same command (attempted to assign preference %s)", arg));
+					}
+					cmds.add(new GetPreferenceCommand(arg));
 				}
-				cmds.add(new GetPreferenceCommand(arg));
-			}
-			this.animationSelector.getCurrentTrace().getStateSpace().execute(new ComposedCommand(cmds));
-			for (final GetPreferenceCommand cmd : cmds) {
-				sb.append(cmd.getKey());
-				sb.append(" = ");
-				sb.append(cmd.getValue());
-				sb.append('\n');
+				this.animationSelector.getCurrentTrace().getStateSpace().execute(new ComposedCommand(cmds));
+				for (final GetPreferenceCommand cmd : cmds) {
+					sb.append(cmd.getKey());
+					sb.append(" = ");
+					sb.append(cmd.getValue());
+					sb.append('\n');
+				}
 			}
 		}
 		return new DisplayData(sb.toString());

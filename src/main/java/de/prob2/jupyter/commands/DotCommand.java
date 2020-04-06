@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +22,9 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -31,6 +35,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class DotCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredSingle COMMAND_PARAM = new PositionalParameter.RequiredSingle("command");
+	private static final @NotNull PositionalParameter.OptionalRemainder FORMULA_PARAM = new PositionalParameter.OptionalRemainder("formula");
+	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -45,6 +52,11 @@ public final class DotCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":dot";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Arrays.asList(COMMAND_PARAM, FORMULA_PARAM));
 	}
 	
 	@Override
@@ -76,19 +88,17 @@ public final class DotCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final List<String> split = CommandUtils.splitArgs(argString, 2);
-		assert !split.isEmpty();
-		final String command = split.get(0);
-		final List<IEvalElement> args;
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final String command = args.get(COMMAND_PARAM);
+		final List<IEvalElement> dotCommandArgs;
 		final String code;
-		if (split.size() > 1) {
-			code = this.kernelProvider.get().insertLetVariables(split.get(1));
+		if (args.get(FORMULA_PARAM).isPresent()) {
+			code = this.kernelProvider.get().insertLetVariables(args.get(FORMULA_PARAM).get());
 			final IEvalElement formula = CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().getModel().parseFormula(code, FormulaExpand.EXPAND));
-			args = Collections.singletonList(formula);
+			dotCommandArgs = Collections.singletonList(formula);
 		} else {
 			code = null;
-			args = Collections.emptyList();
+			dotCommandArgs = Collections.emptyList();
 		}
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
@@ -105,7 +115,7 @@ public final class DotCommand implements Command {
 		} catch (final IOException e) {
 			throw new UncheckedIOException("Failed to create temp file", e);
 		}
-		final GetSvgForVisualizationCommand cmd2 = new GetSvgForVisualizationCommand(trace.getCurrentState(), item, outPath.toFile(), args);
+		final GetSvgForVisualizationCommand cmd2 = new GetSvgForVisualizationCommand(trace.getCurrentState(), item, outPath.toFile(), dotCommandArgs);
 		// Provide source code (if any) to error highlighter
 		final Runnable execute = () -> trace.getStateSpace().execute(cmd2);
 		if (code != null) {
@@ -119,7 +129,7 @@ public final class DotCommand implements Command {
 		} catch (final IOException e) {
 			throw new UncheckedIOException("Failed to read dot output", e);
 		}
-		final DisplayData result = new DisplayData(String.format("<Dot visualization: %s %s>", command, args));
+		final DisplayData result = new DisplayData(String.format("<Dot visualization: %s %s>", command, dotCommandArgs));
 		result.putSVG(svg);
 		return result;
 	}

@@ -297,7 +297,7 @@ public final class ProBKernel extends BaseKernel {
 		}
 		final DisplayData result;
 		try {
-			result = command.run(argString);
+			result = command.run(CommandUtils.parseArgs(command.getParameters(), argString));
 		} catch (final UserErrorException e) {
 			throw new CommandExecutionException(name, e);
 		}

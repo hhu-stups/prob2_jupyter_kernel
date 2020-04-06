@@ -12,6 +12,9 @@ import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -21,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ConstantsCommand implements Command {
+	private static final @NotNull PositionalParameter.OptionalRemainder PREDICATE_PARAM = new PositionalParameter.OptionalRemainder("predicate");
+	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -35,6 +40,11 @@ public final class ConstantsCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":constants";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(PREDICATE_PARAM));
 	}
 	
 	@Override
@@ -53,13 +63,13 @@ public final class ConstantsCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final String predicate;
-		if (argString.isEmpty()) {
+		if (!args.get(PREDICATE_PARAM).isPresent()) {
 			predicate = "1=1";
 		} else {
-			predicate = this.kernelProvider.get().insertLetVariables(argString);
+			predicate = this.kernelProvider.get().insertLetVariables(args.get(PREDICATE_PARAM).get());
 		}
 		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), "$setup_constants", predicate, 1);
 		assert !ops.isEmpty();

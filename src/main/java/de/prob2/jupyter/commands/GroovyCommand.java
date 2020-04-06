@@ -1,5 +1,6 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import javax.script.ScriptEngine;
@@ -11,6 +12,9 @@ import com.google.inject.Injector;
 import de.prob.scripting.ScriptEngineProvider;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -20,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class GroovyCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredRemainder EXPRESSION_PARAM = new PositionalParameter.RequiredRemainder("expression");
+	
 	private final @NotNull Injector injector;
 	private final @NotNull ScriptEngine groovyScriptEngine;
 	
@@ -34,6 +40,11 @@ public final class GroovyCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":groovy";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(EXPRESSION_PARAM));
 	}
 	
 	@Override
@@ -52,11 +63,11 @@ public final class GroovyCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		this.groovyScriptEngine.put("__console", this.injector.getInstance(ProBKernel.class).getIO().out);
 		final Object result;
 		try {
-			result = this.groovyScriptEngine.eval(argString);
+			result = this.groovyScriptEngine.eval(args.get(EXPRESSION_PARAM));
 		} catch (ScriptException e) {
 			throw new RuntimeException(e);
 		} finally {

@@ -16,6 +16,8 @@ import de.prob.check.StateSpaceStats;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.StateSpace;
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -43,6 +45,11 @@ public final class ModelCheckCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":modelcheck";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return Parameters.NONE;
 	}
 	
 	@Override
@@ -80,11 +87,7 @@ public final class ModelCheckCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		if (!argString.isEmpty()) {
-			throw new UserErrorException("Unexpected argument: " + argString);
-		}
-		
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final StateSpace stateSpace = this.animationSelector.getCurrentTrace().getStateSpace();
 		
 		final JupyterIO io = this.kernelProvider.get().getIO();

@@ -3,6 +3,8 @@ package de.prob2.jupyter.commands;
 import com.google.inject.Inject;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -22,6 +24,11 @@ public final class BsymbCommand implements Command {
 	}
 	
 	@Override
+	public @NotNull Parameters getParameters() {
+		return Parameters.NONE;
+	}
+	
+	@Override
 	public @NotNull String getSyntax() {
 		return ":bsymb";
 	}
@@ -37,7 +44,7 @@ public final class BsymbCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final DisplayData data = new DisplayData("Your current environment uses plain text output; the bsymb.sty LaTeX commands will not be loaded.");
 		// The actual bsymb definitions are added by the ProBKernel class when it processes the command result, and the error message below will be replaced.
 		// If this error message is visible to the user, it means that the definitions were not added correctly.

@@ -1,5 +1,7 @@
 package de.prob2.jupyter.commands;
 
+import java.util.Collections;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -9,6 +11,9 @@ import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameters;
+import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -20,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class AssertCommand implements Command {
+	private static final @NotNull PositionalParameter.RequiredRemainder FORMULA_PARAM = new PositionalParameter.RequiredRemainder("formula");
+	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -34,6 +41,11 @@ public final class AssertCommand implements Command {
 	@Override
 	public @NotNull String getName() {
 		return ":assert";
+	}
+	
+	@Override
+	public @NotNull Parameters getParameters() {
+		return new Parameters(Collections.singletonList(FORMULA_PARAM));
 	}
 	
 	@Override
@@ -54,8 +66,8 @@ public final class AssertCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull DisplayData run(final @NotNull String argString) {
-		final String code = this.kernelProvider.get().insertLetVariables(argString);
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final String code = this.kernelProvider.get().insertLetVariables(args.get(FORMULA_PARAM));
 		final AbstractEvalResult result = CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().evalCurrent(code, FormulaExpand.TRUNCATE));
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
 			// Use EvalResult.TRUE instead of the real result so that solution variables are not displayed.
