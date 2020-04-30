@@ -3,6 +3,7 @@
 ## [(next version)](./README.md#for-developers)
 
 * Added support for Java 14.
+* Fixed a parse error when a line comment is used on the last line of an expression while any `:let` variables are defined.
 
 ## [1.1.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.1.0-all.jar)
 

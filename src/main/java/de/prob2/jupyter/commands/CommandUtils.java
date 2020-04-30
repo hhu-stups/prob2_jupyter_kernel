@@ -139,7 +139,7 @@ public final class CommandUtils {
 				varNames.add(name);
 				varAssignments.add(name + "=(" + value + ')');
 			});
-			return String.format("LET %s BE %s IN(%s)END", varNames, varAssignments, code);
+			return String.format("LET %s BE %s IN(\n%s\n)END", varNames, varAssignments, code);
 		}
 	}
 	
