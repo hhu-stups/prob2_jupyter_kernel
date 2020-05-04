@@ -4,7 +4,9 @@
 
 This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and model checker](https://www3.hhu.de/stups/prob/), based on the [ProB 2 Java API](https://github.com/hhu-stups/prob2_kernel) and the [Jupyter JVM BaseKernel](https://github.com/SpencerPark/jupyter-jvm-basekernel) library.
 
-The latest version of the kernel can be downloaded [here][current-download]. Download links for previous versions can be found in the [changelog]. See the [requirements](#requirements) and [installation instructions](#installation) for information on how to install and use the downloaded jar file.
+[Download the latest version here][current-download].
+
+See the [requirements](#requirements) and [installation instructions](#installation) for information on how to install and use the downloaded jar file. Download links for previous versions can be found in the [changelog].
 
 **Note:** The project is still in development, but the syntax and commands accepted by the kernel are relatively stable. Small breaking changes in future versions are possible, but unlikely.
 
@@ -22,7 +24,7 @@ The latest version of the kernel can be downloaded [here][current-download]. Dow
 
 ### For end users
 
-1. Download the latest version of the kernel [here][current-download].
+1. [Download the latest version of the kernel][current-download].
 2. If Jupyter is installed in a virtual environment, activate it.
 3. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
 	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
