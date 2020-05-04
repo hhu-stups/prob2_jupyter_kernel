@@ -13,7 +13,7 @@ See the [requirements](#requirements) and [installation instructions](#installat
 ## Requirements
 
 * Java 8 or newer
-	* Tested up to Java 11.
+	* Tested up to Java 14.
 * A Python 3 interpeter with Jupyter installed (`python3 -m pip install jupyter`)
 	* Tested with CPython 3.6, jupyter-core 4.4.0, jupyter-client 5.2.3, notebook 5.6.0.
 	* Newer Jupyter versions should also work.
