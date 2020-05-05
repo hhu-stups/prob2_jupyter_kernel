@@ -2,7 +2,6 @@ package de.prob2.jupyter.commands;
 
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import com.google.inject.Inject;
@@ -25,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class LoadCellCommand implements Command {
-	private static final @NotNull PositionalParameter.OptionalRemainder PREFS_PARAM = new PositionalParameter.OptionalRemainder("prefs");
+	private static final @NotNull PositionalParameter.OptionalMultiple PREFS_PARAM = new PositionalParameter.OptionalMultiple("prefs");
 	private static final @NotNull PositionalParameter.RequiredRemainder CODE_PARAM = new PositionalParameter.RequiredRemainder("code");
 	
 	private final @NotNull ClassicalBFactory classicalBFactory;
@@ -75,8 +74,7 @@ public final class LoadCellCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final String body = args.get(CODE_PARAM);
-		final List<String> prefsSplit = args.get(PREFS_PARAM).map(CommandUtils::splitArgs).orElse(Collections.emptyList());
-		final Map<String, String> preferences = CommandUtils.parsePreferences(prefsSplit);
+		final Map<String, String> preferences = CommandUtils.parsePreferences(args.get(PREFS_PARAM));
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(CommandUtils.withSourceCode(body, () ->
 			this.classicalBFactory.create("(machine from Jupyter cell)", body).load(preferences)

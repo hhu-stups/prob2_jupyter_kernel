@@ -1,5 +1,8 @@
 package de.prob2.jupyter;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +49,50 @@ public abstract class PositionalParameter<T> extends Parameter<T> {
 		public @NotNull Parameter.ParseResult<@NotNull Optional<String>> parse(final @NotNull String argString) {
 			final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString, 2);
 			return new Parameter.ParseResult<>(Optional.of(split[0]), split.length > 1 ? split[1] : "");
+		}
+	}
+	
+	public static final class RequiredMultiple extends PositionalParameter<@NotNull List<@NotNull String>> {
+		public RequiredMultiple(final @NotNull String identifier) {
+			super(identifier);
+		}
+		
+		@Override
+		public boolean isOptional() {
+			return false;
+		}
+		
+		@Override
+		public @NotNull List<@NotNull String> getDefaultValue() {
+			throw new UnsupportedOperationException("Not an optional parameter");
+		}
+		
+		@Override
+		public @NotNull Parameter.ParseResult<@NotNull List<@NotNull String>> parse(final @NotNull String argString) {
+			final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString);
+			return new Parameter.ParseResult<>(Arrays.asList(split), "");
+		}
+	}
+	
+	public static final class OptionalMultiple extends PositionalParameter<@NotNull List<@NotNull String>> {
+		public OptionalMultiple(final @NotNull String identifier) {
+			super(identifier);
+		}
+		
+		@Override
+		public boolean isOptional() {
+			return true;
+		}
+		
+		@Override
+		public @NotNull List<@NotNull String> getDefaultValue() {
+			return Collections.emptyList();
+		}
+		
+		@Override
+		public @NotNull Parameter.ParseResult<@NotNull List<@NotNull String>> parse(final @NotNull String argString) {
+			final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString);
+			return new Parameter.ParseResult<>(Arrays.asList(split), "");
 		}
 	}
 	

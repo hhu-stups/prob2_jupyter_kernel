@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,7 +39,7 @@ public final class LoadFileCommand implements Command {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LoadFileCommand.class);
 	
 	private static final @NotNull PositionalParameter.RequiredSingle FILE_NAME_PARAM = new PositionalParameter.RequiredSingle("fileName");
-	private static final @NotNull PositionalParameter.OptionalRemainder PREFS_PARAM = new PositionalParameter.OptionalRemainder("prefs");
+	private static final @NotNull PositionalParameter.OptionalMultiple PREFS_PARAM = new PositionalParameter.OptionalMultiple("prefs");
 	
 	private final @NotNull Injector injector;
 	private final @NotNull AnimationSelector animationSelector;
@@ -98,12 +97,7 @@ public final class LoadFileCommand implements Command {
 		if (!FactoryProvider.isExtensionKnown(extension)) {
 			throw new UserErrorException("Unsupported file type: ." + extension);
 		}
-		final Map<String, String> preferences;
-		if (args.get(PREFS_PARAM).isPresent()) {
-			preferences = CommandUtils.parsePreferences(CommandUtils.splitArgs(args.get(PREFS_PARAM).get()));
-		} else {
-			preferences = Collections.emptyMap();
-		}
+		final Map<String, String> preferences = CommandUtils.parsePreferences(args.get(PREFS_PARAM));
 		
 		try {
 			final ModelFactory<?> factory = this.injector.getInstance(FactoryProvider.factoryClassFromExtension(extension));

@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class PrefCommand implements Command {
-	private static final @NotNull PositionalParameter.OptionalRemainder PREFS_PARAM = new PositionalParameter.OptionalRemainder("prefs");
+	private static final @NotNull PositionalParameter.OptionalMultiple PREFS_PARAM = new PositionalParameter.OptionalMultiple("prefs");
 	
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -67,7 +67,7 @@ public final class PrefCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final StringBuilder sb = new StringBuilder();
-		if (!args.get(PREFS_PARAM).isPresent()) {
+		if (args.get(PREFS_PARAM).isEmpty()) {
 			final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();
 			this.animationSelector.getCurrentTrace().getStateSpace().execute(cmd);
 			// TreeMap is used to sort the preferences by name.
@@ -78,7 +78,7 @@ public final class PrefCommand implements Command {
 				sb.append('\n');
 			});
 		} else {
-			final List<String> prefsSplit = CommandUtils.splitArgs(args.get(PREFS_PARAM).get());
+			final List<String> prefsSplit = args.get(PREFS_PARAM);
 			if (prefsSplit.get(0).contains("=")) {
 				final List<SetPreferenceCommand> cmds = new ArrayList<>();
 				CommandUtils.parsePreferences(prefsSplit).forEach((pref, value) -> {
