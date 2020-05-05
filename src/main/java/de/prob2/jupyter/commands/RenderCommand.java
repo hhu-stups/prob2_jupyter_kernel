@@ -8,7 +8,6 @@ import de.prob2.jupyter.Command;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.PositionalParameter;
-import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -17,7 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class RenderCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredRemainder MIME_TYPE_AND_CONTENT_PARAM = new PositionalParameter.RequiredRemainder("mimeTypeAndContent");
+	private static final @NotNull PositionalParameter.RequiredSingle MIME_TYPE_PARAM = new PositionalParameter.RequiredSingle("mimeType");
+	private static final @NotNull PositionalParameter.RequiredRemainder CONTENT_PARAM = new PositionalParameter.RequiredRemainder("content");
 	
 	@Inject
 	private RenderCommand() {
@@ -31,7 +31,7 @@ public final class RenderCommand implements Command {
 	
 	@Override
 	public @NotNull Parameters getParameters() {
-		return new Parameters(Collections.singletonList(MIME_TYPE_AND_CONTENT_PARAM));
+		return new Parameters(Collections.singletonList(MIME_TYPE_PARAM), CONTENT_PARAM);
 	}
 	
 	@Override
@@ -52,15 +52,8 @@ public final class RenderCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final String[] split = args.get(MIME_TYPE_AND_CONTENT_PARAM).split("\n", 2);
-		if (split.length != 2) {
-			throw new UserErrorException("Missing content (the content cannot be placed on the same line as the command)");
-		}
-		final String mimeType = split[0];
-		final String code = split[1];
-		if (mimeType.isEmpty()) {
-			throw new UserErrorException("Missing MIME type");
-		}
+		final String mimeType = args.get(MIME_TYPE_PARAM);
+		final String code = args.get(CONTENT_PARAM);
 		final DisplayData data = new DisplayData(mimeType + ":\n" + code);
 		data.putData(mimeType, code);
 		return data;

@@ -120,7 +120,19 @@ public final class CommandUtils {
 	
 	public static @NotNull ParsedArguments parseArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
 		final ParsedArguments parsed = new ParsedArguments(Collections.emptyMap());
-		String remainingArgs = argString;
+		String remainingArgs;
+		if (parameters.getBodyParam().isPresent()) {
+			final String[] split = argString.split("\n", 2);
+			final PositionalParameter.RequiredRemainder bodyParam = parameters.getBodyParam().get();
+			if (split.length < 2) {
+				throw new UserErrorException("Missing required body " + bodyParam.getIdentifier());
+			}
+			remainingArgs = split[0];
+			parsed.put(bodyParam, split[1]);
+		} else {
+			remainingArgs = argString;
+		}
+		
 		for (final PositionalParameter<?> param : parameters.getPositionalParameters()) {
 			if (remainingArgs.isEmpty()) {
 				break;

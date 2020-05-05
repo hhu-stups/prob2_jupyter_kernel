@@ -17,7 +17,6 @@ import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
-import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -26,7 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class LoadCellCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredRemainder PREFS_AND_CODE_PARAM = new PositionalParameter.RequiredRemainder("prefsAndCode");
+	private static final @NotNull PositionalParameter.OptionalRemainder PREFS_PARAM = new PositionalParameter.OptionalRemainder("prefs");
+	private static final @NotNull PositionalParameter.RequiredRemainder CODE_PARAM = new PositionalParameter.RequiredRemainder("code");
 	
 	private final @NotNull ClassicalBFactory classicalBFactory;
 	private final @NotNull AnimationSelector animationSelector;
@@ -52,7 +52,7 @@ public final class LoadCellCommand implements Command {
 	
 	@Override
 	public @NotNull Parameters getParameters() {
-		return new Parameters(Collections.singletonList(PREFS_AND_CODE_PARAM));
+		return new Parameters(Collections.singletonList(PREFS_PARAM), CODE_PARAM);
 	}
 	
 	@Override
@@ -74,13 +74,8 @@ public final class LoadCellCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final String[] split = args.get(PREFS_AND_CODE_PARAM).split("\n", 2);
-		if (split.length != 2) {
-			throw new UserErrorException("Missing command body");
-		}
-		final String prefsString = split[0];
-		final String body = split[1];
-		final List<String> prefsSplit = CommandUtils.splitArgs(prefsString);
+		final String body = args.get(CODE_PARAM);
+		final List<String> prefsSplit = args.get(PREFS_PARAM).map(CommandUtils::splitArgs).orElse(Collections.emptyList());
 		final Map<String, String> preferences = CommandUtils.parsePreferences(prefsSplit);
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(CommandUtils.withSourceCode(body, () ->
