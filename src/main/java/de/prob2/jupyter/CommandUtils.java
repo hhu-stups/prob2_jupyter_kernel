@@ -1,7 +1,6 @@
 package de.prob2.jupyter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -88,18 +87,6 @@ public final class CommandUtils {
 			default:
 				return name;
 		}
-	}
-	
-	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args, final int limit) {
-		final List<String> split = new ArrayList<>(Arrays.asList(ARG_SPLIT_PATTERN.split(args, limit)));
-		if (!split.isEmpty() && split.get(split.size()-1).isEmpty()) {
-			split.remove(split.size()-1);
-		}
-		return split;
-	}
-	
-	public static @NotNull List<@NotNull String> splitArgs(final @NotNull String args) {
-		return splitArgs(args, 0);
 	}
 	
 	private static <T> @NotNull String parseSingleArg(final @NotNull ParsedArguments parsed, final @NotNull String remainingArgs, final @NotNull PositionalParameter<T> param) {
