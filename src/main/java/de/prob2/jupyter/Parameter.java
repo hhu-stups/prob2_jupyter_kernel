@@ -1,23 +1,25 @@
 package de.prob2.jupyter;
 
+import java.util.List;
+
 import com.google.common.base.MoreObjects;
 
 import org.jetbrains.annotations.NotNull;
 
 public abstract class Parameter<T> {
-	public static final class ParseResult<T> {
-		private final T parsedArg;
+	public static final class SplitResult {
+		private final @NotNull String splitArg;
 		private final @NotNull String remainingArgString;
 		
-		public ParseResult(final T parsedArg, final @NotNull String remainingArgString) {
+		public SplitResult(final @NotNull String splitArg, final @NotNull String remainingArgString) {
 			super();
 			
-			this.parsedArg = parsedArg;
+			this.splitArg = splitArg;
 			this.remainingArgString = remainingArgString;
 		}
 		
-		public T getParsedArg() {
-			return this.parsedArg;
+		public @NotNull String getSplitArg() {
+			return this.splitArg;
 		}
 		
 		public @NotNull String getRemainingArgString() {
@@ -37,11 +39,11 @@ public abstract class Parameter<T> {
 		return this.identifier;
 	}
 	
-	public abstract boolean isOptional();
+	public abstract boolean isRepeating();
 	
-	public abstract T getDefaultValue();
+	public abstract Parameter.SplitResult split(final @NotNull String argString);
 	
-	public abstract Parameter.ParseResult<T> parse(final @NotNull String argString);
+	public abstract T validate(final @NotNull List<@NotNull String> argValues);
 	
 	@Override
 	public String toString() {

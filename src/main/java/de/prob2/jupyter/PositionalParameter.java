@@ -1,54 +1,72 @@
 package de.prob2.jupyter;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
 
 public abstract class PositionalParameter<T> extends Parameter<T> {
-	public static final class RequiredSingle extends PositionalParameter<@NotNull String> {
+	public abstract static class ExactlyOne extends PositionalParameter<@NotNull String> {
+		protected ExactlyOne(final @NotNull String identifier) {
+			super(identifier);
+		}
+		
+		@Override
+		public boolean isRepeating() {
+			return false;
+		}
+		
+		@Override
+		public @NotNull String validate(final @NotNull List<@NotNull String> argValues) {
+			if (argValues.isEmpty()) {
+				throw new UserErrorException("Missing required parameter " + this.getIdentifier());
+			} else if (argValues.size() > 1) {
+				throw new AssertionError("Regular (single) required parameter " + this.getIdentifier() + " has more than one value, this should never happen!");
+			}
+			
+			return argValues.get(0);
+		}
+	}
+	
+	public abstract static class ZeroOrOne extends PositionalParameter<@NotNull Optional<String>> {
+		protected ZeroOrOne(final @NotNull String identifier) {
+			super(identifier);
+		}
+		
+		@Override
+		public boolean isRepeating() {
+			return false;
+		}
+		
+		@Override
+		public @NotNull Optional<String> validate(final @NotNull List<@NotNull String> argValues) {
+			if (argValues.size() > 1) {
+				throw new AssertionError("Regular (single) optional parameter " + this.getIdentifier() + " has more than one value, this should never happen!");
+			}
+			
+			return argValues.stream().findAny();
+		}
+	}
+	
+	public static final class RequiredSingle extends PositionalParameter.ExactlyOne {
 		public RequiredSingle(final @NotNull String identifier) {
 			super(identifier);
 		}
 		
 		@Override
-		public boolean isOptional() {
-			return false;
-		}
-		
-		@Override
-		public @NotNull String getDefaultValue() {
-			throw new UnsupportedOperationException("Not an optional parameter");
-		}
-		
-		@Override
-		public @NotNull Parameter.ParseResult<@NotNull String> parse(final @NotNull String argString) {
-			final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString, 2);
-			return new Parameter.ParseResult<>(split[0], split.length > 1 ? split[1] : "");
+		public @NotNull Parameter.SplitResult split(final @NotNull String argString) {
+			return splitOnce(argString);
 		}
 	}
 	
-	public static final class OptionalSingle extends PositionalParameter<@NotNull Optional<String>> {
+	public static final class OptionalSingle extends PositionalParameter.ZeroOrOne {
 		public OptionalSingle(final @NotNull String identifier) {
 			super(identifier);
 		}
 		
 		@Override
-		public boolean isOptional() {
-			return true;
-		}
-		
-		@Override
-		public @NotNull Optional<String> getDefaultValue() {
-			return Optional.empty();
-		}
-		
-		@Override
-		public @NotNull Parameter.ParseResult<@NotNull Optional<String>> parse(final @NotNull String argString) {
-			final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString, 2);
-			return new Parameter.ParseResult<>(Optional.of(split[0]), split.length > 1 ? split[1] : "");
+		public @NotNull Parameter.SplitResult split(final @NotNull String argString) {
+			return splitOnce(argString);
 		}
 	}
 	
@@ -58,19 +76,22 @@ public abstract class PositionalParameter<T> extends Parameter<T> {
 		}
 		
 		@Override
-		public boolean isOptional() {
-			return false;
+		public boolean isRepeating() {
+			return true;
 		}
 		
 		@Override
-		public @NotNull List<@NotNull String> getDefaultValue() {
-			throw new UnsupportedOperationException("Not an optional parameter");
+		public @NotNull Parameter.SplitResult split(final @NotNull String argString) {
+			return splitOnce(argString);
 		}
 		
 		@Override
-		public @NotNull Parameter.ParseResult<@NotNull List<@NotNull String>> parse(final @NotNull String argString) {
-			final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString);
-			return new Parameter.ParseResult<>(Arrays.asList(split), "");
+		public @NotNull List<@NotNull String> validate(final @NotNull List<@NotNull String> argValues) {
+			if (argValues.isEmpty()) {
+				throw new UserErrorException("Missing required parameter " + this.getIdentifier());
+			}
+			
+			return argValues;
 		}
 	}
 	
@@ -80,61 +101,40 @@ public abstract class PositionalParameter<T> extends Parameter<T> {
 		}
 		
 		@Override
-		public boolean isOptional() {
+		public boolean isRepeating() {
 			return true;
 		}
 		
 		@Override
-		public @NotNull List<@NotNull String> getDefaultValue() {
-			return Collections.emptyList();
+		public @NotNull Parameter.SplitResult split(final @NotNull String argString) {
+			return splitOnce(argString);
 		}
 		
 		@Override
-		public @NotNull Parameter.ParseResult<@NotNull List<@NotNull String>> parse(final @NotNull String argString) {
-			final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString);
-			return new Parameter.ParseResult<>(Arrays.asList(split), "");
+		public @NotNull List<@NotNull String> validate(final @NotNull List<@NotNull String> argValues) {
+			return argValues;
 		}
 	}
 	
-	public static final class RequiredRemainder extends PositionalParameter<@NotNull String> {
+	public static final class RequiredRemainder extends PositionalParameter.ExactlyOne {
 		public RequiredRemainder(final @NotNull String identifier) {
 			super(identifier);
 		}
 		
 		@Override
-		public boolean isOptional() {
-			return false;
-		}
-		
-		@Override
-		public @NotNull String getDefaultValue() {
-			throw new UnsupportedOperationException("Not an optional parameter");
-		}
-		
-		@Override
-		public Parameter.ParseResult<@NotNull String> parse(final @NotNull String argString) {
-			return new Parameter.ParseResult<>(argString, "");
+		public @NotNull Parameter.SplitResult split(final @NotNull String argString) {
+			return new Parameter.SplitResult(argString, "");
 		}
 	}
 	
-	public static final class OptionalRemainder extends PositionalParameter<@NotNull Optional<String>> {
+	public static final class OptionalRemainder extends PositionalParameter.ZeroOrOne {
 		public OptionalRemainder(final @NotNull String identifier) {
 			super(identifier);
 		}
 		
 		@Override
-		public boolean isOptional() {
-			return true;
-		}
-		
-		@Override
-		public @NotNull Optional<String> getDefaultValue() {
-			return Optional.empty();
-		}
-		
-		@Override
-		public Parameter.ParseResult<@NotNull Optional<String>> parse(final @NotNull String argString) {
-			return new Parameter.ParseResult<>(Optional.of(argString), "");
+		public @NotNull Parameter.SplitResult split(final @NotNull String argString) {
+			return new Parameter.SplitResult(argString, "");
 		}
 	}
 	
@@ -142,4 +142,9 @@ public abstract class PositionalParameter<T> extends Parameter<T> {
 		super(identifier);
 	}
 	
+	@NotNull
+	static Parameter.SplitResult splitOnce(final @NotNull String argString) {
+		final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString, 2);
+		return new Parameter.SplitResult(split[0], split.length > 1 ? split[1] : "");
+	}
 }

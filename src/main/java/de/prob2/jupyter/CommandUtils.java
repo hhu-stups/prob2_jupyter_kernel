@@ -89,51 +89,59 @@ public final class CommandUtils {
 		}
 	}
 	
-	private static <T> @NotNull String parseSingleArg(final @NotNull ParsedArguments parsed, final @NotNull String remainingArgs, final @NotNull PositionalParameter<T> param) {
-		final Parameter.ParseResult<T> parsedSingleArg = param.parse(remainingArgs);
-		parsed.put(param, parsedSingleArg.getParsedArg());
-		return parsedSingleArg.getRemainingArgString();
-	}
-	
-	private static <T> void checkParsedParameter(final @NotNull ParsedArguments parsed, final @NotNull PositionalParameter<T> param) {
-		if (!parsed.containsKey(param)) {
-			if (param.isOptional()) {
-				parsed.put(param, param.getDefaultValue());
-			} else {
-				throw new UserErrorException("Missing required parameter " + param.getIdentifier());
-			}
-		}
-	}
-	
-	public static @NotNull ParsedArguments parseArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
-		final ParsedArguments parsed = new ParsedArguments(Collections.emptyMap());
+	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
+		final SplitArguments splitArgs = new SplitArguments(Collections.emptyMap());
 		String remainingArgs;
 		if (parameters.getBodyParam().isPresent()) {
-			final String[] split = argString.split("\n", 2);
-			final PositionalParameter.RequiredRemainder bodyParam = parameters.getBodyParam().get();
-			if (split.length < 2) {
-				throw new UserErrorException("Missing required body " + bodyParam.getIdentifier());
+			final String[] argsAndBody = argString.split("\n", 2);
+			remainingArgs = argsAndBody[0];
+			if (argsAndBody.length > 1) {
+				splitArgs.add(parameters.getBodyParam().get(), argsAndBody[1]);
 			}
-			remainingArgs = split[0];
-			parsed.put(bodyParam, split[1]);
 		} else {
 			remainingArgs = argString;
 		}
 		
-		for (final PositionalParameter<?> param : parameters.getPositionalParameters()) {
+		for (int i = 0; i < parameters.getPositionalParameters().size();) {
+			final PositionalParameter<?> param = parameters.getPositionalParameters().get(i);
 			if (remainingArgs.isEmpty()) {
 				break;
 			}
 			
-			remainingArgs = parseSingleArg(parsed, remainingArgs, param);
+			final Parameter.SplitResult splitSingleArg = param.split(remainingArgs);
+			splitArgs.add(param, splitSingleArg.getSplitArg());
+			remainingArgs = splitSingleArg.getRemainingArgString();
+			
+			if (!param.isRepeating()) {
+				i++;
+			}
 		}
-		if (!remainingArgs.isEmpty()) {
-			throw new UserErrorException("Expected at most " + parameters.getPositionalParameters().size() + " arguments, got extra argument: " + remainingArgs);
+		
+		return new SplitResult(splitArgs, remainingArgs);
+	}
+	
+	private static <T> void validateSplitParameter(final @NotNull ParsedArguments parsed, final @NotNull SplitArguments splitArgs, final @NotNull Parameter<T> param) {
+		parsed.put(param, param.validate(splitArgs.get(param)));
+	}
+	
+	public static @NotNull ParsedArguments validateSplitArgs(final @NotNull Parameters parameters, final SplitResult split) {
+		if (!split.getRemaining().isEmpty()) {
+			throw new UserErrorException("Expected at most " + parameters.getPositionalParameters().size() + " arguments, got extra argument: " + split.getRemaining());
 		}
+		
+		final ParsedArguments parsed = new ParsedArguments(Collections.emptyMap());
+		
 		for (final PositionalParameter<?> param : parameters.getPositionalParameters()) {
-			checkParsedParameter(parsed, param);
+			validateSplitParameter(parsed, split.getArguments(), param);
 		}
+		
+		parameters.getBodyParam().ifPresent(bodyParam -> validateSplitParameter(parsed, split.getArguments(), bodyParam));
+		
 		return parsed;
+	}
+	
+	public static @NotNull ParsedArguments parseArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
+		return validateSplitArgs(parameters, splitArgs(parameters, argString));
 	}
 	
 	public static @NotNull Map<@NotNull String, @NotNull String> parsePreferences(final @NotNull List<@NotNull String> args) {
