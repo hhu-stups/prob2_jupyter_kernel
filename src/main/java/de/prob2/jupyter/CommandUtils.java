@@ -108,7 +108,7 @@ public final class CommandUtils {
 				break;
 			}
 			
-			final Parameter.SplitResult splitSingleArg = param.split(remainingArgs);
+			final Parameter.SplitResult splitSingleArg = param.getSplitter().split(remainingArgs);
 			splitArgs.add(param, splitSingleArg.getSplitArg());
 			remainingArgs = splitSingleArg.getRemainingArgString();
 			
@@ -121,7 +121,7 @@ public final class CommandUtils {
 	}
 	
 	private static <T> void validateSplitParameter(final @NotNull ParsedArguments parsed, final @NotNull SplitArguments splitArgs, final @NotNull Parameter<T> param) {
-		parsed.put(param, param.validate(splitArgs.get(param)));
+		parsed.put(param, param.getValidator().validate(param, splitArgs.get(param)));
 	}
 	
 	public static @NotNull ParsedArguments validateSplitArgs(final @NotNull Parameters parameters, final SplitResult split) {
