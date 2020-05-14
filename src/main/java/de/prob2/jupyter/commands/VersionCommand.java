@@ -2,6 +2,7 @@ package de.prob2.jupyter.commands;
 
 import com.google.inject.Inject;
 
+import de.be4.classicalb.core.parser.BParser;
 import de.prob.Main;
 import de.prob.animator.command.GetVersionCommand;
 import de.prob.statespace.AnimationSelector;
@@ -36,7 +37,7 @@ public final class VersionCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Display version info about the ProB 2 Jupyter kernel, ProB 2, and the underlying ProB CLI.";
+		return "Display version info about the ProB 2 Jupyter kernel and its underlying components.";
 	}
 	
 	@Override
@@ -54,6 +55,10 @@ public final class VersionCommand implements Command {
 		sb.append(Main.getVersion());
 		sb.append(" (");
 		sb.append(Main.getGitSha());
+		sb.append(")\nProB B parser: ");
+		sb.append(BParser.getVersion());
+		sb.append(" (");
+		sb.append(BParser.getGitSha());
 		sb.append(")\nProB CLI:");
 		final GetVersionCommand cmd = new GetVersionCommand();
 		this.animationSelector.getCurrentTrace().getStateSpace().execute(cmd);
