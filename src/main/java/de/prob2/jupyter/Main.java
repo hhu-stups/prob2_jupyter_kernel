@@ -119,6 +119,7 @@ public final class Main {
 		kernelJsonData.add("argv", kernelJsonArgv);
 		kernelJsonData.addProperty("display_name", "ProB 2");
 		kernelJsonData.addProperty("language", "prob");
+		kernelJsonData.addProperty("interrupt_mode", "message");
 		
 		final Gson gson = new GsonBuilder()
 			.setPrettyPrinting()

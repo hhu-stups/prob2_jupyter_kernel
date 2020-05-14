@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -192,6 +193,7 @@ public final class ProBKernel extends BaseKernel {
 	private final @NotNull AnimationSelector animationSelector;
 	
 	private final @NotNull Map<@NotNull String, @NotNull Command> commands;
+	private final @NotNull AtomicReference<@Nullable Thread> currentEvalThread;
 	private final @NotNull Map<@NotNull String, @NotNull String> variables;
 	
 	private @NotNull Path currentMachineDirectory;
@@ -208,6 +210,7 @@ public final class ProBKernel extends BaseKernel {
 			.map(injector::getInstance)
 			.collect(Collectors.toMap(Command::getName, cmd -> cmd));
 		
+		this.currentEvalThread = new AtomicReference<>(null);
 		this.variables = new HashMap<>();
 		
 		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").load()));
@@ -319,10 +322,7 @@ public final class ProBKernel extends BaseKernel {
 		return MACHINE_CODE_PATTERN.matcher(code).matches();
 	}
 	
-	@Override
-	public @Nullable DisplayData eval(final String expr) {
-		assert expr != null;
-		
+	private @Nullable DisplayData evalInternal(final @NotNull String expr) {
 		final Matcher commandMatcher = COMMAND_PATTERN.matcher(expr);
 		if (commandMatcher.matches()) {
 			// The input is a command, execute it directly.
@@ -337,6 +337,19 @@ public final class ProBKernel extends BaseKernel {
 		} else {
 			// By default, assume that the input is an expression and evaluate it.
 			return this.executeCommand(":eval", expr);
+		}
+	}
+	
+	@Override
+	public @Nullable DisplayData eval(final String expr) {
+		assert expr != null;
+		
+		this.currentEvalThread.set(Thread.currentThread());
+		
+		try {
+			return evalInternal(expr);
+		} finally {
+			this.currentEvalThread.set(null);
 		}
 	}
 	
@@ -440,6 +453,15 @@ public final class ProBKernel extends BaseKernel {
 	@Override
 	public void onShutdown(final boolean isRestarting) {
 		this.animationSelector.getCurrentTrace().getStateSpace().kill();
+	}
+	
+	@Override
+	public void interrupt() {
+		final Thread evalThread = this.currentEvalThread.get();
+		if (evalThread != null) {
+			evalThread.interrupt();
+		}
+		this.animationSelector.getCurrentTrace().getStateSpace().sendInterrupt();
 	}
 	
 	private @NotNull List<@NotNull String> formatErrorSource(final @NotNull List<@NotNull String> sourceLines, final @NotNull ErrorItem.Location location) {
