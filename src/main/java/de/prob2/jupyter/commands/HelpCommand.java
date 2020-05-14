@@ -13,9 +13,9 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class HelpCommand implements Command {
-	private static final @NotNull PositionalParameter.OptionalSingle COMMAND_NAME_PARAM = new PositionalParameter.OptionalSingle("commandName");
+	private static final @NotNull Parameter.OptionalSingle COMMAND_NAME_PARAM = Parameter.optional("commandName");
 	
 	private static final @NotNull Map<@NotNull String, @NotNull List<@NotNull Class<? extends Command>>> COMMAND_CLASS_CATEGORIES;
 	static {

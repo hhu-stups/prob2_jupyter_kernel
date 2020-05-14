@@ -13,12 +13,11 @@ import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
-
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -29,8 +28,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class SolveCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredSingle SOLVER_PARAM = new PositionalParameter.RequiredSingle("solver");
-	private static final @NotNull PositionalParameter.RequiredRemainder PREDICATE_PARAM = new PositionalParameter.RequiredRemainder("predicate");
+	private static final @NotNull Parameter.RequiredSingle SOLVER_PARAM = Parameter.required("solver");
+	private static final @NotNull Parameter.RequiredSingle PREDICATE_PARAM = Parameter.requiredRemainder("predicate");
 	
 	private static final @NotNull Map<@NotNull String, CbcSolveCommand.@NotNull Solvers> SOLVERS = Arrays.stream(CbcSolveCommand.Solvers.values())
 		.collect(Collectors.toMap(s -> s.name().toLowerCase(), s -> s));

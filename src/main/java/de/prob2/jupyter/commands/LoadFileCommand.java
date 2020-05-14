@@ -21,9 +21,9 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 public final class LoadFileCommand implements Command {
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LoadFileCommand.class);
 	
-	private static final @NotNull PositionalParameter.RequiredSingle FILE_NAME_PARAM = new PositionalParameter.RequiredSingle("fileName");
-	private static final @NotNull PositionalParameter.OptionalMultiple PREFS_PARAM = new PositionalParameter.OptionalMultiple("prefs");
+	private static final @NotNull Parameter.RequiredSingle FILE_NAME_PARAM = Parameter.required("fileName");
+	private static final @NotNull Parameter.Multiple PREFS_PARAM = Parameter.optionalMultiple("prefs");
 	
 	private final @NotNull Injector injector;
 	private final @NotNull AnimationSelector animationSelector;

@@ -12,12 +12,11 @@ import de.prob.animator.command.GetCurrentPreferencesCommand;
 import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.animator.command.SetPreferenceCommand;
 import de.prob.statespace.AnimationSelector;
-
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -27,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class PrefCommand implements Command {
-	private static final @NotNull PositionalParameter.OptionalMultiple PREFS_PARAM = new PositionalParameter.OptionalMultiple("prefs");
+	private static final @NotNull Parameter.Multiple PREFS_PARAM = Parameter.optionalMultiple("prefs");
 	
 	private final @NotNull AnimationSelector animationSelector;
 	

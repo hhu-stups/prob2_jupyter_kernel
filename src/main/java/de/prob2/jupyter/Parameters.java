@@ -11,9 +11,9 @@ public final class Parameters {
 	public static final @NotNull Parameters NONE = new Parameters(Collections.emptyList());
 	
 	private final @NotNull List<Parameter<?>> positionalParameters;
-	private final @Nullable PositionalParameter.RequiredRemainder bodyParam;
+	private final @Nullable Parameter.RequiredSingle bodyParam;
 	
-	public Parameters(final @NotNull List<Parameter<?>> positionalParameters, final @Nullable PositionalParameter.RequiredRemainder bodyParam) {
+	public Parameters(final @NotNull List<Parameter<?>> positionalParameters, final @Nullable Parameter.RequiredSingle bodyParam) {
 		super();
 		
 		this.positionalParameters = positionalParameters;
@@ -21,10 +21,10 @@ public final class Parameters {
 		boolean seenOptional = false;
 		boolean seenOnlyLast = false;
 		for (final Parameter<?> param : positionalParameters) {
-			final boolean isOptional = param instanceof PositionalParameter.OptionalSingle || param instanceof PositionalParameter.OptionalRemainder;
-			final boolean isOnlyLast = param instanceof PositionalParameter.RequiredRemainder || param instanceof PositionalParameter.OptionalRemainder;
+			final boolean isOptional = param.getValidator() == Parameter.Validator.ZERO_OR_ONE || param.getValidator() == Parameter.Validator.ZERO_OR_MORE;
+			final boolean isOnlyLast = param.isRepeating() || param.getSplitter() == Parameter.Splitter.REMAINDER;
 			if (seenOnlyLast) {
-				throw new IllegalArgumentException("A remainder positional parameter cannot be followed by any more positional parameters");
+				throw new IllegalArgumentException("A repeating or remainder positional parameter cannot be followed by any more positional parameters");
 			}
 			if (seenOptional && isOptional) {
 				throw new IllegalArgumentException("Required positional parameter " + param + " cannot follow an optional positional parameter");
@@ -44,7 +44,7 @@ public final class Parameters {
 		return this.positionalParameters;
 	}
 	
-	public @NotNull Optional<PositionalParameter.RequiredRemainder> getBodyParam() {
+	public @NotNull Optional<Parameter.RequiredSingle> getBodyParam() {
 		return Optional.ofNullable(this.bodyParam);
 	}
 }

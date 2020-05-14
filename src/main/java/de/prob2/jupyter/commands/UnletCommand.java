@@ -7,9 +7,9 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class UnletCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredSingle NAME_PARAM = new PositionalParameter.RequiredSingle("name");
+	private static final @NotNull Parameter.RequiredSingle NAME_PARAM = Parameter.required("name");
 	
 	private final @NotNull Injector injector;
 	

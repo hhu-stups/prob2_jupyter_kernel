@@ -18,9 +18,9 @@ import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class TableCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredRemainder EXPRESSION_PARAM = new PositionalParameter.RequiredRemainder("expression");
+	private static final @NotNull Parameter.RequiredSingle EXPRESSION_PARAM = Parameter.requiredRemainder("expression");
 	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;

@@ -6,11 +6,10 @@ import com.google.inject.Inject;
 
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
-
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -20,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class GotoCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredSingle INDEX_PARAM = new PositionalParameter.RequiredSingle("index");
+	private static final @NotNull Parameter.RequiredSingle INDEX_PARAM = Parameter.required("index");
 	
 	private final @NotNull AnimationSelector animationSelector;
 	

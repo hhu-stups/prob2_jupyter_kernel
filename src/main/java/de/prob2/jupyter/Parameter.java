@@ -67,6 +67,24 @@ public abstract class Parameter<T> {
 		public abstract T validate(final @NotNull Parameter<T> param, final @NotNull List<@NotNull String> argValues);
 	}
 	
+	public static class RequiredSingle extends Parameter<@NotNull String> {
+		public RequiredSingle(final @NotNull String identifier, final boolean repeating, final @NotNull Parameter.Splitter splitter, final @NotNull Parameter.Validator<@NotNull String> validator) {
+			super(identifier, repeating, splitter, validator);
+		}
+	}
+	
+	public static class OptionalSingle extends Parameter<@NotNull Optional<String>> {
+		public OptionalSingle(final @NotNull String identifier, final boolean repeating, final @NotNull Parameter.Splitter splitter, final @NotNull Parameter.Validator<@NotNull Optional<String>> validator) {
+			super(identifier, repeating, splitter, validator);
+		}
+	}
+	
+	public static class Multiple extends Parameter<@NotNull List<@NotNull String>> {
+		public Multiple(final @NotNull String identifier, final boolean repeating, final @NotNull Parameter.Splitter splitter, final @NotNull Parameter.Validator<@NotNull List<@NotNull String>> validator) {
+			super(identifier, repeating, splitter, validator);
+		}
+	}
+	
 	private final @NotNull String identifier;
 	private final boolean repeating;
 	private final @NotNull Parameter.Splitter splitter;
@@ -105,5 +123,43 @@ public abstract class Parameter<T> {
 			.add("splitter", this.getSplitter())
 			.add("validator", this.getValidator())
 			.toString();
+	}
+	
+	public static Parameter.RequiredSingle required(final String identifier) {
+		return new Parameter.RequiredSingle(identifier, false, Parameter.Splitter.REGULAR, Parameter.Validator.EXACTLY_ONE);
+	}
+	
+	public static Parameter.OptionalSingle optional(final String identifier) {
+		return new Parameter.OptionalSingle(identifier, false, Parameter.Splitter.REGULAR, Parameter.Validator.ZERO_OR_ONE);
+	}
+	
+	public static Parameter.Multiple requiredMultiple(final String identifier) {
+		return new Parameter.Multiple(identifier, true, Parameter.Splitter.REGULAR, Parameter.Validator.ONE_OR_MORE);
+	}
+	
+	public static Parameter.Multiple optionalMultiple(final String identifier) {
+		return new Parameter.Multiple(identifier, true, Parameter.Splitter.REGULAR, Parameter.Validator.ZERO_OR_MORE);
+	}
+	
+	public static Parameter.RequiredSingle requiredRemainder(final String identifier) {
+		return new Parameter.RequiredSingle(identifier, false, Parameter.Splitter.REMAINDER, Parameter.Validator.EXACTLY_ONE);
+	}
+	
+	public static Parameter.OptionalSingle optionalRemainder(final String identifier) {
+		return new Parameter.OptionalSingle(identifier, false, Parameter.Splitter.REMAINDER, Parameter.Validator.ZERO_OR_ONE);
+	}
+	
+	public static Parameter.RequiredSingle body(final String identifier) {
+		return new Parameter.RequiredSingle(identifier, false, argString -> {
+			throw new AssertionError("Splitter of a body parameter should never be used");
+		}, (param, argValues) -> {
+			if (argValues.isEmpty()) {
+				throw new UserErrorException("Missing required body " + param.getIdentifier());
+			} else if (argValues.size() > 1) {
+				throw new AssertionError("Body " + param.getIdentifier() + " appeared more than once, this should never happen!");
+			}
+			
+			return argValues.get(0);
+		});
 	}
 }

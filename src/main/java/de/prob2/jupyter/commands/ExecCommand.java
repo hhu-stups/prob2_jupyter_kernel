@@ -14,9 +14,9 @@ import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ExecCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredSingle OPERATION_PARAM = new PositionalParameter.RequiredSingle("operation");
-	private static final @NotNull PositionalParameter.OptionalRemainder PREDICATE_PARAM = new PositionalParameter.OptionalRemainder("predicate");
+	private static final @NotNull Parameter.RequiredSingle OPERATION_PARAM = Parameter.required("operation");
+	private static final @NotNull Parameter.OptionalSingle PREDICATE_PARAM = Parameter.optionalRemainder("predicate");
 	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;

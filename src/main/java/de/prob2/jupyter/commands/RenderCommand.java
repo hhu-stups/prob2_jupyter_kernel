@@ -5,9 +5,9 @@ import java.util.Collections;
 import com.google.inject.Inject;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -16,8 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class RenderCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredSingle MIME_TYPE_PARAM = new PositionalParameter.RequiredSingle("mimeType");
-	private static final @NotNull PositionalParameter.RequiredRemainder CONTENT_PARAM = new PositionalParameter.RequiredRemainder("content");
+	private static final @NotNull Parameter.RequiredSingle MIME_TYPE_PARAM = Parameter.required("mimeType");
+	private static final @NotNull Parameter.RequiredSingle CONTENT_PARAM = Parameter.body("content");
 	
 	@Inject
 	private RenderCommand() {

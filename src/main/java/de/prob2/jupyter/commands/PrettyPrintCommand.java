@@ -10,9 +10,9 @@ import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class PrettyPrintCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredRemainder PREDICATE_PARAM = new PositionalParameter.RequiredRemainder("predicate");
+	private static final @NotNull Parameter.RequiredSingle PREDICATE_PARAM = Parameter.requiredRemainder("predicate");
 	
 	private final AnimationSelector animationSelector;
 	

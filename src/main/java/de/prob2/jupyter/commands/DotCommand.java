@@ -22,9 +22,9 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
@@ -35,8 +35,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class DotCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredSingle COMMAND_PARAM = new PositionalParameter.RequiredSingle("command");
-	private static final @NotNull PositionalParameter.OptionalRemainder FORMULA_PARAM = new PositionalParameter.OptionalRemainder("formula");
+	private static final @NotNull Parameter.RequiredSingle COMMAND_PARAM = Parameter.required("command");
+	private static final @NotNull Parameter.OptionalSingle FORMULA_PARAM = Parameter.optionalRemainder("formula");
 	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;

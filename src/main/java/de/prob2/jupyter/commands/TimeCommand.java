@@ -9,9 +9,9 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class TimeCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredRemainder COMMAND_AND_ARGS_PARAM = new PositionalParameter.RequiredRemainder("commandAndArgs");
+	private static final @NotNull Parameter.RequiredSingle COMMAND_AND_ARGS_PARAM = Parameter.requiredRemainder("commandAndArgs");
 	
 	private final @NotNull Injector injector;
 	

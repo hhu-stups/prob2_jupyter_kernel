@@ -12,9 +12,9 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -24,8 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class LoadCellCommand implements Command {
-	private static final @NotNull PositionalParameter.OptionalMultiple PREFS_PARAM = new PositionalParameter.OptionalMultiple("prefs");
-	private static final @NotNull PositionalParameter.RequiredRemainder CODE_PARAM = new PositionalParameter.RequiredRemainder("code");
+	private static final @NotNull Parameter.Multiple PREFS_PARAM = Parameter.optionalMultiple("prefs");
+	private static final @NotNull Parameter.RequiredSingle CODE_PARAM = Parameter.body("code");
 	
 	private final @NotNull ClassicalBFactory classicalBFactory;
 	private final @NotNull AnimationSelector animationSelector;

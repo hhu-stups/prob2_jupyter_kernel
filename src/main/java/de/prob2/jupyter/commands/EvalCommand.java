@@ -9,9 +9,9 @@ import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
+import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
-import de.prob2.jupyter.PositionalParameter;
 import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class EvalCommand implements Command {
-	private static final @NotNull PositionalParameter.RequiredRemainder FORMULA_PARAM = new PositionalParameter.RequiredRemainder("formula");
+	private static final @NotNull Parameter.RequiredSingle FORMULA_PARAM = Parameter.requiredRemainder("formula");
 	
 	private final @NotNull Injector injector;
 	private final @NotNull AnimationSelector animationSelector;
