@@ -13,13 +13,12 @@ import java.nio.file.StandardCopyOption;
 import java.security.CodeSource;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
@@ -30,16 +29,6 @@ import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import org.jetbrains.annotations.Nullable;
 
 public final class Main {
-	private static final class KernelJsonData {
-		List<String> argv;
-		@SerializedName("display_name") String displayName;
-		String language;
-		
-		KernelJsonData() {
-			super();
-		}
-	}
-	
 	private Main() {
 		super();
 		
@@ -110,7 +99,7 @@ public final class Main {
 			}
 		});
 		
-		final List<String> kernelJsonArgv = new ArrayList<>();
+		final JsonArray kernelJsonArgv = new JsonArray();
 		kernelJsonArgv.add("java");
 		
 		final String probHome = System.getProperty("prob.home");
@@ -126,10 +115,10 @@ public final class Main {
 		kernelJsonArgv.add("run");
 		kernelJsonArgv.add("{connection_file}");
 		
-		final Main.KernelJsonData kernelJsonData = new Main.KernelJsonData();
-		kernelJsonData.argv = kernelJsonArgv;
-		kernelJsonData.displayName = "ProB 2";
-		kernelJsonData.language = "prob";
+		final JsonObject kernelJsonData = new JsonObject();
+		kernelJsonData.add("argv", kernelJsonArgv);
+		kernelJsonData.addProperty("display_name", "ProB 2");
+		kernelJsonData.addProperty("language", "prob");
 		
 		final Gson gson = new GsonBuilder()
 			.setPrettyPrinting()
