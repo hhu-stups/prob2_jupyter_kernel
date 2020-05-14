@@ -10,17 +10,17 @@ import org.jetbrains.annotations.Nullable;
 public final class Parameters {
 	public static final @NotNull Parameters NONE = new Parameters(Collections.emptyList());
 	
-	private final @NotNull List<PositionalParameter<?>> positionalParameters;
+	private final @NotNull List<Parameter<?>> positionalParameters;
 	private final @Nullable PositionalParameter.RequiredRemainder bodyParam;
 	
-	public Parameters(final @NotNull List<PositionalParameter<?>> positionalParameters, final @Nullable PositionalParameter.RequiredRemainder bodyParam) {
+	public Parameters(final @NotNull List<Parameter<?>> positionalParameters, final @Nullable PositionalParameter.RequiredRemainder bodyParam) {
 		super();
 		
 		this.positionalParameters = positionalParameters;
 		
 		boolean seenOptional = false;
 		boolean seenOnlyLast = false;
-		for (final PositionalParameter<?> param : positionalParameters) {
+		for (final Parameter<?> param : positionalParameters) {
 			final boolean isOptional = param instanceof PositionalParameter.OptionalSingle || param instanceof PositionalParameter.OptionalRemainder;
 			final boolean isOnlyLast = param instanceof PositionalParameter.RequiredRemainder || param instanceof PositionalParameter.OptionalRemainder;
 			if (seenOnlyLast) {
@@ -36,11 +36,11 @@ public final class Parameters {
 		this.bodyParam = bodyParam;
 	}
 	
-	public Parameters(final @NotNull List<PositionalParameter<?>> positionalParameters) {
+	public Parameters(final @NotNull List<Parameter<?>> positionalParameters) {
 		this(positionalParameters, null);
 	}
 	
-	public @NotNull List<PositionalParameter<?>> getPositionalParameters() {
+	public @NotNull List<Parameter<?>> getPositionalParameters() {
 		return this.positionalParameters;
 	}
 	

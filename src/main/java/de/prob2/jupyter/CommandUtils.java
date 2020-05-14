@@ -103,7 +103,7 @@ public final class CommandUtils {
 		}
 		
 		for (int i = 0; i < parameters.getPositionalParameters().size();) {
-			final PositionalParameter<?> param = parameters.getPositionalParameters().get(i);
+			final Parameter<?> param = parameters.getPositionalParameters().get(i);
 			if (remainingArgs.isEmpty()) {
 				break;
 			}
@@ -131,7 +131,7 @@ public final class CommandUtils {
 		
 		final ParsedArguments parsed = new ParsedArguments(Collections.emptyMap());
 		
-		for (final PositionalParameter<?> param : parameters.getPositionalParameters()) {
+		for (final Parameter<?> param : parameters.getPositionalParameters()) {
 			validateSplitParameter(parsed, split.getArguments(), param);
 		}
 		
