@@ -3,6 +3,7 @@
 ## [(next version)](./README.md#for-developers)
 
 * Added support for Java 14.
+* Updated ProB 2 to version 3.11.0.
 * Fixed a parse error when a line comment is used on the last line of an expression while any `:let` variables are defined.
 * Fixed detection of B machines in cells without `::load`. Previously only single-line machines were recognized.
 
