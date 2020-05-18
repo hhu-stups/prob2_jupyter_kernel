@@ -56,7 +56,12 @@ If the kernel was installed using `java -jar <jarfile> install`, the kernel jar 
 
 After installation, start the Jupyter Notebook web interface using `jupyter notebook`. The ProB 2 kernel can be selected when creating a new notebook.
 
-You can also use the kernel with other frontends, such as `jupyter console` and `jupyter qtconsole`, by specifying `--kernel=prob2` on the command line.
+You can also use the kernel with other frontends. You may need to manually specify the ProB 2 kernel's ID (`prob2`). For example, to run the kernel using Jupyter's [console](https://jupyter-console.readthedocs.io/) and [Qt console](https://qtconsole.readthedocs.io/) frontends:
+
+```sh
+$ jupyter console --kernel=prob2
+$ jupyter qtconsole --kernel=prob2
+```
 
 For information on how to use the kernel, run the built-in `:help` command, or see the included [example notebooks](./notebooks).
 
