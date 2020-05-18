@@ -61,7 +61,10 @@ def readCurrentGitCommit() {
 	return proc.in.readLines()[0]
 }
 
+final currentGitCommit = readCurrentGitCommit()
 processResources {
+	inputs.property("project.version", project.version)
+	inputs.property("currentGitCommit", currentGitCommit)
 	filesMatching("de/prob2/jupyter/build.properties") {
 		expand(version: project.version, commit: readCurrentGitCommit())
 	}
