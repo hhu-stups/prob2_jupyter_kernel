@@ -24,19 +24,21 @@ See the [requirements](#requirements) and [installation instructions](#installat
 
 ### For end users
 
-1. [Download the latest version of the kernel][current-download].
-2. If Jupyter is installed in a virtual environment, activate it.
-3. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
+1. Ensure that all [requirements](#requirements) are installed.
+2. [Download the latest version of the kernel][current-download].
+3. If Jupyter is installed in a virtual environment, activate it.
+4. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
 	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
 	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, pass it as an argument after `install`, e. g. `java -jar <jarfile> install /path/to/jupyter`.
 	* To use a different ProB home directory than the default, pass `-Dprob.home=/path/to/prob/home` before the `-jar` option. (The path must be absolute.)
-4. (Optional) The jar file can be deleted after installation.
+5. (Optional) The jar file can be deleted after installation.
 
 ### For developers
 
-1. Clone this repository (`git clone https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel.git`) or download an archive from [the repository page](https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel).
-2. If Jupyter is installed in a virtual environment, activate it.
-3. In the root directory of the repository, run `./gradlew installKernelSpec`.
+1. Ensure that all [requirements](#requirements) are installed.
+2. Clone this repository (`git clone https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel.git`) or download an archive from [the repository page](https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel).
+3. If Jupyter is installed in a virtual environment, activate it.
+4. In the root directory of the repository, run `./gradlew installKernelSpec`.
 	* If Jupyter is installed in a virtual environment and you get an error that the `jupyter` command could not be found/executed, try running the Gradle command with the `--no-daemon` option. This ensures that Gradle sees all environment changes performed by the activation of the virtual environment.
 	* If you get a permission error when installing the kernel spec, pass `-PkernelspecUserInstall=true` to the `./gradlew` command. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
 	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, you can pass `-PjupyterCommand=/path/to/jupyter` to the `./gradlew` command.
