@@ -15,10 +15,10 @@ See the [requirements](#requirements) and [installation instructions](#installat
 * Java 8 or newer
 	* Tested up to Java 14.
 * A Python 3 interpeter with Jupyter installed (`python3 -m pip install jupyter`)
-	* Tested with CPython 3.6, jupyter-core 4.4.0, jupyter-client 5.2.3, notebook 5.6.0.
-	* Newer Jupyter versions should also work.
-	* Older Jupyter versions may work, as long as they support version 5.0 of the Jupyter message protocol.
-	* The Python version does not matter, as long as it is supported by Jupyter.
+	* Tested with CPython 3.8 and Jupyter core/Notebook 6.x.
+	* Older Python and Jupyter versions should also work (see below), but if possible please use the current versions of Python and Jupyter.
+	* This kernel requires version 5.0 of the kernel message protocol, which is supported by all versions of Jupyter (since the split from IPython, i. e. 4.x and later), as well as IPython Notebook 3.x.
+	* The Python version does not matter, as long as it is supported by the Jupyter version in use. Jupyter Notebook 6.x (the current version) supports Python 3.5 and later. Older Jupyter versions also support Python 2.7 (before Jupyter 6.0), and 3.4 and 3.3 (before Juypter 5.3.0).
 
 ## Installation
 
