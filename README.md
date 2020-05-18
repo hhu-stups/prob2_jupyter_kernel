@@ -67,5 +67,5 @@ $ jupyter qtconsole --kernel=prob2
 
 For information on how to use the kernel, run the built-in `:help` command, or see the included [example notebooks](./notebooks).
 
-[current-download]: https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.1.0-all.jar
+[current-download]: https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar
 [changelog]: ./CHANGELOG.md

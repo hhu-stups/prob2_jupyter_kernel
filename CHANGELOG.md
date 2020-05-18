@@ -1,6 +1,6 @@
 # Changelog
 
-## [(next version)](./README.md#for-developers)
+## [1.2.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar)
 
 * Added support for Java 14.
 * Added B parser version information to `:version` output.
