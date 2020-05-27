@@ -2,38 +2,49 @@ package de.prob2.jupyter;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 
 public interface Parameter<T> {
 	public static final class SplitResult {
-		private final @NotNull String splitArg;
-		private final @NotNull String remainingArgString;
+		private final @NotNull PositionedString splitArg;
+		private final @NotNull PositionedString remainingArgString;
 		
-		public SplitResult(final @NotNull String splitArg, final @NotNull String remainingArgString) {
+		public SplitResult(final @NotNull PositionedString splitArg, final @NotNull PositionedString remainingArgString) {
 			super();
 			
 			this.splitArg = splitArg;
 			this.remainingArgString = remainingArgString;
 		}
 		
-		public @NotNull String getSplitArg() {
+		public @NotNull PositionedString getSplitArg() {
 			return this.splitArg;
 		}
 		
-		public @NotNull String getRemainingArgString() {
+		public @NotNull PositionedString getRemainingArgString() {
 			return this.remainingArgString;
 		}
 	}
 	
 	public interface Splitter {
 		public static final @NotNull Parameter.Splitter REGULAR = argString -> {
-			final String[] split = CommandUtils.ARG_SPLIT_PATTERN.split(argString, 2);
-			return new SplitResult(split[0], split.length > 1 ? split[1] : "");
+			final Matcher argSplitMatcher = CommandUtils.ARG_SPLIT_PATTERN.matcher(argString.getValue());
+			final PositionedString splitArg;
+			final PositionedString remainingArgString;
+			if (argSplitMatcher.find()) {
+				splitArg = new PositionedString(argString.getValue().substring(0, argSplitMatcher.start()), argString.getStartPosition());
+				remainingArgString = new PositionedString(argString.getValue().substring(argSplitMatcher.end()), argString.getStartPosition() + argSplitMatcher.end());
+			} else {
+				splitArg = argString;
+				remainingArgString = new PositionedString("", argString.getStartPosition() + argString.getValue().length());
+			}
+			return new SplitResult(splitArg, remainingArgString);
 		};
-		public static final @NotNull Parameter.Splitter REMAINDER = argString -> new SplitResult(argString, "");
+		public static final @NotNull Parameter.Splitter REMAINDER = argString -> new SplitResult(argString, new PositionedString("", argString.getStartPosition() + argString.getValue().length()));
 		
-		public abstract Parameter.SplitResult split(final @NotNull String argString);
+		public abstract Parameter.SplitResult split(final @NotNull PositionedString argString);
 	}
 	
 	public interface Validator<T> {
@@ -44,25 +55,29 @@ public interface Parameter<T> {
 				throw new UserErrorException("Non-repeating parameter " + param.getIdentifier() + " cannot appear more than once");
 			}
 			
-			return argValues.get(0);
+			return argValues.get(0).getValue();
 		};
 		public static final @NotNull Parameter.Validator<@NotNull Optional<String>> ZERO_OR_ONE = (param, argValues) -> {
 			if (argValues.size() > 1) {
 				throw new UserErrorException("Non-repeating parameter " + param.getIdentifier() + " cannot appear more than once");
 			}
 			
-			return argValues.stream().findAny();
+			return argValues.stream().findAny().map(PositionedString::getValue);
 		};
 		public static final @NotNull Parameter.Validator<@NotNull List<@NotNull String>> ONE_OR_MORE = (param, argValues) -> {
 			if (argValues.isEmpty()) {
 				throw new UserErrorException("Missing required parameter " + param.getIdentifier());
 			}
 			
-			return argValues;
+			return argValues.stream()
+				.map(PositionedString::getValue)
+				.collect(Collectors.toList());
 		};
-		public static final @NotNull Parameter.Validator<@NotNull List<@NotNull String>> ZERO_OR_MORE = (param, argValues) -> argValues;
+		public static final @NotNull Parameter.Validator<@NotNull List<@NotNull String>> ZERO_OR_MORE = (param, argValues) -> argValues.stream()
+			.map(PositionedString::getValue)
+			.collect(Collectors.toList());
 		
-		public abstract T validate(final @NotNull Parameter<T> param, final @NotNull List<@NotNull String> argValues);
+		public abstract T validate(final @NotNull Parameter<T> param, final @NotNull List<@NotNull PositionedString> argValues);
 	}
 	
 	public interface RequiredSingle extends Parameter<@NotNull String> {}
@@ -141,7 +156,7 @@ public interface Parameter<T> {
 						throw new AssertionError("Body " + param.getIdentifier() + " appeared more than once, this should never happen!");
 					}
 					
-					return argValues.get(0);
+					return argValues.get(0).getValue();
 				};
 			}
 		};

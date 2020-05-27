@@ -11,9 +11,9 @@ import com.google.common.base.MoreObjects;
 import org.jetbrains.annotations.NotNull;
 
 public final class SplitArguments {
-	private final @NotNull Map<@NotNull Parameter<?>, @NotNull List<@NotNull String>> values;
+	private final @NotNull Map<@NotNull Parameter<?>, @NotNull List<@NotNull PositionedString>> values;
 	
-	public SplitArguments(final @NotNull Map<@NotNull Parameter<?>, @NotNull List<@NotNull String>> values) {
+	public SplitArguments(final @NotNull Map<@NotNull Parameter<?>, @NotNull List<@NotNull PositionedString>> values) {
 		super();
 		
 		this.values = new HashMap<>(values);
@@ -23,11 +23,11 @@ public final class SplitArguments {
 		return this.values.containsKey(parameter);
 	}
 	
-	public @NotNull List<@NotNull String> get(final @NotNull Parameter<?> parameter) {
+	public @NotNull List<@NotNull PositionedString> get(final @NotNull Parameter<?> parameter) {
 		return this.values.getOrDefault(parameter, Collections.emptyList());
 	}
 	
-	public void add(final @NotNull Parameter<?> parameter, final String value) {
+	public void add(final @NotNull Parameter<?> parameter, final PositionedString value) {
 		this.values.computeIfAbsent(parameter, p -> new ArrayList<>()).add(value);
 	}
 	

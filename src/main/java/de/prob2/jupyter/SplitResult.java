@@ -4,9 +4,9 @@ import org.jetbrains.annotations.NotNull;
 
 public final class SplitResult {
 	private final @NotNull SplitArguments arguments;
-	private final @NotNull String remaining;
+	private final @NotNull PositionedString remaining;
 	
-	public SplitResult(final @NotNull SplitArguments arguments, final @NotNull String remaining) {
+	public SplitResult(final @NotNull SplitArguments arguments, final @NotNull PositionedString remaining) {
 		super();
 		
 		this.arguments = arguments;
@@ -17,7 +17,7 @@ public final class SplitResult {
 		return this.arguments;
 	}
 	
-	public @NotNull String getRemaining() {
+	public @NotNull PositionedString getRemaining() {
 		return this.remaining;
 	}
 }

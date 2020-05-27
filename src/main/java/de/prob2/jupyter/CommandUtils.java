@@ -54,6 +54,7 @@ public final class CommandUtils {
 	
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
 	
+	private static final @NotNull Pattern BODY_SPLIT_PATTERN = Pattern.compile("\\n");
 	public static final @NotNull Pattern ARG_SPLIT_PATTERN = Pattern.compile("\\s+");
 	private static final @NotNull Pattern B_IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
 	
@@ -91,18 +92,19 @@ public final class CommandUtils {
 	
 	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
 		final SplitArguments splitArgs = new SplitArguments(Collections.emptyMap());
-		String remainingArgs = argString;
+		PositionedString remainingArgs = new PositionedString(argString, 0);
 		if (parameters.getBodyParam().isPresent()) {
-			final String[] argsAndBody = argString.split("\n", 2);
-			if (argsAndBody.length > 1) {
-				remainingArgs = argsAndBody[0];
-				splitArgs.add(parameters.getBodyParam().get(), argsAndBody[1]);
+			final Matcher bodySplitMatcher = BODY_SPLIT_PATTERN.matcher(argString);
+			if (bodySplitMatcher.find()) {
+				remainingArgs = new PositionedString(argString.substring(0, bodySplitMatcher.start()), remainingArgs.getStartPosition());
+				final PositionedString bodyValue = new PositionedString(argString.substring(bodySplitMatcher.end()), bodySplitMatcher.end());
+				splitArgs.add(parameters.getBodyParam().get(), bodyValue);
 			}
 		}
 		
 		for (int i = 0; i < parameters.getPositionalParameters().size();) {
 			final Parameter<?> param = parameters.getPositionalParameters().get(i);
-			if (remainingArgs.isEmpty()) {
+			if (remainingArgs.getValue().isEmpty()) {
 				break;
 			}
 			
@@ -123,8 +125,8 @@ public final class CommandUtils {
 	}
 	
 	public static @NotNull ParsedArguments validateSplitArgs(final @NotNull Parameters parameters, final SplitResult split) {
-		if (!split.getRemaining().isEmpty()) {
-			throw new UserErrorException("Expected at most " + parameters.getPositionalParameters().size() + " arguments, got extra argument: " + split.getRemaining());
+		if (!split.getRemaining().getValue().isEmpty()) {
+			throw new UserErrorException("Expected at most " + parameters.getPositionalParameters().size() + " arguments, got extra argument: " + split.getRemaining().getValue());
 		}
 		
 		final ParsedArguments parsed = new ParsedArguments(Collections.emptyMap());
