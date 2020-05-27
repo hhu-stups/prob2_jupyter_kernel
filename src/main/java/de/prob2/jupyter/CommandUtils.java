@@ -91,15 +91,13 @@ public final class CommandUtils {
 	
 	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
 		final SplitArguments splitArgs = new SplitArguments(Collections.emptyMap());
-		String remainingArgs;
+		String remainingArgs = argString;
 		if (parameters.getBodyParam().isPresent()) {
 			final String[] argsAndBody = argString.split("\n", 2);
-			remainingArgs = argsAndBody[0];
 			if (argsAndBody.length > 1) {
+				remainingArgs = argsAndBody[0];
 				splitArgs.add(parameters.getBodyParam().get(), argsAndBody[1]);
 			}
-		} else {
-			remainingArgs = argString;
 		}
 		
 		for (int i = 0; i < parameters.getPositionalParameters().size();) {
