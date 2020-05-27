@@ -2,7 +2,14 @@
 
 ## [(next version)](./README.md#for-developers)
 
+* (no changes yet)
+
+## [1.2.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar)
+
 * Added support for Java 14.
+* Added B parser version information to `:version` output.
+* Improved interrupt handling so that only the currently running command is interrupted, rather than terminating the entire kernel. This means that interrupts now no longer reset the kernel state (loaded machine, current animator state, local variables, etc.).
+* Updated ProB 2 to version 3.11.0.
 * Fixed a parse error when a line comment is used on the last line of an expression while any `:let` variables are defined.
 * Fixed detection of B machines in cells without `::load`. Previously only single-line machines were recognized.
 

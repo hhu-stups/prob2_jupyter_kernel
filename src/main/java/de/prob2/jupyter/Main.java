@@ -13,13 +13,12 @@ import java.nio.file.StandardCopyOption;
 import java.security.CodeSource;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
@@ -27,18 +26,22 @@ import com.google.inject.Stage;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
 import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class Main {
-	private static final class KernelJsonData {
-		List<String> argv;
-		@SerializedName("display_name") String displayName;
-		String language;
-		
-		KernelJsonData() {
-			super();
-		}
-	}
+	private static final @NotNull String USAGE_TEXT = "Usage: java -jar prob2-jupyter-kernel-all.jar [--help | install [--user] [JUPYTER] | createKernelSpec KERNELSPECDIR | run CONNECTIONFILE]";
+	private static final @NotNull String FULL_HELP_TEXT = "--help: Prints this information.\n"
+		+ "\n"
+		+ "install: Copies the kernel into the ProB home directory, and installs the kernel in Jupyter.\n"
+		+ "\tBy default the kernel spec is installed into the sys.prefix of Jupyter's Python installation. If the sys.prefix is not writable (for example when using the system Python installation instead of a virtual environment), the --user flag can be used to install the kernel only for the current user.\n"
+		+ "\tBy default the command \"jupyter\" is used to install the kernel. If the kernel should be installed in a different Jupyter installation, a different Jupyter command can be passed as an argument to the install command.\n"
+		+ "\n"
+		+ "createKernelSpec: Creates a Jupyter kernel spec for this jar file at the given location.\n"
+		+ "\tThis option is for advanced users or developers, who don't want the jar file to be copied, or who want to install the kernel spec manually.\n"
+		+ "\n"
+		+ "run: Runs the kernel using the given connection file.\n"
+		+ "\tThis option is not meant to be used manually, it is used internally when Jupyter starts the kernel.";
 	
 	private Main() {
 		super();
@@ -110,7 +113,7 @@ public final class Main {
 			}
 		});
 		
-		final List<String> kernelJsonArgv = new ArrayList<>();
+		final JsonArray kernelJsonArgv = new JsonArray();
 		kernelJsonArgv.add("java");
 		
 		final String probHome = System.getProperty("prob.home");
@@ -126,10 +129,11 @@ public final class Main {
 		kernelJsonArgv.add("run");
 		kernelJsonArgv.add("{connection_file}");
 		
-		final Main.KernelJsonData kernelJsonData = new Main.KernelJsonData();
-		kernelJsonData.argv = kernelJsonArgv;
-		kernelJsonData.displayName = "ProB 2";
-		kernelJsonData.language = "prob";
+		final JsonObject kernelJsonData = new JsonObject();
+		kernelJsonData.add("argv", kernelJsonArgv);
+		kernelJsonData.addProperty("display_name", "ProB 2");
+		kernelJsonData.addProperty("language", "prob");
+		kernelJsonData.addProperty("interrupt_mode", "message");
 		
 		final Gson gson = new GsonBuilder()
 			.setPrettyPrinting()
@@ -221,17 +225,18 @@ public final class Main {
 	}
 	
 	public static void main(final String[] args) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
-		if (args.length < 1 || args.length == 1 && "--help".equals(args[0])) {
-			System.err.println("Usage: java -jar prob2-jupyter-kernel-all.jar [--help | install [--user] [JUPYTER] | createKernelSpec KERNELSPECDIR | run CONNECTIONFILE]");
-			System.err.println("--help: Prints this information.");
-			System.err.println("install: Copies the kernel into the ProB home directory, and installs the kernel in Jupyter.");
-			System.err.println("\tBy default the kernel spec is installed into the sys.prefix of Jupyter's Python installation. If the sys.prefix is not writable (for example when using the system Python installation instead of a virtual environment), the --user flag can be used to install the kernel only for the current user.");
-			System.err.println("\tBy default the command \"jupyter\" is used to install the kernel. If the kernel should be installed in a different Jupyter installation, a different Jupyter command can be passed as an argument to the install command.");
-			System.err.println("createKernelSpec: Creates a Jupyter kernel spec for this jar file at the given location.");
-			System.err.println("\tThis option is for advanced users or developers, who don't want the jar file to be copied, or who want to install the kernel spec manually.");
-			System.err.println("run: Runs the kernel using the given connection file.");
-			System.err.println("\tThis option is not meant to be used manually, it is used internally when Jupyter starts the kernel.");
+		if (args.length < 1) {
+			System.err.println(USAGE_TEXT);
+			System.err.println();
+			System.err.println("To install the kernel, run: java -jar prob2-jupyter-kernel-all.jar install");
+			System.err.println();
+			System.err.println("For a full description of all options, run: java -jar prob2-jupyter-kernel-all.jar --help");
 			throw die(2);
+		} else if (args.length == 1 && "--help".equals(args[0])) {
+			System.out.println(USAGE_TEXT);
+			System.out.println();
+			System.out.println(FULL_HELP_TEXT);
+			throw die(0);
 		}
 		switch (args[0]) {
 			case "install":
