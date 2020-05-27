@@ -69,3 +69,23 @@ For information on how to use the kernel, run the built-in `:help` command, or s
 
 [current-download]: https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar
 [changelog]: ./CHANGELOG.md
+
+
+## Citing
+
+An article about the ProB Jupyter kernel has been [published at ABZ'2020](https://rdcu.be/b4rql).
+
+```
+@InProceedings{GelessusLeuschel:ABZ2020,
+ author="Gele{\ss}us, David and Leuschel, Michael",
+ editor="Raschke, Alexander and M{\'e}ry, Dominique and Houdek, Frank",
+ title="ProB and Jupyter for Logic, Set Theory, Theoretical Computer Science and Formal Methods",
+ booktitle="Rigorous State-Based Methods",
+ year="2020",
+ publisher="Springer International Publishing",
+ address="Cham",
+ pages="248--254",
+ abstract="We present a tool for using the B language in computational notebooks, based on the Jupyter Notebook interface and the ProB tool. Applications of B notebooks include executable documentation of formal models, interactive manuals, validation reports but also teaching of formal methods, logic, set theory and theoretical computer science. In addition to B and Event-B, the tool supports Z, {\$}{\$}{\backslash}textsc {\{}TLA{\}}^{\{}+{\}}{\$}{\$} and Alloy.",
+ isbn="978-3-030-48077-6"
+}
+```
