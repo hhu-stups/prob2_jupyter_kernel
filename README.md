@@ -67,23 +67,22 @@ $ jupyter qtconsole --kernel=prob2
 
 For information on how to use the kernel, run the built-in `:help` command, or see the included [example notebooks](./notebooks).
 
-[current-download]: https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar
-[changelog]: ./CHANGELOG.md
-
-
 ## Citing
 
 An article about the ProB Jupyter kernel has been [published at ABZ'2020](https://rdcu.be/b4rql).
 
-```
+```bibtex
 @inproceedings{GelessusLeuschel:abz2020,
-  author    = {David Gelessus and Michael Leuschel},
-  title     = {{ProB} and {Jupyter} for Logic, Set Theory, Theoretical Computer Science and Formal Methods},
-  booktitle = {Proceedings ABZ 2020},
-  editor="Raschke, Alexander and M{\'e}ry, Dominique and Houdek, Frank",
-  year      = {2020},
-  series = {LNCS 12071},
-   pages="248--254",
- isbn="978-3-030-48077-6"
+	author = {David Gelessus and Michael Leuschel},
+	title = {{ProB} and {Jupyter} for Logic, Set Theory, Theoretical Computer Science and Formal Methods},
+	booktitle = {Proceedings ABZ 2020},
+	editor = "Raschke, Alexander and M{\'e}ry, Dominique and Houdek, Frank",
+	year = {2020},
+	series = {LNCS 12071},
+	pages = "248--254",
+	isbn = "978-3-030-48077-6"
 }
 ```
+
+[current-download]: https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar
+[changelog]: ./CHANGELOG.md
