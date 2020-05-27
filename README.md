@@ -69,7 +69,7 @@ For information on how to use the kernel, run the built-in `:help` command, or s
 
 ## Citing
 
-An article about the ProB Jupyter kernel has been [published at ABZ'2020](https://rdcu.be/b4rql).
+An article about the ProB Jupyter kernel has been [published at ABZ'2020](https://link.springer.com/epdf/10.1007/978-3-030-48077-6_19?sharing_token=Nbvsl1StbEqfKGPhJwLMb_e4RwlQNchNByi7wbcMAY4yDpL76P5EGFEyHUVQToM3cE0JT8SrX5kUcY5Tx3NbNk7ZRhAullHYDeKKl9C6z3f2jS5d0JEraXScv4hxlPmpP-17XOXseltcKfZbcq05hOnhHWx78Wll4QMNCK8E115bSCQ7acchJqrow-mu5nzV) ([short link](https://rdcu.be/b4rql)).
 
 ```bibtex
 @inproceedings{GelessusLeuschel:abz2020,
