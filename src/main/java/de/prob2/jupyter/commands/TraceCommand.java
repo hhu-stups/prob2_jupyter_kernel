@@ -8,6 +8,7 @@ import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 
@@ -89,8 +90,8 @@ public final class TraceCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return null;
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return ParameterInspectors.NONE;
 	}
 	
 	@Override

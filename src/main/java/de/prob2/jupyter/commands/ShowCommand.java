@@ -16,6 +16,7 @@ import de.prob.animator.domainobjects.AnimationMatrixEntry;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -152,8 +153,8 @@ public final class ShowCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return null;
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return ParameterInspectors.NONE;
 	}
 	
 	@Override

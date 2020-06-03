@@ -12,6 +12,7 @@ import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -22,7 +23,6 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import io.github.spencerpark.jupyter.kernel.display.mime.MIMEType;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class AssertCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle FORMULA_PARAM = Parameter.requiredRemainder("formula");
@@ -84,8 +84,10 @@ public final class AssertCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return CommandUtils.inspectInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return new ParameterInspectors(Collections.singletonMap(
+			FORMULA_PARAM, CommandUtils.bExpressionInspector(this.animationSelector.getCurrentTrace())
+		));
 	}
 	
 	@Override

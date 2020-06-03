@@ -16,6 +16,7 @@ import de.prob.check.StateSpaceStats;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.StateSpace;
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -128,8 +129,8 @@ public final class ModelCheckCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return null;
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return ParameterInspectors.NONE;
 	}
 	
 	@Override

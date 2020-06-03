@@ -14,6 +14,7 @@ import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -23,7 +24,6 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class HelpCommand implements Command {
 	private static final @NotNull Parameter.OptionalSingle COMMAND_NAME_PARAM = Parameter.optional("commandName");
@@ -170,8 +170,8 @@ public final class HelpCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return null;
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return ParameterInspectors.NONE;
 	}
 	
 	@Override

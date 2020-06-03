@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -15,6 +16,7 @@ import de.prob.statespace.Transition;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -86,12 +88,11 @@ public final class ExecCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return CommandUtils.inspectArgs(
-			argString, at,
-			(operation, at0) -> null, // TODO
-			CommandUtils.bExpressionInspector(this.animationSelector.getCurrentTrace())
-		);
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return new ParameterInspectors(ImmutableMap.of(
+			OPERATION_PARAM, (operation, at) -> null, // TODO
+			PREDICATE_PARAM, CommandUtils.bExpressionInspector(this.animationSelector.getCurrentTrace())
+		));
 	}
 	
 	@Override

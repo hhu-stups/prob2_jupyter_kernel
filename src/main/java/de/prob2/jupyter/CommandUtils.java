@@ -90,7 +90,7 @@ public final class CommandUtils {
 		}
 	}
 	
-	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
+	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull String argString, final int upToPosition) {
 		final SplitArguments splitArgs = new SplitArguments(Collections.emptyMap());
 		PositionedString remainingArgs = new PositionedString(argString, 0);
 		if (parameters.getBodyParam().isPresent()) {
@@ -102,6 +102,7 @@ public final class CommandUtils {
 			}
 		}
 		
+		Parameter<?> parameterAtPosition = null;
 		for (int i = 0; i < parameters.getPositionalParameters().size();) {
 			final Parameter<?> param = parameters.getPositionalParameters().get(i);
 			if (remainingArgs.getValue().isEmpty()) {
@@ -112,12 +113,29 @@ public final class CommandUtils {
 			splitArgs.add(param, splitSingleArg.getSplitArg());
 			remainingArgs = splitSingleArg.getRemainingArgString();
 			
+			if (remainingArgs.getValue().isEmpty() || remainingArgs.getStartPosition() > upToPosition) {
+				parameterAtPosition = param;
+				break;
+			}
+			
 			if (!param.isRepeating()) {
 				i++;
 			}
 		}
 		
-		return new SplitResult(splitArgs, remainingArgs);
+		if (parameters.getBodyParam().isPresent() && splitArgs.containsKey(parameters.getBodyParam().get())) {
+			final List<PositionedString> bodyParamValues = splitArgs.get(parameters.getBodyParam().get());
+			assert bodyParamValues.size() == 1;
+			if (upToPosition >= bodyParamValues.get(0).getStartPosition()) {
+				parameterAtPosition = parameters.getBodyParam().get();
+			}
+		}
+		
+		return new SplitResult(splitArgs, parameterAtPosition, remainingArgs);
+	}
+	
+	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
+		return splitArgs(parameters, argString, argString.length());
 	}
 	
 	private static <T> void validateSplitParameter(final @NotNull ParsedArguments parsed, final @NotNull SplitArguments splitArgs, final @NotNull Parameter<T> param) {
@@ -288,25 +306,6 @@ public final class CommandUtils {
 			replacements.getSourceStart() + offset,
 			replacements.getSourceEnd() + offset
 		);
-	}
-	
-	public static @Nullable DisplayData inspectArgs(final @NotNull String argString, final int at, final @NotNull Inspector @NotNull... inspectors) {
-		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(argString);
-		int argStart = 0;
-		int argEnd = argString.length();
-		int i = 0;
-		while (argSplitMatcher.find()) {
-			if (argSplitMatcher.end() > at) {
-				argEnd = argSplitMatcher.start();
-				break;
-			}
-			argStart = argSplitMatcher.end();
-			if (i >= inspectors.length-1) {
-				break;
-			}
-			i++;
-		}
-		return inspectors[i].inspect(argString.substring(argStart, argEnd), at - argStart);
 	}
 	
 	public static @Nullable ReplacementOptions completeArgs(final @NotNull String argString, final int at, final @NotNull Completer @NotNull... completers) {

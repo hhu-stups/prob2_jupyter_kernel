@@ -4,6 +4,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -13,6 +14,7 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -84,15 +86,11 @@ public final class LoadCellCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		final int newlinePos = argString.indexOf('\n');
-		if (newlinePos == -1 || at < newlinePos) {
-			// Cursor is on the first line, provide preference inspections.
-			return CommandUtils.inspectInPreferences(this.animationSelector.getCurrentTrace(), argString, at);
-		} else {
-			// Cursor is in the body, provide B inspections.
-			return CommandUtils.inspectInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
-		}
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return new ParameterInspectors(ImmutableMap.of(
+			PREFS_PARAM, CommandUtils.preferencesInspector(this.animationSelector.getCurrentTrace()),
+			CODE_PARAM, CommandUtils.bExpressionInspector(this.animationSelector.getCurrentTrace())
+		));
 	}
 	
 	@Override

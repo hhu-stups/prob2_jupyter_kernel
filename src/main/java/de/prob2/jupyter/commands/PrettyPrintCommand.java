@@ -11,6 +11,7 @@ import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 
@@ -18,7 +19,6 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class PrettyPrintCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle PREDICATE_PARAM = Parameter.requiredRemainder("predicate");
@@ -75,8 +75,10 @@ public final class PrettyPrintCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return CommandUtils.inspectInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return new ParameterInspectors(Collections.singletonMap(
+			PREDICATE_PARAM, CommandUtils.bExpressionInspector(this.animationSelector.getCurrentTrace())
+		));
 	}
 	
 	@Override

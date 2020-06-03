@@ -6,6 +6,7 @@ import de.prob.animator.command.ComputeStateSpaceStatsCommand;
 import de.prob.check.StateSpaceStats;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 
@@ -81,8 +82,8 @@ public final class StatsCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return null;
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return ParameterInspectors.NONE;
 	}
 	
 	@Override

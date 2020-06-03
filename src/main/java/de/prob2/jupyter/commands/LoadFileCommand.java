@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
@@ -22,6 +23,7 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -110,12 +112,11 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return CommandUtils.inspectArgs(
-			argString, at,
-			(filename, at0) -> null,
-			CommandUtils.preferencesInspector(this.animationSelector.getCurrentTrace())
-		);
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return new ParameterInspectors(ImmutableMap.of(
+			FILE_NAME_PARAM, (filename, at) -> null,
+			PREFS_PARAM, CommandUtils.preferencesInspector(this.animationSelector.getCurrentTrace())
+		));
 	}
 	
 	@Override

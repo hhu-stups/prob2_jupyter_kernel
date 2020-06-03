@@ -43,7 +43,7 @@ public interface Command {
 	
 	public abstract @Nullable DisplayData run(final @NotNull ParsedArguments args);
 	
-	public abstract @Nullable DisplayData inspect(final @NotNull String argString, final int at);
+	public abstract @NotNull ParameterInspectors getParameterInspectors();
 	
 	public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int at);
 }

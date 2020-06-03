@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -353,6 +354,23 @@ public final class ProBKernel extends BaseKernel {
 		}
 	}
 	
+	private static @Nullable DisplayData inspectCommandArguments(final @NotNull Command command, final @NotNull String argString, final int at) {
+		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), argString, at);
+		if (split.getParameterAtPosition().isPresent()) {
+			final Optional<CommandUtils.Inspector> inspector = command.getParameterInspectors().getInspectorForParameter(split.getParameterAtPosition().get());
+			if (inspector.isPresent()) {
+				final List<PositionedString> argsAtPosition = split.getArguments().get(split.getParameterAtPosition().get());
+				assert !argsAtPosition.isEmpty();
+				final PositionedString lastArgument = argsAtPosition.get(argsAtPosition.size() - 1);
+				return inspector.get().inspect(lastArgument.getValue(), at - lastArgument.getStartPosition());
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+	
 	@Override
 	public @Nullable DisplayData inspect(final @NotNull String code, final int at, final boolean extraDetail) {
 		// Note: We ignore the extraDetail parameter, because in practice it is always false. This is because the inspect_request messages sent by Jupyter Notebook always have their detail_level set to 0.
@@ -373,7 +391,7 @@ public final class ProBKernel extends BaseKernel {
 					// The cursor is somewhere in the command arguments, ask the command to inspect.
 					assert name != null;
 					final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
-					return command.inspect(argString, at - argOffset);
+					return inspectCommandArguments(command, argString, at - argOffset);
 				}
 			} else {
 				// Invalid command, can't inspect.
@@ -381,7 +399,7 @@ public final class ProBKernel extends BaseKernel {
 			}
 		} else {
 			// The code is not a valid command, ask :eval to inspect.
-			return this.getCommands().get(":eval").inspect(code, at);
+			return inspectCommandArguments(this.getCommands().get(":eval"), code, at);
 		}
 	}
 	

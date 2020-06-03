@@ -10,6 +10,7 @@ import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -73,8 +74,10 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
-		return this.injector.getInstance(ProBKernel.class).inspect(argString, at, false);
+	public @NotNull ParameterInspectors getParameterInspectors() {
+		return new ParameterInspectors(Collections.singletonMap(
+			COMMAND_AND_ARGS_PARAM, (argString, at) -> this.injector.getInstance(ProBKernel.class).inspect(argString, at, false)
+		));
 	}
 	
 	@Override

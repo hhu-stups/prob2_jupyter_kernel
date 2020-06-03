@@ -8,6 +8,7 @@ import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
@@ -68,9 +69,9 @@ public final class UnletCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable DisplayData inspect(final @NotNull String argString, final int at) {
+	public @NotNull ParameterInspectors getParameterInspectors() {
 		// TODO
-		return null;
+		return ParameterInspectors.NONE;
 	}
 	
 	@Override
