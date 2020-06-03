@@ -17,6 +17,7 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
@@ -27,7 +28,6 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class SolveCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle SOLVER_PARAM = Parameter.required("solver");
@@ -102,18 +102,17 @@ public final class SolveCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		return CommandUtils.completeArgs(
-			argString, at,
-			(solverName, at0) -> {
-				final String prefix = solverName.substring(0, at0);
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(ImmutableMap.of(
+			SOLVER_PARAM, (solverName, at) -> {
+				final String prefix = solverName.substring(0, at);
 				final List<String> solverNames = SOLVERS.keySet().stream()
 					.filter(s -> s.startsWith(prefix))
 					.sorted()
 					.collect(Collectors.toList());
 				return new ReplacementOptions(solverNames, 0, solverName.length());
 			},
-			CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
-		);
+			PREDICATE_PARAM, CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
+		));
 	}
 }

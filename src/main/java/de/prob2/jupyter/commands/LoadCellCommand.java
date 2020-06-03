@@ -14,16 +14,15 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
 
-import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class LoadCellCommand implements Command {
 	private static final @NotNull Parameter.Multiple PREFS_PARAM = Parameter.optionalMultiple("prefs");
@@ -94,14 +93,10 @@ public final class LoadCellCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		final int newlinePos = argString.indexOf('\n');
-		if (newlinePos == -1 || at < newlinePos) {
-			// Cursor is on the first line, provide preference name completions.
-			return CommandUtils.completeInPreferences(this.animationSelector.getCurrentTrace(), argString, at);
-		} else {
-			// Cursor is in the body, provide B completions.
-			return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
-		}
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(ImmutableMap.of(
+			PREFS_PARAM, CommandUtils.preferencesCompleter(this.animationSelector.getCurrentTrace()),
+			CODE_PARAM, CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
+		));
 	}
 }

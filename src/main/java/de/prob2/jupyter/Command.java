@@ -1,6 +1,5 @@
 package de.prob2.jupyter;
 
-import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -45,5 +44,5 @@ public interface Command {
 	
 	public abstract @NotNull ParameterInspectors getParameterInspectors();
 	
-	public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int at);
+	public abstract @NotNull ParameterCompleters getParameterCompleters();
 }

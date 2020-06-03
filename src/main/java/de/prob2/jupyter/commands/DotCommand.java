@@ -24,6 +24,7 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
@@ -34,7 +35,6 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class DotCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle COMMAND_PARAM = Parameter.required("command");
@@ -145,14 +145,13 @@ public final class DotCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		return CommandUtils.completeArgs(
-			argString, at,
-			(commandName, at0) -> {
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(ImmutableMap.of(
+			COMMAND_PARAM, (commandName, at) -> {
 				final Trace trace = this.animationSelector.getCurrentTrace();
 				final GetAllDotCommands cmd = new GetAllDotCommands(trace.getCurrentState());
 				trace.getStateSpace().execute(cmd);
-				final String prefix = commandName.substring(0, at0);
+				final String prefix = commandName.substring(0, at);
 				final List<String> commands = cmd.getCommands().stream()
 					.filter(DynamicCommandItem::isAvailable)
 					.map(DynamicCommandItem::getCommand)
@@ -161,7 +160,7 @@ public final class DotCommand implements Command {
 					.collect(Collectors.toList());
 				return new ReplacementOptions(commands, 0, commandName.length());
 			},
-			CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
-		);
+			FORMULA_PARAM, CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
+		));
 	}
 }

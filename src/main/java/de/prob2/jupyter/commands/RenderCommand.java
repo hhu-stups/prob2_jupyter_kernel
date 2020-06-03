@@ -6,15 +6,14 @@ import com.google.inject.Inject;
 
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 
-import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class RenderCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle MIME_TYPE_PARAM = Parameter.required("mimeType");
@@ -66,7 +65,7 @@ public final class RenderCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		return null;
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return ParameterCompleters.NONE;
 	}
 }

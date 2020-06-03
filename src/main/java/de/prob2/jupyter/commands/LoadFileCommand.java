@@ -23,6 +23,7 @@ import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
@@ -33,7 +34,6 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,11 +120,10 @@ public final class LoadFileCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		return CommandUtils.completeArgs(
-			argString, at,
-			(filename, at0) -> {
-				final String prefix = filename.substring(0, at0);
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(ImmutableMap.of(
+			FILE_NAME_PARAM, (filename, at) -> {
+				final String prefix = filename.substring(0, at);
 				final List<String> fileNames;
 				try (final Stream<Path> list = Files.list(Paths.get(""))) {
 					fileNames = list
@@ -146,7 +145,7 @@ public final class LoadFileCommand implements Command {
 				}
 				return new ReplacementOptions(fileNames, 0, filename.length());
 			},
-			CommandUtils.preferencesCompleter(this.animationSelector.getCurrentTrace())
-		);
+			PREFS_PARAM, CommandUtils.preferencesCompleter(this.animationSelector.getCurrentTrace())
+		));
 	}
 }

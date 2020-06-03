@@ -16,17 +16,16 @@ import de.prob.animator.domainobjects.AnimationMatrixEntry;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
 import de.prob2.jupyter.UserErrorException;
 
-import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class ShowCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -158,7 +157,7 @@ public final class ShowCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		return null;
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return ParameterCompleters.NONE;
 	}
 }

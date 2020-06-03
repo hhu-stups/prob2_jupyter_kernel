@@ -10,12 +10,12 @@ import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
 
-import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -81,7 +81,9 @@ public final class TimeCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		return this.injector.getInstance(ProBKernel.class).complete(argString, at);
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(Collections.singletonMap(
+			COMMAND_AND_ARGS_PARAM, (argString, at) -> this.injector.getInstance(ProBKernel.class).complete(argString, at)
+		));
 	}
 }

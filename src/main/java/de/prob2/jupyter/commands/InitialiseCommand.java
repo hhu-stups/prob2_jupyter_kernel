@@ -13,12 +13,12 @@ import de.prob.statespace.Transition;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
 
-import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
@@ -87,7 +87,9 @@ public final class InitialiseCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
-		return CommandUtils.completeInBExpression(this.animationSelector.getCurrentTrace(), argString, at);
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(Collections.singletonMap(
+			PREDICATE_PARAM, CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
+		));
 	}
 }

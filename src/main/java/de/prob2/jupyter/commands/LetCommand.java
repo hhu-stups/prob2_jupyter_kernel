@@ -12,16 +12,15 @@ import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
 
-import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class LetCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle NAME_PARAM = Parameter.required("name");
@@ -83,8 +82,8 @@ public final class LetCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
+	public @NotNull ParameterCompleters getParameterCompleters() {
 		// TODO
-		return null;
+		return ParameterCompleters.NONE;
 	}
 }

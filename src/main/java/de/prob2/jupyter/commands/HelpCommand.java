@@ -14,6 +14,7 @@ import com.google.inject.Injector;
 
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
@@ -175,18 +176,22 @@ public final class HelpCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
-		final String prefix = argString.substring(0, at);
-		return new ReplacementOptions(
-			this.injector.getInstance(ProBKernel.class)
-				.getCommands()
-				.keySet()
-				.stream()
-				.filter(s -> s.startsWith(prefix))
-				.sorted()
-				.collect(Collectors.toList()),
-			0,
-			argString.length()
-		);
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(Collections.singletonMap(
+			COMMAND_NAME_PARAM, (commandName, at) -> {
+				final String prefix = commandName.substring(0, at);
+				return new ReplacementOptions(
+					this.injector.getInstance(ProBKernel.class)
+						.getCommands()
+						.keySet()
+						.stream()
+						.filter(s -> s.startsWith(prefix))
+						.sorted()
+						.collect(Collectors.toList()),
+					0,
+					commandName.length()
+				);
+			}
+		));
 	}
 }

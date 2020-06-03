@@ -23,6 +23,7 @@ import de.prob.unicode.UnicodeTranslator;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
@@ -118,11 +119,15 @@ public final class CheckCommand implements Command {
 	}
 	
 	@Override
-	public @NotNull ReplacementOptions complete(final @NotNull String argString, final int at) {
-		final String prefix = argString.substring(0, at);
-		return new ReplacementOptions(CHILDREN_BASE_CLASS_MAP.keySet()
-			.stream()
-			.filter(s -> s.startsWith(prefix))
-			.collect(Collectors.toList()), 0, argString.length());
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(Collections.singletonMap(
+			WHAT_PARAM, (argString, at) -> {
+				final String prefix = argString.substring(0, at);
+				return new ReplacementOptions(CHILDREN_BASE_CLASS_MAP.keySet()
+					.stream()
+					.filter(s -> s.startsWith(prefix))
+					.collect(Collectors.toList()), 0, argString.length());
+			}
+		));
 	}
 }

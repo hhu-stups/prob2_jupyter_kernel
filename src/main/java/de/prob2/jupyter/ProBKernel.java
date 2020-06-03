@@ -403,6 +403,32 @@ public final class ProBKernel extends BaseKernel {
 		}
 	}
 	
+	private static @NotNull ReplacementOptions offsetReplacementOptions(final @NotNull ReplacementOptions replacements, final int offset) {
+		return new ReplacementOptions(
+			replacements.getReplacements(),
+			replacements.getSourceStart() + offset,
+			replacements.getSourceEnd() + offset
+		);
+	}
+	
+	private static @Nullable ReplacementOptions completeCommandArguments(final @NotNull Command command, final @NotNull String argString, final int at) {
+		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), argString, at);
+		if (split.getParameterAtPosition().isPresent()) {
+			final Optional<CommandUtils.Completer> completer = command.getParameterCompleters().getCompleterForParameter(split.getParameterAtPosition().get());
+			if (completer.isPresent()) {
+				final List<PositionedString> argsAtPosition = split.getArguments().get(split.getParameterAtPosition().get());
+				assert !argsAtPosition.isEmpty();
+				final PositionedString lastArgument = argsAtPosition.get(argsAtPosition.size() - 1);
+				final ReplacementOptions replacements = completer.get().complete(lastArgument.getValue(), at - lastArgument.getStartPosition());
+				return replacements == null ? null : offsetReplacementOptions(replacements, lastArgument.getStartPosition());
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+	
 	@Override
 	public @Nullable ReplacementOptions complete(final @NotNull String code, final int at) {
 		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code);
@@ -426,8 +452,8 @@ public final class ProBKernel extends BaseKernel {
 				assert name != null;
 				final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
 				if (this.getCommands().containsKey(name)) {
-					final ReplacementOptions replacements = this.getCommands().get(name).complete(argString, at - argOffset);
-					return replacements == null ? null : CommandUtils.offsetReplacementOptions(replacements, argOffset);
+					final ReplacementOptions replacements = completeCommandArguments(this.getCommands().get(name), argString, at - argOffset);
+					return replacements == null ? null : offsetReplacementOptions(replacements, argOffset);
 				} else {
 					// Invalid command, can't provide any completions.
 					return null;
@@ -436,7 +462,7 @@ public final class ProBKernel extends BaseKernel {
 		} else if (SPACE_PATTERN.matcher(code).matches()) {
 			// The code contains only whitespace, provide completions from :eval and for command names.
 			final List<String> replacementStrings = new ArrayList<>();
-			final ReplacementOptions evalReplacements = this.getCommands().get(":eval").complete(code, at);
+			final ReplacementOptions evalReplacements = completeCommandArguments(this.getCommands().get(":eval"), code, at);
 			if (evalReplacements != null) {
 				replacementStrings.addAll(evalReplacements.getReplacements());
 			}
@@ -444,7 +470,7 @@ public final class ProBKernel extends BaseKernel {
 			return new ReplacementOptions(replacementStrings, at, at);
 		} else {
 			// The code is not a valid command, ask :eval for completions.
-			return this.getCommands().get(":eval").complete(code, at);
+			return completeCommandArguments(this.getCommands().get(":eval"), code, at);
 		}
 	}
 	

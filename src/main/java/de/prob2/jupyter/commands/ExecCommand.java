@@ -16,6 +16,7 @@ import de.prob.statespace.Transition;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
 import de.prob2.jupyter.Parameter;
+import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
@@ -25,7 +26,6 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class ExecCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle OPERATION_PARAM = Parameter.required("operation");
@@ -96,11 +96,10 @@ public final class ExecCommand implements Command {
 	}
 	
 	@Override
-	public @Nullable ReplacementOptions complete(final @NotNull String argString, final int at) {
-		return CommandUtils.completeArgs(
-			argString, at,
-			(operation, at0) -> {
-				final String prefix = operation.substring(0, at0);
+	public @NotNull ParameterCompleters getParameterCompleters() {
+		return new ParameterCompleters(ImmutableMap.of(
+			OPERATION_PARAM, (operation, at) -> {
+				final String prefix = operation.substring(0, at);
 				final List<String> opNames = this.animationSelector.getCurrentTrace()
 					.getNextTransitions()
 					.stream()
@@ -112,7 +111,7 @@ public final class ExecCommand implements Command {
 					.collect(Collectors.toList());
 				return new ReplacementOptions(opNames, 0, operation.length());
 			},
-			CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
-		);
+			PREDICATE_PARAM, CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
+		));
 	}
 }

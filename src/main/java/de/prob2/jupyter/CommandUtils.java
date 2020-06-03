@@ -300,34 +300,6 @@ public final class CommandUtils {
 		}
 	}
 	
-	public static @NotNull ReplacementOptions offsetReplacementOptions(final @NotNull ReplacementOptions replacements, final int offset) {
-		return new ReplacementOptions(
-			replacements.getReplacements(),
-			replacements.getSourceStart() + offset,
-			replacements.getSourceEnd() + offset
-		);
-	}
-	
-	public static @Nullable ReplacementOptions completeArgs(final @NotNull String argString, final int at, final @NotNull Completer @NotNull... completers) {
-		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(argString);
-		int argStart = 0;
-		int argEnd = argString.length();
-		int i = 0;
-		while (argSplitMatcher.find()) {
-			if (argSplitMatcher.end() > at) {
-				argEnd = argSplitMatcher.start();
-				break;
-			}
-			argStart = argSplitMatcher.end();
-			if (i >= completers.length-1) {
-				break;
-			}
-			i++;
-		}
-		final ReplacementOptions replacements = completers[i].complete(argString.substring(argStart, argEnd), at - argStart);
-		return replacements == null ? null : offsetReplacementOptions(replacements, argStart);
-	}
-	
 	public static @Nullable Matcher matchBIdentifierAt(final @NotNull String code, final int at) {
 		final Matcher identifierMatcher = B_IDENTIFIER_PATTERN.matcher(code);
 		while (identifierMatcher.find() && identifierMatcher.start() < at) {
