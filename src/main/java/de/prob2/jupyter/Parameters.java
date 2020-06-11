@@ -7,7 +7,15 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A specification for the parameters accepted by a {@link Command}.
+ * This information is used by {@link ProBKernel} to parse the arguments of a command call for exection, inspection, and code completion.
+ */
 public final class Parameters {
+	/**
+	 * A parameter specification that has no parameters,
+	 * for commands that do not accept any arguments.
+	 */
 	public static final @NotNull Parameters NONE = new Parameters(Collections.emptyList());
 	
 	private final @NotNull List<Parameter<?>> positionalParameters;
@@ -40,10 +48,20 @@ public final class Parameters {
 		this(positionalParameters, null);
 	}
 	
+	/**
+	 * Return the list of accepted positional parameters.
+	 * 
+	 * @return the list of accepted positional parameters
+	 */
 	public @NotNull List<Parameter<?>> getPositionalParameters() {
 		return this.positionalParameters;
 	}
 	
+	/**
+	 * Return the positional parameter for the body, if any.
+	 * 
+	 * @return the positional parameter for the body, if any
+	 */
 	public @NotNull Optional<Parameter.RequiredSingle> getBodyParam() {
 		return Optional.ofNullable(this.bodyParam);
 	}

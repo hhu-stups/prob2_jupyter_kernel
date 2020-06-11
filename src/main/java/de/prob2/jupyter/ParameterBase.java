@@ -7,6 +7,11 @@ import com.google.common.base.MoreObjects;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Internal base classes for the {@link Parameter} implementations returned by {@link Parameter}'s static factory methods.
+ * 
+ * @param <T> the type of parsed values for this parameter, as returned by its validator
+ */
 abstract class ParameterBase<T> implements Parameter<T> {
 	static class RequiredSingle extends ParameterBase<@NotNull String> implements Parameter.RequiredSingle {
 		protected RequiredSingle(final @NotNull String identifier) {
