@@ -94,10 +94,10 @@ public final class CommandUtils {
 		final SplitArguments splitArgs = new SplitArguments(Collections.emptyMap());
 		PositionedString remainingArgs = new PositionedString(argString, 0);
 		if (parameters.getBodyParam().isPresent()) {
-			final Matcher bodySplitMatcher = BODY_SPLIT_PATTERN.matcher(argString);
+			final Matcher bodySplitMatcher = BODY_SPLIT_PATTERN.matcher(remainingArgs.getValue());
 			if (bodySplitMatcher.find()) {
-				remainingArgs = new PositionedString(argString.substring(0, bodySplitMatcher.start()), remainingArgs.getStartPosition());
-				final PositionedString bodyValue = new PositionedString(argString.substring(bodySplitMatcher.end()), bodySplitMatcher.end());
+				remainingArgs = remainingArgs.substring(0, bodySplitMatcher.start());
+				final PositionedString bodyValue = remainingArgs.substring(bodySplitMatcher.end());
 				splitArgs.add(parameters.getBodyParam().get(), bodyValue);
 			}
 		}

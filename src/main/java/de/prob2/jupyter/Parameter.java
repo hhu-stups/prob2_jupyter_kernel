@@ -34,15 +34,15 @@ public interface Parameter<T> {
 			final PositionedString splitArg;
 			final PositionedString remainingArgString;
 			if (argSplitMatcher.find()) {
-				splitArg = new PositionedString(argString.getValue().substring(0, argSplitMatcher.start()), argString.getStartPosition());
-				remainingArgString = new PositionedString(argString.getValue().substring(argSplitMatcher.end()), argString.getStartPosition() + argSplitMatcher.end());
+				splitArg = argString.substring(0, argSplitMatcher.start());
+				remainingArgString = argString.substring(argSplitMatcher.end());
 			} else {
 				splitArg = argString;
-				remainingArgString = new PositionedString("", argString.getStartPosition() + argString.getValue().length());
+				remainingArgString = argString.substring(argString.getValue().length());
 			}
 			return new SplitResult(splitArg, remainingArgString);
 		};
-		public static final @NotNull Parameter.Splitter REMAINDER = argString -> new SplitResult(argString, new PositionedString("", argString.getStartPosition() + argString.getValue().length()));
+		public static final @NotNull Parameter.Splitter REMAINDER = argString -> new SplitResult(argString, argString.substring(argString.getValue().length()));
 		
 		public abstract Parameter.SplitResult split(final @NotNull PositionedString argString);
 	}
