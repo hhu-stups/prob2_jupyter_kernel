@@ -444,7 +444,7 @@ public final class CommandUtils {
 	
 	public static @Nullable DisplayData inspectInPreference(final @NotNull Trace trace, final @NotNull String code, final int at) {
 		final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
-		if (prefNameMatcher.lookingAt()) {
+		if (prefNameMatcher.lookingAt() && at <= prefNameMatcher.end()) {
 			final String name = prefNameMatcher.group();
 			final GetPreferenceCommand cmdCurrent = new GetPreferenceCommand(name);
 			final GetDefaultPreferencesCommand cmdDefaults = new GetDefaultPreferencesCommand();
