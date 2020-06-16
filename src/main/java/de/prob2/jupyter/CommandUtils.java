@@ -358,14 +358,7 @@ public final class CommandUtils {
 		return null;
 	}
 	
-	public static @Nullable DisplayData inspectInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
-		final Matcher identifierMatcher = CommandUtils.matchBIdentifierAt(code, at);
-		if (identifierMatcher == null) {
-			return null;
-		}
-		final String identifier = identifierMatcher.group();
-		final IEvalElement formula = trace.getModel().parseFormula(identifier, FormulaExpand.TRUNCATE);
-		
+	private static @NotNull DisplayData formatBExpressionInspectText(final String identifier, final TypeCheckResult type, final AbstractEvalResult currentValue) {
 		final StringBuilder sbPlain = new StringBuilder();
 		final StringBuilder sbMarkdown = new StringBuilder();
 		sbPlain.append(UnicodeTranslator.toUnicode(identifier));
@@ -374,7 +367,6 @@ public final class CommandUtils {
 		sbMarkdown.append(UnicodeTranslator.toLatex(identifier));
 		sbMarkdown.append("$  \n");
 		
-		final TypeCheckResult type = trace.getStateSpace().typeCheck(formula);
 		sbPlain.append("Type: ");
 		sbMarkdown.append("**Type:** ");
 		if (type.isOk()) {
@@ -391,15 +383,27 @@ public final class CommandUtils {
 		sbPlain.append('\n');
 		sbMarkdown.append("  \n");
 		
-		final AbstractEvalResult aer = trace.evalCurrent(formula);
 		sbPlain.append("Current value: ");
-		sbPlain.append(CommandUtils.inlinePlainTextForEvalResult(aer));
+		sbPlain.append(CommandUtils.inlinePlainTextForEvalResult(currentValue));
 		sbMarkdown.append("**Current value:** ");
-		sbMarkdown.append(inlineMarkdownForEvalResult(aer));
+		sbMarkdown.append(inlineMarkdownForEvalResult(currentValue));
 		
 		final DisplayData result = new DisplayData(sbPlain.toString());
 		result.putMarkdown(sbMarkdown.toString());
 		return result;
+	}
+	
+	public static @Nullable DisplayData inspectInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
+		final Matcher identifierMatcher = CommandUtils.matchBIdentifierAt(code, at);
+		if (identifierMatcher == null) {
+			return null;
+		}
+		final String identifier = identifierMatcher.group();
+		final IEvalElement formula = trace.getModel().parseFormula(identifier, FormulaExpand.TRUNCATE);
+		final TypeCheckResult type = trace.getStateSpace().typeCheck(formula);
+		final AbstractEvalResult currentValue = trace.evalCurrent(formula);
+		
+		return formatBExpressionInspectText(identifier, type, currentValue);
 	}
 	
 	public static @NotNull Inspector bExpressionInspector(final @NotNull Trace trace) {
