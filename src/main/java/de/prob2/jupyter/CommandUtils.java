@@ -393,57 +393,53 @@ public final class CommandUtils {
 		return result;
 	}
 	
-	public static @Nullable DisplayData inspectInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
-		final Matcher identifierMatcher = CommandUtils.matchBIdentifierAt(code, at);
-		if (identifierMatcher == null) {
-			return null;
-		}
-		final String identifier = identifierMatcher.group();
-		final IEvalElement formula = trace.getModel().parseFormula(identifier, FormulaExpand.TRUNCATE);
-		final TypeCheckResult type = trace.getStateSpace().typeCheck(formula);
-		final AbstractEvalResult currentValue = trace.evalCurrent(formula);
-		
-		return formatBExpressionInspectText(identifier, type, currentValue);
-	}
-	
 	public static @NotNull Inspector bExpressionInspector(final @NotNull Trace trace) {
-		return (code, at) -> inspectInBExpression(trace, code, at);
-	}
-	
-	public static @NotNull ReplacementOptions completeInBExpression(final @NotNull Trace trace, final @NotNull String code, final int at) {
-		final Matcher identifierMatcher = matchBIdentifierAt(code, at);
-		// Try to find the identifier that the cursor is in.
-		// If the cursor is not on an identifier, default to empty string, i. e. show all possible completions.
-		String prefix;
-		int start;
-		int end;
-		if (identifierMatcher == null) {
-			prefix = "";
-			start = at;
-			end = at;
-		} else {
-			prefix = code.substring(identifierMatcher.start(), at);
-			start = identifierMatcher.start();
-			end = identifierMatcher.end();
-		}
-		
-		final CompleteIdentifierCommand cmdExact = new CompleteIdentifierCommand(prefix);
-		cmdExact.setIncludeKeywords(true);
-		trace.getStateSpace().execute(cmdExact);
-		// Use LinkedHashSet to remove duplicates while maintaining order.
-		final Set<String> completions = new LinkedHashSet<>(cmdExact.getCompletions());
-		
-		final CompleteIdentifierCommand cmdIgnoreCase = new CompleteIdentifierCommand(prefix);
-		cmdIgnoreCase.setIgnoreCase(true);
-		cmdIgnoreCase.setIncludeKeywords(true);
-		trace.getStateSpace().execute(cmdIgnoreCase);
-		completions.addAll(cmdIgnoreCase.getCompletions());
-		
-		return new ReplacementOptions(new ArrayList<>(completions), start, end);
+		return (code, at) -> {
+			final Matcher identifierMatcher = CommandUtils.matchBIdentifierAt(code, at);
+			if (identifierMatcher == null) {
+				return null;
+			}
+			final String identifier = identifierMatcher.group();
+			final IEvalElement formula = trace.getModel().parseFormula(identifier, FormulaExpand.TRUNCATE);
+			final TypeCheckResult type = trace.getStateSpace().typeCheck(formula);
+			final AbstractEvalResult currentValue = trace.evalCurrent(formula);
+			
+			return formatBExpressionInspectText(identifier, type, currentValue);
+		};
 	}
 	
 	public static @NotNull Completer bExpressionCompleter(final @NotNull Trace trace) {
-		return (code, at) -> completeInBExpression(trace, code, at);
+		return (code, at) -> {
+			final Matcher identifierMatcher = matchBIdentifierAt(code, at);
+			// Try to find the identifier that the cursor is in.
+			// If the cursor is not on an identifier, default to empty string, i. e. show all possible completions.
+			String prefix;
+			int start;
+			int end;
+			if (identifierMatcher == null) {
+				prefix = "";
+				start = at;
+				end = at;
+			} else {
+				prefix = code.substring(identifierMatcher.start(), at);
+				start = identifierMatcher.start();
+				end = identifierMatcher.end();
+			}
+			
+			final CompleteIdentifierCommand cmdExact = new CompleteIdentifierCommand(prefix);
+			cmdExact.setIncludeKeywords(true);
+			trace.getStateSpace().execute(cmdExact);
+			// Use LinkedHashSet to remove duplicates while maintaining order.
+			final Set<String> completions = new LinkedHashSet<>(cmdExact.getCompletions());
+			
+			final CompleteIdentifierCommand cmdIgnoreCase = new CompleteIdentifierCommand(prefix);
+			cmdIgnoreCase.setIgnoreCase(true);
+			cmdIgnoreCase.setIncludeKeywords(true);
+			trace.getStateSpace().execute(cmdIgnoreCase);
+			completions.addAll(cmdIgnoreCase.getCompletions());
+			
+			return new ReplacementOptions(new ArrayList<>(completions), start, end);
+		};
 	}
 	
 	private static @NotNull DisplayData formatPreferenceInspectText(final String name, final String currentValue, final ProBPreference pref) {
@@ -486,44 +482,40 @@ public final class CommandUtils {
 		return result;
 	}
 	
-	public static @Nullable DisplayData inspectInPreference(final @NotNull Trace trace, final @NotNull String code, final int at) {
-		final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
-		if (prefNameMatcher.lookingAt() && at <= prefNameMatcher.end()) {
-			final String name = prefNameMatcher.group();
-			final GetPreferenceCommand cmdCurrent = new GetPreferenceCommand(name);
-			final GetDefaultPreferencesCommand cmdDefaults = new GetDefaultPreferencesCommand();
-			trace.getStateSpace().execute(cmdCurrent, cmdDefaults);
-			final String currentValue = cmdCurrent.getValue();
-			final ProBPreference pref = cmdDefaults.getPreferences()
-				.stream()
-				.filter(p -> name.equals(p.name))
-				.findAny()
-				.orElseThrow(NoSuchElementException::new);
-			
-			return formatPreferenceInspectText(name, currentValue, pref);
-		} else {
-			return null;
-		}
-	}
-	
 	public static @NotNull Inspector preferenceInspector(final @NotNull Trace trace) {
-		return (code, at) -> inspectInPreference(trace, code, at);
-	}
-	
-	public static @Nullable ReplacementOptions completeInPreference(final @NotNull Trace trace, final @NotNull String code, final int at) {
-		final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
-		if (prefNameMatcher.lookingAt() && at <= prefNameMatcher.end()) {
-			final String prefix = code.substring(prefNameMatcher.start(), at);
-			final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();
-			trace.getStateSpace().execute(cmd);
-			final List<String> prefs = cmd.getPreferences().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList());
-			return new ReplacementOptions(prefs, prefNameMatcher.start(), prefNameMatcher.end());
-		} else {
-			return null;
-		}
+		return (code, at) -> {
+			final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
+			if (prefNameMatcher.lookingAt() && at <= prefNameMatcher.end()) {
+				final String name = prefNameMatcher.group();
+				final GetPreferenceCommand cmdCurrent = new GetPreferenceCommand(name);
+				final GetDefaultPreferencesCommand cmdDefaults = new GetDefaultPreferencesCommand();
+				trace.getStateSpace().execute(cmdCurrent, cmdDefaults);
+				final String currentValue = cmdCurrent.getValue();
+				final ProBPreference pref = cmdDefaults.getPreferences()
+					.stream()
+					.filter(p -> name.equals(p.name))
+					.findAny()
+					.orElseThrow(NoSuchElementException::new);
+				
+				return formatPreferenceInspectText(name, currentValue, pref);
+			} else {
+				return null;
+			}
+		};
 	}
 	
 	public static @NotNull Completer preferenceCompleter(final @NotNull Trace trace) {
-		return (code, at) -> completeInPreference(trace, code, at);
+		return (code, at) -> {
+			final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
+			if (prefNameMatcher.lookingAt() && at <= prefNameMatcher.end()) {
+				final String prefix = code.substring(prefNameMatcher.start(), at);
+				final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();
+				trace.getStateSpace().execute(cmd);
+				final List<String> prefs = cmd.getPreferences().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList());
+				return new ReplacementOptions(prefs, prefNameMatcher.start(), prefNameMatcher.end());
+			} else {
+				return null;
+			}
+		};
 	}
 }
