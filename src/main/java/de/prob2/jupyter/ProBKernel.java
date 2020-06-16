@@ -443,9 +443,6 @@ public final class ProBKernel extends BaseKernel {
 			if (at <= split.getName().getEndPosition()) {
 				// The cursor is somewhere in the command name, show help text for the command.
 				return command.renderHelp();
-			} else if (at < split.getArgString().getStartPosition()) {
-				// The cursor is in the whitespace between the command name and arguments, don't show anything.
-				return null;
 			} else {
 				// The cursor is somewhere in the command arguments, ask the command to inspect.
 				return inspectCommandArguments(command, split.getArgString(), at);
@@ -513,9 +510,6 @@ public final class ProBKernel extends BaseKernel {
 				split.getName().getStartPosition(),
 				split.getName().getEndPosition()
 			);
-		} else if (at < split.getArgString().getStartPosition()) {
-			// The cursor is in the whitespace between the command name and arguments, don't show anything.
-			return null;
 		} else {
 			// The cursor is somewhere in the command arguments, ask the command to provide completions.
 			if (this.getCommands().containsKey(split.getName().getValue())) {
