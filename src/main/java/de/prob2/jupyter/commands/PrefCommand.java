@@ -112,14 +112,14 @@ public final class PrefCommand implements Command {
 	@Override
 	public @NotNull ParameterInspectors getParameterInspectors() {
 		return new ParameterInspectors(Collections.singletonMap(
-			PREFS_PARAM, CommandUtils.preferencesInspector(this.animationSelector.getCurrentTrace())
+			PREFS_PARAM, CommandUtils.preferenceInspector(this.animationSelector.getCurrentTrace())
 		));
 	}
 	
 	@Override
 	public @NotNull ParameterCompleters getParameterCompleters() {
 		return new ParameterCompleters(Collections.singletonMap(
-			PREFS_PARAM, CommandUtils.preferencesCompleter(this.animationSelector.getCurrentTrace())
+			PREFS_PARAM, CommandUtils.preferenceCompleter(this.animationSelector.getCurrentTrace())
 		));
 	}
 }

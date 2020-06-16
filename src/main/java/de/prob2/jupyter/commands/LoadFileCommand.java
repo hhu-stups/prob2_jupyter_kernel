@@ -115,7 +115,7 @@ public final class LoadFileCommand implements Command {
 	public @NotNull ParameterInspectors getParameterInspectors() {
 		return new ParameterInspectors(ImmutableMap.of(
 			FILE_NAME_PARAM, (filename, at) -> null,
-			PREFS_PARAM, CommandUtils.preferencesInspector(this.animationSelector.getCurrentTrace())
+			PREFS_PARAM, CommandUtils.preferenceInspector(this.animationSelector.getCurrentTrace())
 		));
 	}
 	
@@ -145,7 +145,7 @@ public final class LoadFileCommand implements Command {
 				}
 				return new ReplacementOptions(fileNames, 0, filename.length());
 			},
-			PREFS_PARAM, CommandUtils.preferencesCompleter(this.animationSelector.getCurrentTrace())
+			PREFS_PARAM, CommandUtils.preferenceCompleter(this.animationSelector.getCurrentTrace())
 		));
 	}
 }

@@ -442,14 +442,8 @@ public final class CommandUtils {
 		return (code, at) -> completeInBExpression(trace, code, at);
 	}
 	
-	public static @Nullable DisplayData inspectInPreferences(final @NotNull Trace trace, final @NotNull String code, final int at) {
-		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(code);
-		int prefNameStart = 0;
-		while (argSplitMatcher.find() && argSplitMatcher.end() <= at) {
-			prefNameStart = argSplitMatcher.end();
-		}
+	public static @Nullable DisplayData inspectInPreference(final @NotNull Trace trace, final @NotNull String code, final int at) {
 		final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
-		prefNameMatcher.region(prefNameStart, code.length());
 		if (prefNameMatcher.lookingAt()) {
 			final String name = prefNameMatcher.group();
 			final GetPreferenceCommand cmdCurrent = new GetPreferenceCommand(name);
@@ -504,18 +498,12 @@ public final class CommandUtils {
 		}
 	}
 	
-	public static @NotNull Inspector preferencesInspector(final @NotNull Trace trace) {
-		return (code, at) -> inspectInPreferences(trace, code, at);
+	public static @NotNull Inspector preferenceInspector(final @NotNull Trace trace) {
+		return (code, at) -> inspectInPreference(trace, code, at);
 	}
 	
-	public static @Nullable ReplacementOptions completeInPreferences(final @NotNull Trace trace, final @NotNull String code, final int at) {
-		final Matcher argSplitMatcher = ARG_SPLIT_PATTERN.matcher(code);
-		int prefNameStart = 0;
-		while (argSplitMatcher.find() && argSplitMatcher.end() <= at) {
-			prefNameStart = argSplitMatcher.end();
-		}
+	public static @Nullable ReplacementOptions completeInPreference(final @NotNull Trace trace, final @NotNull String code, final int at) {
 		final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
-		prefNameMatcher.region(prefNameStart, code.length());
 		if (prefNameMatcher.lookingAt() && at <= prefNameMatcher.end()) {
 			final String prefix = code.substring(prefNameMatcher.start(), at);
 			final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();
@@ -527,7 +515,7 @@ public final class CommandUtils {
 		}
 	}
 	
-	public static @NotNull Completer preferencesCompleter(final @NotNull Trace trace) {
-		return (code, at) -> completeInPreferences(trace, code, at);
+	public static @NotNull Completer preferenceCompleter(final @NotNull Trace trace) {
+		return (code, at) -> completeInPreference(trace, code, at);
 	}
 }

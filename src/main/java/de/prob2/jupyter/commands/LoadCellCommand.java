@@ -87,7 +87,7 @@ public final class LoadCellCommand implements Command {
 	@Override
 	public @NotNull ParameterInspectors getParameterInspectors() {
 		return new ParameterInspectors(ImmutableMap.of(
-			PREFS_PARAM, CommandUtils.preferencesInspector(this.animationSelector.getCurrentTrace()),
+			PREFS_PARAM, CommandUtils.preferenceInspector(this.animationSelector.getCurrentTrace()),
 			CODE_PARAM, CommandUtils.bExpressionInspector(this.animationSelector.getCurrentTrace())
 		));
 	}
@@ -95,7 +95,7 @@ public final class LoadCellCommand implements Command {
 	@Override
 	public @NotNull ParameterCompleters getParameterCompleters() {
 		return new ParameterCompleters(ImmutableMap.of(
-			PREFS_PARAM, CommandUtils.preferencesCompleter(this.animationSelector.getCurrentTrace()),
+			PREFS_PARAM, CommandUtils.preferenceCompleter(this.animationSelector.getCurrentTrace()),
 			CODE_PARAM, CommandUtils.bExpressionCompleter(this.animationSelector.getCurrentTrace())
 		));
 	}
