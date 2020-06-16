@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.google.common.base.MoreObjects;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -87,6 +88,32 @@ public final class ProBKernel extends BaseKernel {
 			} catch (final IOException e) {
 				throw new AssertionError("Failed to load build info", e);
 			}
+		}
+	}
+	
+	private static final class SplitCommandCall {
+		private final @NotNull PositionedString name;
+		private final @NotNull PositionedString argString;
+		
+		private SplitCommandCall(@NotNull final PositionedString name, @NotNull final PositionedString argString) {
+			this.name = name;
+			this.argString = argString;
+		}
+		
+		private @NotNull PositionedString getName() {
+			return this.name;
+		}
+		
+		private @NotNull PositionedString getArgString() {
+			return this.argString;
+		}
+		
+		@Override
+		public String toString() {
+			return MoreObjects.toStringHelper(this)
+				.add("name", this.getName())
+				.add("argString", this.getArgString())
+				.toString();
 		}
 	}
 	
@@ -351,20 +378,32 @@ public final class ProBKernel extends BaseKernel {
 		return new PositionedString(prefix + code.getValue(), code.getStartPosition() - prefix.length());
 	}
 	
-	private @Nullable DisplayData evalInternal(final @NotNull PositionedString code) {
-		final PositionedString preprocessedCode = preprocessInput(code);
-		final Matcher commandMatcher = COMMAND_PATTERN.matcher(preprocessedCode.getValue());
+	/**
+	 * Split the given input into a command name and argument string.
+	 * The input must include a command name,
+	 * which should be ensured by passing it through {@link #preprocessInput(PositionedString)} first.
+	 * 
+	 * @param code the input, which must contain a command name
+	 * @return the input split into a command name and argument string
+	 */
+	private static @NotNull SplitCommandCall splitCommand(final @NotNull PositionedString code) {
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code.getValue());
 		if (!commandMatcher.matches()) {
 			throw new AssertionError("Preprocessed input does not include a command - this should not happen");
 		}
-		final PositionedString name = preprocessedCode.substring(commandMatcher.start(1), commandMatcher.end(1));
+		final PositionedString name = code.substring(commandMatcher.start(1), commandMatcher.end(1));
 		final PositionedString argString;
 		if (commandMatcher.group(2) == null) {
-			argString = preprocessedCode.substring(preprocessedCode.getValue().length());
+			argString = code.substring(code.getValue().length());
 		} else {
-			argString = preprocessedCode.substring(commandMatcher.start(2), commandMatcher.end(2));
+			argString = code.substring(commandMatcher.start(2), commandMatcher.end(2));
 		}
-		return this.executeCommand(name, argString);
+		return new SplitCommandCall(name, argString);
+	}
+	
+	private @Nullable DisplayData evalInternal(final @NotNull PositionedString code) {
+		final SplitCommandCall split = splitCommand(preprocessInput(code));
+		return this.executeCommand(split.getName(), split.getArgString());
 	}
 	
 	@Override
@@ -398,30 +437,18 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private @Nullable DisplayData inspectInternal(final @NotNull PositionedString code, final int at) {
-		final PositionedString preprocessedCode = preprocessInput(code);
-		final Matcher commandMatcher = COMMAND_PATTERN.matcher(preprocessedCode.getValue());
-		if (!commandMatcher.matches()) {
-			throw new AssertionError("Preprocessed input does not include a command - this should not happen");
-		}
-		final String name = commandMatcher.group(1);
-		if (this.getCommands().containsKey(name)) {
-			final Command command = this.getCommands().get(name);
-			if (at <= preprocessedCode.getStartPosition() + commandMatcher.end(1)) {
+		final SplitCommandCall split = splitCommand(preprocessInput(code));
+		if (this.getCommands().containsKey(split.getName().getValue())) {
+			final Command command = this.getCommands().get(split.getName().getValue());
+			if (at <= split.getName().getStartPosition() + split.getName().getValue().length()) {
 				// The cursor is somewhere in the command name, show help text for the command.
 				return command.renderHelp();
-			} else if (at < preprocessedCode.getStartPosition() + commandMatcher.start(2)) {
+			} else if (at < split.getArgString().getStartPosition()) {
 				// The cursor is in the whitespace between the command name and arguments, don't show anything.
 				return null;
 			} else {
 				// The cursor is somewhere in the command arguments, ask the command to inspect.
-				assert name != null;
-				final PositionedString argString;
-				if (commandMatcher.group(2) == null) {
-					argString = preprocessedCode.substring(preprocessedCode.getValue().length());
-				} else {
-					argString = preprocessedCode.substring(commandMatcher.start(2), commandMatcher.end(2));
-				}
-				return inspectCommandArguments(command, argString, at);
+				return inspectCommandArguments(command, split.getArgString(), at);
 			}
 		} else {
 			// Invalid command, can't inspect.
@@ -462,34 +489,22 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private @Nullable ReplacementOptions completeInternal(final @NotNull PositionedString code, final int at) {
-		final PositionedString preprocessedCode = preprocessInput(code);
-		final Matcher commandMatcher = COMMAND_PATTERN.matcher(preprocessedCode.getValue());
-		if (!commandMatcher.matches()) {
-			throw new AssertionError("Preprocessed input does not include a command - this should not happen");
-		}
-		if (at <= preprocessedCode.getStartPosition() + commandMatcher.end(1)) {
+		final SplitCommandCall split = splitCommand(preprocessInput(code));
+		if (at <= split.getName().getStartPosition() + split.getName().getValue().length()) {
 			// The cursor is somewhere in the command name, provide command completions.
-			final String prefix = preprocessedCode.substring(commandMatcher.start(1), at).getValue();
+			final String prefix = split.getName().substring(0, at - split.getName().getStartPosition()).getValue();
 			return new ReplacementOptions(
 				this.getCommands().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList()),
-				commandMatcher.start(1), 
-				commandMatcher.end(1)
+				split.getName().getStartPosition(),
+				split.getName().getStartPosition() + split.getName().getValue().length()
 			);
-		} else if (at < preprocessedCode.getStartPosition() + commandMatcher.start(2)) {
+		} else if (at < split.getArgString().getStartPosition()) {
 			// The cursor is in the whitespace between the command name and arguments, don't show anything.
 			return null;
 		} else {
 			// The cursor is somewhere in the command arguments, ask the command to provide completions.
-			final String name = commandMatcher.group(1);
-			assert name != null;
-			final PositionedString argString;
-			if (commandMatcher.group(2) == null) {
-				argString = preprocessedCode.substring(preprocessedCode.getValue().length());
-			} else {
-				argString = preprocessedCode.substring(commandMatcher.start(2), commandMatcher.end(2));
-			}
-			if (this.getCommands().containsKey(name)) {
-				return completeCommandArguments(this.getCommands().get(name), argString, at);
+			if (this.getCommands().containsKey(split.getName().getValue())) {
+				return completeCommandArguments(this.getCommands().get(split.getName().getValue()), split.getArgString(), at);
 			} else {
 				// Invalid command, can't provide any completions.
 				return null;
