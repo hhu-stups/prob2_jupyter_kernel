@@ -301,7 +301,7 @@ public final class ProBKernel extends BaseKernel {
 		}
 		final DisplayData result;
 		try {
-			result = command.run(CommandUtils.parseArgs(command.getParameters(), argString));
+			result = command.run(CommandUtils.parseArgs(command.getParameters(), new PositionedString(argString, 0)));
 		} catch (final UserErrorException e) {
 			throw new CommandExecutionException(name, e);
 		}
@@ -355,7 +355,7 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private static @Nullable DisplayData inspectCommandArguments(final @NotNull Command command, final @NotNull String argString, final int at) {
-		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), argString, at);
+		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), new PositionedString(argString, 0), at);
 		if (split.getParameterAtPosition().isPresent()) {
 			final Optional<Inspector> inspector = command.getParameterInspectors().getInspectorForParameter(split.getParameterAtPosition().get());
 			if (inspector.isPresent()) {
@@ -412,7 +412,7 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private static @Nullable ReplacementOptions completeCommandArguments(final @NotNull Command command, final @NotNull String argString, final int at) {
-		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), argString, at);
+		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), new PositionedString(argString, 0), at);
 		if (split.getParameterAtPosition().isPresent()) {
 			final Optional<Completer> completer = command.getParameterCompleters().getCompleterForParameter(split.getParameterAtPosition().get());
 			if (completer.isPresent()) {

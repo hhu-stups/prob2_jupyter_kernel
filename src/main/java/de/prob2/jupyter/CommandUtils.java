@@ -92,7 +92,7 @@ public final class CommandUtils {
 	 * which means that it will parse any input string without errors
 	 * (although the result might not be meaningful).
 	 * Use {@link #validateSplitArgs(Parameters, SplitResult)} to validate the result of this method,
-	 * or use {@link #parseArgs(Parameters, String)} to perform splitting and validation in a single call.
+	 * or use {@link #parseArgs(Parameters, PositionedString)} to perform splitting and validation in a single call.
 	 * </p>
 	 * 
 	 * @param parameters the parameter specification based on which the arguments should be split
@@ -100,9 +100,9 @@ public final class CommandUtils {
 	 * @param upToPosition the position in the argument string after which to stop splitting
 	 * @return the result of the split operation (see {@link SplitResult} for details)
 	 */
-	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull String argString, final int upToPosition) {
+	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull PositionedString argString, final int upToPosition) {
 		final SplitArguments splitArgs = new SplitArguments(Collections.emptyMap());
-		PositionedString remainingArgs = new PositionedString(argString, 0);
+		PositionedString remainingArgs = argString;
 		if (parameters.getBodyParam().isPresent()) {
 			final Matcher bodySplitMatcher = BODY_SPLIT_PATTERN.matcher(remainingArgs.getValue());
 			if (bodySplitMatcher.find()) {
@@ -155,18 +155,18 @@ public final class CommandUtils {
 	 * which means that it will parse any input string without errors
 	 * (although the result might not be meaningful).
 	 * Use {@link #validateSplitArgs(Parameters, SplitResult)} to validate the result of this method,
-	 * or use {@link #parseArgs(Parameters, String)} to perform splitting and validation in a single call.
+	 * or use {@link #parseArgs(Parameters, PositionedString)} to perform splitting and validation in a single call.
 	 * </p>
 	 * <p>
-	 * This method is equivalent to calling {@link #splitArgs(Parameters, String, int)} with {@code upToPosition} set so that as much as possible of the argument string is consumed.
+	 * This method is equivalent to calling {@link #splitArgs(Parameters, PositionedString, int)} with {@code upToPosition} set so that as much as possible of the argument string is consumed.
 	 * </p>
 	 *
 	 * @param parameters the parameter specification based on which the arguments should be split
 	 * @param argString the argument string to split
 	 * @return the result of the split operation (see {@link SplitResult} for details)
 	 */
-	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
-		return splitArgs(parameters, argString, argString.length());
+	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull PositionedString argString) {
+		return splitArgs(parameters, argString, argString.getStartPosition() + argString.getValue().length());
 	}
 	
 	private static <T> void validateSplitParameter(final @NotNull ParsedArguments parsed, final @NotNull SplitArguments splitArgs, final @NotNull Parameter<T> param) {
@@ -199,14 +199,14 @@ public final class CommandUtils {
 	
 	/**
 	 * Parse an argument string according to the given parameter specification.
-	 * This is a shorthand for calling {@link #splitArgs(Parameters, String)} followed by {@link #validateSplitArgs(Parameters, SplitResult)}.
+	 * This is a shorthand for calling {@link #splitArgs(Parameters, PositionedString)} followed by {@link #validateSplitArgs(Parameters, SplitResult)}.
 	 * 
 	 * @param parameters the parameter specification based on which the argument string should be parsed
 	 * @param argString the argument string to parse
 	 * @return the parsed and validated argument string
 	 * @throws UserErrorException if the argument string is invalid
 	 */
-	public static @NotNull ParsedArguments parseArgs(final @NotNull Parameters parameters, final @NotNull String argString) {
+	public static @NotNull ParsedArguments parseArgs(final @NotNull Parameters parameters, final @NotNull PositionedString argString) {
 		return validateSplitArgs(parameters, splitArgs(parameters, argString));
 	}
 	

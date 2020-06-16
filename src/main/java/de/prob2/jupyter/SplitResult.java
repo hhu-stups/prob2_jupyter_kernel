@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The unvalidated result of a command argument splitting operation ({@link CommandUtils#splitArgs(Parameters, String, int)} or {@link CommandUtils#splitArgs(Parameters, String)}).
+ * The unvalidated result of a command argument splitting operation ({@link CommandUtils#splitArgs(Parameters, PositionedString, int)} or {@link CommandUtils#splitArgs(Parameters, PositionedString)}).
  */
 public final class SplitResult {
 	private final @NotNull SplitArguments arguments;
@@ -37,7 +37,7 @@ public final class SplitResult {
 	/**
 	 * Return the parameter to which the last split argument belongs,
 	 * or {@link Optional#empty()} if no arguments have been split.
-	 * This information is mainly useful when calling {@link CommandUtils#splitArgs(Parameters, String, int)} with an explicit {@code upToPosition} argument.
+	 * This information is mainly useful when calling {@link CommandUtils#splitArgs(Parameters, PositionedString, int)} with an explicit {@code upToPosition} argument.
 	 * 
 	 * @return the parameter to which the last split argument belongs,
 	 * or {@link Optional#empty()} if no arguments have been split
