@@ -350,7 +350,7 @@ public final class CommandUtils {
 	
 	public static @Nullable Matcher matchBIdentifierAt(final @NotNull String code, final int at) {
 		final Matcher identifierMatcher = B_IDENTIFIER_PATTERN.matcher(code);
-		while (identifierMatcher.find() && identifierMatcher.start() < at) {
+		while (identifierMatcher.find() && identifierMatcher.start() <= at) {
 			if (identifierMatcher.end() >= at) {
 				return identifierMatcher;
 			}
