@@ -94,7 +94,6 @@ public final class ProBKernel extends BaseKernel {
 	
 	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
 	private static final @NotNull Pattern MACHINE_CODE_PATTERN = Pattern.compile("MACHINE\\W.*", Pattern.DOTALL);
-	private static final @NotNull Pattern SPACE_PATTERN = Pattern.compile("\\s*");
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
 	private static final @NotNull Pattern LATEX_FORMULA_PATTERN = Pattern.compile("(\\$\\$?)([^\\$]+)\\1");
 	
@@ -476,15 +475,6 @@ public final class ProBKernel extends BaseKernel {
 					return null;
 				}
 			}
-		} else if (SPACE_PATTERN.matcher(code.getValue()).matches()) {
-			// The code contains only whitespace, provide completions from :eval and for command names.
-			final List<String> replacementStrings = new ArrayList<>();
-			final ReplacementOptions evalReplacements = completeCommandArguments(this.getCommands().get(":eval"), code, at);
-			if (evalReplacements != null) {
-				replacementStrings.addAll(evalReplacements.getReplacements());
-			}
-			replacementStrings.addAll(this.getCommands().keySet().stream().sorted().collect(Collectors.toList()));
-			return new ReplacementOptions(replacementStrings, at, at);
 		} else {
 			// The code is not a valid command, ask :eval for completions.
 			return completeCommandArguments(this.getCommands().get(":eval"), code, at);
