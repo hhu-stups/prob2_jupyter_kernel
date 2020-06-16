@@ -442,6 +442,46 @@ public final class CommandUtils {
 		return (code, at) -> completeInBExpression(trace, code, at);
 	}
 	
+	private static @NotNull DisplayData formatPreferenceInspectText(final String name, final String currentValue, final ProBPreference pref) {
+		final StringBuilder sbPlain = new StringBuilder();
+		final StringBuilder sbMarkdown = new StringBuilder();
+		sbPlain.append(name);
+		sbPlain.append(" = ");
+		sbPlain.append(currentValue);
+		sbPlain.append(" (");
+		sbPlain.append(pref.type);
+		sbPlain.append(")\n");
+		sbMarkdown.append(name);
+		sbMarkdown.append(" = `");
+		sbMarkdown.append(currentValue);
+		sbMarkdown.append("` (");
+		sbMarkdown.append(pref.type);
+		sbMarkdown.append(")  \n");
+		
+		sbPlain.append(pref.description);
+		sbPlain.append('\n');
+		sbMarkdown.append(pref.description);
+		sbMarkdown.append("  \n");
+		
+		sbPlain.append("Default value: ");
+		sbPlain.append(pref.defaultValue);
+		sbPlain.append('\n');
+		sbMarkdown.append("**Default value:** `");
+		sbMarkdown.append(pref.defaultValue);
+		sbMarkdown.append("`  \n");
+		
+		sbPlain.append("Category: ");
+		sbPlain.append(pref.category);
+		sbPlain.append('\n');
+		sbMarkdown.append("**Category:** `");
+		sbMarkdown.append(pref.category);
+		sbMarkdown.append("`  \n");
+		
+		final DisplayData result = new DisplayData(sbPlain.toString());
+		result.putMarkdown(sbMarkdown.toString());
+		return result;
+	}
+	
 	public static @Nullable DisplayData inspectInPreference(final @NotNull Trace trace, final @NotNull String code, final int at) {
 		final Matcher prefNameMatcher = B_IDENTIFIER_PATTERN.matcher(code);
 		if (prefNameMatcher.lookingAt() && at <= prefNameMatcher.end()) {
@@ -456,43 +496,7 @@ public final class CommandUtils {
 				.findAny()
 				.orElseThrow(NoSuchElementException::new);
 			
-			final StringBuilder sbPlain = new StringBuilder();
-			final StringBuilder sbMarkdown = new StringBuilder();
-			sbPlain.append(name);
-			sbPlain.append(" = ");
-			sbPlain.append(currentValue);
-			sbPlain.append(" (");
-			sbPlain.append(pref.type);
-			sbPlain.append(")\n");
-			sbMarkdown.append(name);
-			sbMarkdown.append(" = `");
-			sbMarkdown.append(currentValue);
-			sbMarkdown.append("` (");
-			sbMarkdown.append(pref.type);
-			sbMarkdown.append(")  \n");
-			
-			sbPlain.append(pref.description);
-			sbPlain.append('\n');
-			sbMarkdown.append(pref.description);
-			sbMarkdown.append("  \n");
-			
-			sbPlain.append("Default value: ");
-			sbPlain.append(pref.defaultValue);
-			sbPlain.append('\n');
-			sbMarkdown.append("**Default value:** `");
-			sbMarkdown.append(pref.defaultValue);
-			sbMarkdown.append("`  \n");
-			
-			sbPlain.append("Category: ");
-			sbPlain.append(pref.category);
-			sbPlain.append('\n');
-			sbMarkdown.append("**Category:** `");
-			sbMarkdown.append(pref.category);
-			sbMarkdown.append("`  \n");
-			
-			final DisplayData result = new DisplayData(sbPlain.toString());
-			result.putMarkdown(sbMarkdown.toString());
-			return result;
+			return formatPreferenceInspectText(name, currentValue, pref);
 		} else {
 			return null;
 		}
