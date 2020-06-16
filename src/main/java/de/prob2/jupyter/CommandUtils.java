@@ -106,8 +106,8 @@ public final class CommandUtils {
 		if (parameters.getBodyParam().isPresent()) {
 			final Matcher bodySplitMatcher = BODY_SPLIT_PATTERN.matcher(remainingArgs.getValue());
 			if (bodySplitMatcher.find()) {
-				remainingArgs = remainingArgs.substring(0, bodySplitMatcher.start());
 				final PositionedString bodyValue = remainingArgs.substring(bodySplitMatcher.end());
+				remainingArgs = remainingArgs.substring(0, bodySplitMatcher.start());
 				splitArgs.add(parameters.getBodyParam().get(), bodyValue);
 			}
 		}
