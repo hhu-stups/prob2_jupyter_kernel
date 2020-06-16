@@ -361,8 +361,8 @@ public final class ProBKernel extends BaseKernel {
 		}
 	}
 	
-	private static @Nullable DisplayData inspectCommandArguments(final @NotNull Command command, final @NotNull String argString, final int at) {
-		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), new PositionedString(argString, 0), at);
+	private static @Nullable DisplayData inspectCommandArguments(final @NotNull Command command, final @NotNull PositionedString argString, final int at) {
+		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), argString, at);
 		if (split.getParameterAtPosition().isPresent()) {
 			final Optional<Inspector> inspector = command.getParameterInspectors().getInspectorForParameter(split.getParameterAtPosition().get());
 			if (inspector.isPresent()) {
@@ -378,13 +378,10 @@ public final class ProBKernel extends BaseKernel {
 		}
 	}
 	
-	@Override
-	public @Nullable DisplayData inspect(final @NotNull String code, final int at, final boolean extraDetail) {
-		// Note: We ignore the extraDetail parameter, because in practice it is always false. This is because the inspect_request messages sent by Jupyter Notebook always have their detail_level set to 0.
-		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code);
+	private @Nullable DisplayData inspectInternal(final @NotNull PositionedString code, final int at) {
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code.getValue());
 		if (commandMatcher.matches()) {
 			// The code is a valid command.
-			final int argOffset = commandMatcher.start(2);
 			final String name = commandMatcher.group(1);
 			if (this.getCommands().containsKey(name)) {
 				final Command command = this.getCommands().get(name);
@@ -397,8 +394,13 @@ public final class ProBKernel extends BaseKernel {
 				} else {
 					// The cursor is somewhere in the command arguments, ask the command to inspect.
 					assert name != null;
-					final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
-					return inspectCommandArguments(command, argString, at - argOffset);
+					final PositionedString argString;
+					if (commandMatcher.group(2) == null) {
+						argString = code.substring(code.getValue().length());
+					} else {
+						argString = code.substring(commandMatcher.start(2), commandMatcher.end(2));
+					}
+					return inspectCommandArguments(command, argString, at);
 				}
 			} else {
 				// Invalid command, can't inspect.
@@ -408,6 +410,12 @@ public final class ProBKernel extends BaseKernel {
 			// The code is not a valid command, ask :eval to inspect.
 			return inspectCommandArguments(this.getCommands().get(":eval"), code, at);
 		}
+	}
+	
+	@Override
+	public @Nullable DisplayData inspect(final @NotNull String code, final int at, final boolean extraDetail) {
+		// Note: We ignore the extraDetail parameter, because in practice it is always false. This is because the inspect_request messages sent by Jupyter Notebook always have their detail_level set to 0.
+		return this.inspectInternal(new PositionedString(code, 0), at);
 	}
 	
 	private static @NotNull ReplacementOptions offsetReplacementOptions(final @NotNull ReplacementOptions replacements, final int offset) {
