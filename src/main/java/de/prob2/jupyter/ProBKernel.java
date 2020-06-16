@@ -472,17 +472,32 @@ public final class ProBKernel extends BaseKernel {
 	
 	private static @Nullable ReplacementOptions completeCommandArguments(final @NotNull Command command, final @NotNull PositionedString argString, final int at) {
 		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), argString, at);
+		
+		final Parameter<?> parameterToComplete;
+		final PositionedString argumentToComplete;
 		if (split.getParameterAtPosition().isPresent()) {
-			final Optional<Completer> completer = command.getParameterCompleters().getCompleterForParameter(split.getParameterAtPosition().get());
-			if (completer.isPresent()) {
-				final List<PositionedString> argsAtPosition = split.getArguments().get(split.getParameterAtPosition().get());
-				assert !argsAtPosition.isEmpty();
-				final PositionedString lastArgument = argsAtPosition.get(argsAtPosition.size() - 1);
-				final ReplacementOptions replacements = completer.get().complete(lastArgument.getValue(), at - lastArgument.getStartPosition());
-				return replacements == null ? null : offsetReplacementOptions(replacements, lastArgument.getStartPosition());
-			} else {
-				return null;
-			}
+			// If any arguments were split,
+			// use the last parameter for completion.
+			parameterToComplete = split.getParameterAtPosition().get();
+			final List<PositionedString> argsAtPosition = split.getArguments().get(parameterToComplete);
+			assert !argsAtPosition.isEmpty();
+			argumentToComplete = argsAtPosition.get(argsAtPosition.size() - 1);
+		} else if (!command.getParameters().getPositionalParameters().isEmpty()) {
+			// Special case: if the command has parameters,
+			// but argument splitting stopped before any arguments were split,
+			// perform completion on the first parameter and an empty string at the cursor.
+			parameterToComplete = command.getParameters().getPositionalParameters().get(0);
+			argumentToComplete = new PositionedString("", at);
+		} else {
+			// Command has no parameters,
+			// so completion in the arguments is not possible.
+			return null;
+		}
+		
+		final Optional<Completer> completer = command.getParameterCompleters().getCompleterForParameter(parameterToComplete);
+		if (completer.isPresent()) {
+			final ReplacementOptions replacements = completer.get().complete(argumentToComplete.getValue(), at - argumentToComplete.getStartPosition());
+			return replacements == null ? null : offsetReplacementOptions(replacements, argumentToComplete.getStartPosition());
 		} else {
 			return null;
 		}
