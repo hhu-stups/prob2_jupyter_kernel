@@ -42,16 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class CommandUtils {
-	@FunctionalInterface
-	public interface Inspector {
-		public abstract @Nullable DisplayData inspect(final @NotNull String argString, final int at);
-	}
-	
-	@FunctionalInterface
-	public interface Completer {
-		public abstract @Nullable ReplacementOptions complete(final @NotNull String argString, final int at);
-	}
-	
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(CommandUtils.class);
 	
 	private static final @NotNull Pattern BODY_SPLIT_PATTERN = Pattern.compile("\\n");

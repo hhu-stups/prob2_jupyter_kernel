@@ -357,7 +357,7 @@ public final class ProBKernel extends BaseKernel {
 	private static @Nullable DisplayData inspectCommandArguments(final @NotNull Command command, final @NotNull String argString, final int at) {
 		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), argString, at);
 		if (split.getParameterAtPosition().isPresent()) {
-			final Optional<CommandUtils.Inspector> inspector = command.getParameterInspectors().getInspectorForParameter(split.getParameterAtPosition().get());
+			final Optional<Inspector> inspector = command.getParameterInspectors().getInspectorForParameter(split.getParameterAtPosition().get());
 			if (inspector.isPresent()) {
 				final List<PositionedString> argsAtPosition = split.getArguments().get(split.getParameterAtPosition().get());
 				assert !argsAtPosition.isEmpty();
@@ -414,7 +414,7 @@ public final class ProBKernel extends BaseKernel {
 	private static @Nullable ReplacementOptions completeCommandArguments(final @NotNull Command command, final @NotNull String argString, final int at) {
 		final SplitResult split = CommandUtils.splitArgs(command.getParameters(), argString, at);
 		if (split.getParameterAtPosition().isPresent()) {
-			final Optional<CommandUtils.Completer> completer = command.getParameterCompleters().getCompleterForParameter(split.getParameterAtPosition().get());
+			final Optional<Completer> completer = command.getParameterCompleters().getCompleterForParameter(split.getParameterAtPosition().get());
 			if (completer.isPresent()) {
 				final List<PositionedString> argsAtPosition = split.getArguments().get(split.getParameterAtPosition().get());
 				assert !argsAtPosition.isEmpty();

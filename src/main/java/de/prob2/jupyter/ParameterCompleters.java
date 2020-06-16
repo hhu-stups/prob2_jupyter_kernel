@@ -19,9 +19,9 @@ public final class ParameterCompleters {
 	 */
 	public static final @NotNull ParameterCompleters NONE = new ParameterCompleters(Collections.emptyMap());
 	
-	private final @NotNull Map<@NotNull Parameter<?>, CommandUtils.@NotNull Completer> completers;
+	private final @NotNull Map<@NotNull Parameter<?>, @NotNull Completer> completers;
 	
-	public ParameterCompleters(final @NotNull Map<@NotNull Parameter<?>, CommandUtils.@NotNull Completer> completers) {
+	public ParameterCompleters(final @NotNull Map<@NotNull Parameter<?>, @NotNull Completer> completers) {
 		super();
 		
 		this.completers = Collections.unmodifiableMap(new HashMap<>(completers));
@@ -32,7 +32,7 @@ public final class ParameterCompleters {
 	 * 
 	 * @return the stored mapping of parameters to code completion handlers
 	 */
-	public @NotNull Map<@NotNull Parameter<?>, CommandUtils.@NotNull Completer> getCompleters() {
+	public @NotNull Map<@NotNull Parameter<?>, @NotNull Completer> getCompleters() {
 		return this.completers;
 	}
 	
@@ -50,7 +50,7 @@ public final class ParameterCompleters {
 	 * @return the code completion handler for a parameter,
 	 * or {@link Optional#empty()} if there is none
 	 */
-	public @NotNull Optional<CommandUtils.Completer> getCompleterForParameter(final @NotNull Parameter<?> parameter) {
+	public @NotNull Optional<Completer> getCompleterForParameter(final @NotNull Parameter<?> parameter) {
 		if (this.getCompleters().containsKey(parameter)) {
 			return Optional.of(this.getCompleters().get(parameter));
 		} else {
