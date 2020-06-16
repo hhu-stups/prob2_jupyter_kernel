@@ -322,27 +322,47 @@ public final class ProBKernel extends BaseKernel {
 		return MACHINE_CODE_PATTERN.matcher(code).matches();
 	}
 	
-	private @Nullable DisplayData evalInternal(final @NotNull PositionedString code) {
+	/**
+	 * Preprocess the given input by ensuring that it starts with a command name.
+	 * If a command name is already present,
+	 * the input is returned unchanged.
+	 * Otherwise,
+	 * an appropriate command is added based on the type of input.
+	 * 
+	 * @param code the input code to preprocess
+	 * @return the input with a command name prefixed if necessary
+	 */
+	private static @NotNull PositionedString preprocessInput(final @NotNull PositionedString code) {
 		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code.getValue());
-		final PositionedString name;
-		final PositionedString argString;
+		final String prefix;
 		if (commandMatcher.matches()) {
-			// The input is a command, execute it directly.
-			name = code.substring(commandMatcher.start(1), commandMatcher.end(1));
-			if (commandMatcher.group(2) == null) {
-				argString = code.substring(code.getValue().length());
-			} else {
-				argString = code.substring(commandMatcher.start(2), commandMatcher.end(2));
-			}
+			// The input already includes a command, so no prefix needs to be added.
+			prefix = "";
 		} else if (isMachineCode(code.getValue())) {
-			// The input appears to be a machine, load it.
-			// The leading newline here is important. ::load expects the first input line to contain preference assignments; the actual machine code has to start on the second line.
-			name = new PositionedString("::load", code.getStartPosition() - 7);
-			argString = new PositionedString("\n" + code.getValue(), code.getStartPosition() - 1);
+			// The input appears to be a machine, add a command to load it.
+			prefix = "::load\n";
 		} else {
-			// By default, assume that the input is an expression and evaluate it.
-			name = new PositionedString(":eval", code.getStartPosition() - 6);
-			argString = code;
+			// By default, assume that the input is an expression that should be evaluated.
+			prefix = ":eval ";
+		}
+		// Add the prefix and adjust the start position.
+		// This means that the characters from the prefix (if any) will have negative positions,
+		// but the characters from the real source code will have the same positions as before.
+		return new PositionedString(prefix + code.getValue(), code.getStartPosition() - prefix.length());
+	}
+	
+	private @Nullable DisplayData evalInternal(final @NotNull PositionedString code) {
+		final PositionedString preprocessedCode = preprocessInput(code);
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(preprocessedCode.getValue());
+		if (!commandMatcher.matches()) {
+			throw new AssertionError("Preprocessed input does not include a command - this should not happen");
+		}
+		final PositionedString name = preprocessedCode.substring(commandMatcher.start(1), commandMatcher.end(1));
+		final PositionedString argString;
+		if (commandMatcher.group(2) == null) {
+			argString = preprocessedCode.substring(preprocessedCode.getValue().length());
+		} else {
+			argString = preprocessedCode.substring(commandMatcher.start(2), commandMatcher.end(2));
 		}
 		return this.executeCommand(name, argString);
 	}
@@ -378,36 +398,34 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private @Nullable DisplayData inspectInternal(final @NotNull PositionedString code, final int at) {
-		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code.getValue());
-		if (commandMatcher.matches()) {
-			// The code is a valid command.
-			final String name = commandMatcher.group(1);
-			if (this.getCommands().containsKey(name)) {
-				final Command command = this.getCommands().get(name);
-				if (at <= commandMatcher.end(1)) {
-					// The cursor is somewhere in the command name, show help text for the command.
-					return command.renderHelp();
-				} else if (at < commandMatcher.start(2)) {
-					// The cursor is in the whitespace between the command name and arguments, don't show anything.
-					return null;
-				} else {
-					// The cursor is somewhere in the command arguments, ask the command to inspect.
-					assert name != null;
-					final PositionedString argString;
-					if (commandMatcher.group(2) == null) {
-						argString = code.substring(code.getValue().length());
-					} else {
-						argString = code.substring(commandMatcher.start(2), commandMatcher.end(2));
-					}
-					return inspectCommandArguments(command, argString, at);
-				}
-			} else {
-				// Invalid command, can't inspect.
+		final PositionedString preprocessedCode = preprocessInput(code);
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(preprocessedCode.getValue());
+		if (!commandMatcher.matches()) {
+			throw new AssertionError("Preprocessed input does not include a command - this should not happen");
+		}
+		final String name = commandMatcher.group(1);
+		if (this.getCommands().containsKey(name)) {
+			final Command command = this.getCommands().get(name);
+			if (at <= preprocessedCode.getStartPosition() + commandMatcher.end(1)) {
+				// The cursor is somewhere in the command name, show help text for the command.
+				return command.renderHelp();
+			} else if (at < preprocessedCode.getStartPosition() + commandMatcher.start(2)) {
+				// The cursor is in the whitespace between the command name and arguments, don't show anything.
 				return null;
+			} else {
+				// The cursor is somewhere in the command arguments, ask the command to inspect.
+				assert name != null;
+				final PositionedString argString;
+				if (commandMatcher.group(2) == null) {
+					argString = preprocessedCode.substring(preprocessedCode.getValue().length());
+				} else {
+					argString = preprocessedCode.substring(commandMatcher.start(2), commandMatcher.end(2));
+				}
+				return inspectCommandArguments(command, argString, at);
 			}
 		} else {
-			// The code is not a valid command, ask :eval to inspect.
-			return inspectCommandArguments(this.getCommands().get(":eval"), code, at);
+			// Invalid command, can't inspect.
+			return null;
 		}
 	}
 	
@@ -444,40 +462,38 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private @Nullable ReplacementOptions completeInternal(final @NotNull PositionedString code, final int at) {
-		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code.getValue());
-		if (commandMatcher.matches()) {
-			// The code is a valid command.
-			if (at <= commandMatcher.end(1)) {
-				// The cursor is somewhere in the command name, provide command completions.
-				final String prefix = code.substring(commandMatcher.start(1), at).getValue();
-				return new ReplacementOptions(
-					this.getCommands().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList()),
-					commandMatcher.start(1), 
-					commandMatcher.end(1)
-				);
-			} else if (at < commandMatcher.start(2)) {
-				// The cursor is in the whitespace between the command name and arguments, don't show anything.
-				return null;
-			} else {
-				// The cursor is somewhere in the command arguments, ask the command to provide completions.
-				final String name = commandMatcher.group(1);
-				assert name != null;
-				final PositionedString argString;
-				if (commandMatcher.group(2) == null) {
-					argString = code.substring(code.getValue().length());
-				} else {
-					argString = code.substring(commandMatcher.start(2), commandMatcher.end(2));
-				}
-				if (this.getCommands().containsKey(name)) {
-					return completeCommandArguments(this.getCommands().get(name), argString, at);
-				} else {
-					// Invalid command, can't provide any completions.
-					return null;
-				}
-			}
+		final PositionedString preprocessedCode = preprocessInput(code);
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(preprocessedCode.getValue());
+		if (!commandMatcher.matches()) {
+			throw new AssertionError("Preprocessed input does not include a command - this should not happen");
+		}
+		if (at <= preprocessedCode.getStartPosition() + commandMatcher.end(1)) {
+			// The cursor is somewhere in the command name, provide command completions.
+			final String prefix = preprocessedCode.substring(commandMatcher.start(1), at).getValue();
+			return new ReplacementOptions(
+				this.getCommands().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList()),
+				commandMatcher.start(1), 
+				commandMatcher.end(1)
+			);
+		} else if (at < preprocessedCode.getStartPosition() + commandMatcher.start(2)) {
+			// The cursor is in the whitespace between the command name and arguments, don't show anything.
+			return null;
 		} else {
-			// The code is not a valid command, ask :eval for completions.
-			return completeCommandArguments(this.getCommands().get(":eval"), code, at);
+			// The cursor is somewhere in the command arguments, ask the command to provide completions.
+			final String name = commandMatcher.group(1);
+			assert name != null;
+			final PositionedString argString;
+			if (commandMatcher.group(2) == null) {
+				argString = preprocessedCode.substring(preprocessedCode.getValue().length());
+			} else {
+				argString = preprocessedCode.substring(commandMatcher.start(2), commandMatcher.end(2));
+			}
+			if (this.getCommands().containsKey(name)) {
+				return completeCommandArguments(this.getCommands().get(name), argString, at);
+			} else {
+				// Invalid command, can't provide any completions.
+				return null;
+			}
 		}
 	}
 	
