@@ -294,16 +294,16 @@ public final class ProBKernel extends BaseKernel {
 		return defs.toString();
 	}
 	
-	private @Nullable DisplayData executeCommand(final @NotNull String name, final @NotNull String argString) {
-		final Command command = this.getCommands().get(name);
+	private @Nullable DisplayData executeCommand(final @NotNull PositionedString name, final @NotNull PositionedString argString) {
+		final Command command = this.getCommands().get(name.getValue());
 		if (command == null) {
-			throw new NoSuchCommandException(name);
+			throw new NoSuchCommandException(name.getValue());
 		}
 		final DisplayData result;
 		try {
-			result = command.run(CommandUtils.parseArgs(command.getParameters(), new PositionedString(argString, 0)));
+			result = command.run(CommandUtils.parseArgs(command.getParameters(), argString));
 		} catch (final UserErrorException e) {
-			throw new CommandExecutionException(name, e);
+			throw new CommandExecutionException(name.getValue(), e);
 		}
 		
 		if (result != null && result.hasDataForType(MIMEType.TEXT_MARKDOWN)) {
@@ -323,22 +323,29 @@ public final class ProBKernel extends BaseKernel {
 		return MACHINE_CODE_PATTERN.matcher(code).matches();
 	}
 	
-	private @Nullable DisplayData evalInternal(final @NotNull String expr) {
-		final Matcher commandMatcher = COMMAND_PATTERN.matcher(expr);
+	private @Nullable DisplayData evalInternal(final @NotNull PositionedString code) {
+		final Matcher commandMatcher = COMMAND_PATTERN.matcher(code.getValue());
+		final PositionedString name;
+		final PositionedString argString;
 		if (commandMatcher.matches()) {
 			// The input is a command, execute it directly.
-			final String name = commandMatcher.group(1);
-			assert name != null;
-			final String argString = commandMatcher.group(2) == null ? "" : commandMatcher.group(2);
-			return this.executeCommand(name, argString);
-		} else if (isMachineCode(expr)) {
+			name = code.substring(commandMatcher.start(1), commandMatcher.end(1));
+			if (commandMatcher.group(2) == null) {
+				argString = code.substring(code.getValue().length());
+			} else {
+				argString = code.substring(commandMatcher.start(2), commandMatcher.end(2));
+			}
+		} else if (isMachineCode(code.getValue())) {
 			// The input appears to be a machine, load it.
 			// The leading newline here is important. ::load expects the first input line to contain preference assignments; the actual machine code has to start on the second line.
-			return this.executeCommand("::load", "\n" + expr);
+			name = new PositionedString("::load", code.getStartPosition() - 7);
+			argString = new PositionedString("\n" + code.getValue(), code.getStartPosition() - 1);
 		} else {
 			// By default, assume that the input is an expression and evaluate it.
-			return this.executeCommand(":eval", expr);
+			name = new PositionedString(":eval", code.getStartPosition() - 6);
+			argString = code;
 		}
+		return this.executeCommand(name, argString);
 	}
 	
 	@Override
@@ -348,7 +355,7 @@ public final class ProBKernel extends BaseKernel {
 		this.currentEvalThread.set(Thread.currentThread());
 		
 		try {
-			return evalInternal(expr);
+			return evalInternal(new PositionedString(expr, 0));
 		} finally {
 			this.currentEvalThread.set(null);
 		}
