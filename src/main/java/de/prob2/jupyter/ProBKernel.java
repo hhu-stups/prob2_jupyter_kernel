@@ -440,7 +440,7 @@ public final class ProBKernel extends BaseKernel {
 		final SplitCommandCall split = splitCommand(preprocessInput(code));
 		if (this.getCommands().containsKey(split.getName().getValue())) {
 			final Command command = this.getCommands().get(split.getName().getValue());
-			if (at <= split.getName().getStartPosition() + split.getName().getValue().length()) {
+			if (at <= split.getName().getEndPosition()) {
 				// The cursor is somewhere in the command name, show help text for the command.
 				return command.renderHelp();
 			} else if (at < split.getArgString().getStartPosition()) {
@@ -490,13 +490,13 @@ public final class ProBKernel extends BaseKernel {
 	
 	private @Nullable ReplacementOptions completeInternal(final @NotNull PositionedString code, final int at) {
 		final SplitCommandCall split = splitCommand(preprocessInput(code));
-		if (at <= split.getName().getStartPosition() + split.getName().getValue().length()) {
+		if (at <= split.getName().getEndPosition()) {
 			// The cursor is somewhere in the command name, provide command completions.
 			final String prefix = split.getName().substring(0, at - split.getName().getStartPosition()).getValue();
 			return new ReplacementOptions(
 				this.getCommands().keySet().stream().filter(s -> s.startsWith(prefix)).sorted().collect(Collectors.toList()),
 				split.getName().getStartPosition(),
-				split.getName().getStartPosition() + split.getName().getValue().length()
+				split.getName().getEndPosition()
 			);
 		} else if (at < split.getArgString().getStartPosition()) {
 			// The cursor is in the whitespace between the command name and arguments, don't show anything.

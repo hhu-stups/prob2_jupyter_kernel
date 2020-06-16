@@ -38,6 +38,16 @@ public final class PositionedString {
 	}
 	
 	/**
+	 * Return the position of the end of this string.
+	 * This is equivalent to the start position plus the length of the string.
+	 * 
+	 * @return the position of the end of this string
+	 */
+	public int getEndPosition() {
+		return this.getStartPosition() + this.getValue().length();
+	}
+	
+	/**
 	 * <p>
 	 * Return a substring of this string, with the position adjusted accordingly.
 	 * This method behaves like {@link String#substring(int, int)}.

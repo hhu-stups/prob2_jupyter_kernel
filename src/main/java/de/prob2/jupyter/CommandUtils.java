@@ -166,7 +166,7 @@ public final class CommandUtils {
 	 * @return the result of the split operation (see {@link SplitResult} for details)
 	 */
 	public static @NotNull SplitResult splitArgs(final @NotNull Parameters parameters, final @NotNull PositionedString argString) {
-		return splitArgs(parameters, argString, argString.getStartPosition() + argString.getValue().length());
+		return splitArgs(parameters, argString, argString.getEndPosition());
 	}
 	
 	private static <T> void validateSplitParameter(final @NotNull ParsedArguments parsed, final @NotNull SplitArguments splitArgs, final @NotNull Parameter<T> param) {
