@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -25,10 +26,12 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
+import de.prob.animator.ReusableAnimator;
 import de.prob.animator.domainobjects.ErrorItem;
 import de.prob.exception.ProBError;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
+import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.commands.AssertCommand;
 import de.prob2.jupyter.commands.BrowseCommand;
@@ -218,6 +221,7 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private final @NotNull AnimationSelector animationSelector;
+	private final @NotNull ReusableAnimator animator;
 	
 	private final @NotNull Map<@NotNull String, @NotNull Command> commands;
 	private final @NotNull AtomicReference<@Nullable Thread> currentEvalThread;
@@ -226,12 +230,13 @@ public final class ProBKernel extends BaseKernel {
 	private @NotNull Path currentMachineDirectory;
 	
 	@Inject
-	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector) {
+	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector, final @NotNull ReusableAnimator animator) {
 		super();
 		
 		this.setShouldReplaceStdStreams(false);
 		
 		this.animationSelector = animationSelector;
+		this.animator = animator;
 		
 		this.commands = COMMAND_CLASSES.stream()
 			.map(injector::getInstance)
@@ -240,7 +245,10 @@ public final class ProBKernel extends BaseKernel {
 		this.currentEvalThread = new AtomicReference<>(null);
 		this.variables = new HashMap<>();
 		
-		this.animationSelector.changeCurrentAnimation(new Trace(classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").load()));
+		this.switchMachine(Paths.get(""), stateSpace -> {
+			classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").loadIntoStateSpace(stateSpace);
+			return new Trace(stateSpace);
+		});
 		this.currentMachineDirectory = Paths.get("");
 	}
 	
@@ -270,6 +278,28 @@ public final class ProBKernel extends BaseKernel {
 	
 	public void setCurrentMachineDirectory(final @NotNull Path currentMachineDirectory) {
 		this.currentMachineDirectory = currentMachineDirectory;
+	}
+	
+	public void unloadMachine() {
+		final Trace oldTrace = this.animationSelector.getCurrentTrace();
+		if (oldTrace != null) {
+			assert oldTrace.getStateSpace() == this.animator.getCurrentStateSpace();
+			this.animationSelector.changeCurrentAnimation(null);
+			oldTrace.getStateSpace().kill();
+		}
+		this.setCurrentMachineDirectory(Paths.get(""));
+	}
+	
+	public void switchMachine(final @NotNull Path machineDirectory, final @NotNull Function<@NotNull StateSpace, @NotNull Trace> newTraceCreator) {
+		this.unloadMachine();
+		final StateSpace newStateSpace = this.animator.createStateSpace();
+		try {
+			this.animationSelector.changeCurrentAnimation(newTraceCreator.apply(newStateSpace));
+		} catch (final RuntimeException e) {
+			newStateSpace.kill();
+			throw e;
+		}
+		this.setCurrentMachineDirectory(machineDirectory);
 	}
 	
 	@Override

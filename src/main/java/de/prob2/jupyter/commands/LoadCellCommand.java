@@ -77,10 +77,13 @@ public final class LoadCellCommand implements Command {
 		final String body = args.get(CODE_PARAM);
 		final Map<String, String> preferences = CommandUtils.parsePreferences(args.get(PREFS_PARAM));
 		
-		this.animationSelector.changeCurrentAnimation(new Trace(CommandUtils.withSourceCode(body, () ->
-			this.classicalBFactory.create("(machine from Jupyter cell)", body).load(preferences)
-		)));
-		this.proBKernelProvider.get().setCurrentMachineDirectory(Paths.get(""));
+		this.proBKernelProvider.get().switchMachine(Paths.get(""), stateSpace -> {
+			stateSpace.changePreferences(preferences);
+			CommandUtils.withSourceCode(body, () ->
+				this.classicalBFactory.create("(machine from Jupyter cell)", body).loadIntoStateSpace(stateSpace)
+			);
+			return new Trace(stateSpace);
+		});
 		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getStateSpace().getMainComponent());
 	}
 	

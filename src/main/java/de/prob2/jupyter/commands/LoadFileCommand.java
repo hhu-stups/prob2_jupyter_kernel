@@ -101,13 +101,16 @@ public final class LoadFileCommand implements Command {
 		}
 		final Map<String, String> preferences = CommandUtils.parsePreferences(args.get(PREFS_PARAM));
 		
-		try {
-			final ModelFactory<?> factory = this.injector.getInstance(FactoryProvider.factoryClassFromExtension(extension));
-			this.animationSelector.changeCurrentAnimation(new Trace(factory.extract(machineFilePath.toString()).load(preferences)));
-			this.proBKernelProvider.get().setCurrentMachineDirectory(machineFileDirectory);
-		} catch (IOException | ModelTranslationError e) {
-			throw new RuntimeException(e);
-		}
+		final ModelFactory<?> factory = this.injector.getInstance(FactoryProvider.factoryClassFromExtension(extension));
+		this.proBKernelProvider.get().switchMachine(machineFileDirectory, stateSpace -> {
+			stateSpace.changePreferences(preferences);
+			try {
+				factory.extract(machineFilePath.toString()).loadIntoStateSpace(stateSpace);
+			} catch (final IOException | ModelTranslationError e) {
+				throw new RuntimeException(e);
+			}
+			return new Trace(stateSpace);
+		});
 		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getStateSpace().getMainComponent());
 	}
 	
