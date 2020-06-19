@@ -1,16 +1,12 @@
 package de.prob2.jupyter.commands;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import com.google.inject.Inject;
 
-import de.prob.animator.command.ComposedCommand;
-import de.prob.animator.command.GetCurrentPreferencesCommand;
-import de.prob.animator.command.GetPreferenceCommand;
-import de.prob.animator.command.SetPreferenceCommand;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
@@ -67,10 +63,9 @@ public final class PrefCommand implements Command {
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final StringBuilder sb = new StringBuilder();
 		if (args.get(PREFS_PARAM).isEmpty()) {
-			final GetCurrentPreferencesCommand cmd = new GetCurrentPreferencesCommand();
-			this.animationSelector.getCurrentTrace().getStateSpace().execute(cmd);
+			final Map<String, String> preferences = this.animationSelector.getCurrentTrace().getStateSpace().getCurrentPreferences();
 			// TreeMap is used to sort the preferences by name.
-			new TreeMap<>(cmd.getPreferences()).forEach((k, v) -> {
+			new TreeMap<>(preferences).forEach((k, v) -> {
 				sb.append(k);
 				sb.append(" = ");
 				sb.append(v);
@@ -79,29 +74,23 @@ public final class PrefCommand implements Command {
 		} else {
 			final List<String> prefsSplit = args.get(PREFS_PARAM);
 			if (prefsSplit.get(0).contains("=")) {
-				final List<SetPreferenceCommand> cmds = new ArrayList<>();
-				CommandUtils.parsePreferences(prefsSplit).forEach((pref, value) -> {
-					cmds.add(new SetPreferenceCommand(pref, value));
+				final Map<String, String> newPreferenceValues = CommandUtils.parsePreferences(prefsSplit);
+				this.animationSelector.getCurrentTrace().getStateSpace().changePreferences(newPreferenceValues);
+				newPreferenceValues.forEach((pref, value) -> {
 					sb.append("Preference changed: ");
 					sb.append(pref);
 					sb.append(" = ");
 					sb.append(value);
 					sb.append('\n');
 				});
-				this.animationSelector.getCurrentTrace().getStateSpace().execute(new ComposedCommand(cmds));
 			} else {
-				final List<GetPreferenceCommand> cmds = new ArrayList<>();
 				for (final String arg : prefsSplit) {
 					if (arg.contains("=")) {
 						throw new UserErrorException(String.format("Cannot view and change preferences in the same command (attempted to assign preference %s)", arg));
 					}
-					cmds.add(new GetPreferenceCommand(arg));
-				}
-				this.animationSelector.getCurrentTrace().getStateSpace().execute(new ComposedCommand(cmds));
-				for (final GetPreferenceCommand cmd : cmds) {
-					sb.append(cmd.getKey());
+					sb.append(arg);
 					sb.append(" = ");
-					sb.append(cmd.getValue());
+					sb.append(this.animationSelector.getCurrentTrace().getStateSpace().getCurrentPreference(arg));
 					sb.append('\n');
 				}
 			}
