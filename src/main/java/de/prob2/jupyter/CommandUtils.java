@@ -54,32 +54,6 @@ public final class CommandUtils {
 		throw new AssertionError("Utility class");
 	}
 	
-	public static @NotNull String prettyOperationName(final @NotNull String name) {
-		switch (name) {
-			case "$setup_constants":
-				return "SETUP_CONSTANTS";
-			
-			case "$initialise_machine":
-				return "INITIALISATION";
-			
-			default:
-				return name;
-		}
-	}
-	
-	public static @NotNull String unprettyOperationName(final @NotNull String name) {
-		switch (name) {
-			case "SETUP_CONSTANTS":
-				return "$setup_constants";
-			
-			case "INITIALISATION":
-				return "$initialise_machine";
-			
-			default:
-				return name;
-		}
-	}
-	
 	/**
 	 * <p>
 	 * Split an argument string according to the given parameter specification.

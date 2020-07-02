@@ -71,7 +71,7 @@ public final class ExecCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String translatedOpName = CommandUtils.unprettyOperationName(args.get(OPERATION_PARAM));
+		final String translatedOpName = Transition.unprettifyName(args.get(OPERATION_PARAM));
 		final String predicate;
 		if (!args.get(PREDICATE_PARAM).isPresent()) {
 			predicate = "1=1";
@@ -103,8 +103,7 @@ public final class ExecCommand implements Command {
 				final List<String> opNames = this.animationSelector.getCurrentTrace()
 					.getNextTransitions()
 					.stream()
-					.map(Transition::getName)
-					.map(CommandUtils::prettyOperationName)
+					.map(Transition::getPrettyName)
 					.distinct()
 					.filter(s -> s.startsWith(prefix))
 					.sorted()
