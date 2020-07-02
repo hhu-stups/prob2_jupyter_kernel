@@ -64,19 +64,7 @@ public final class ConstantsCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String predicate;
-		if (!args.get(PREDICATE_PARAM).isPresent()) {
-			predicate = "1=1";
-		} else {
-			predicate = this.kernelProvider.get().insertLetVariables(args.get(PREDICATE_PARAM).get());
-		}
-		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), "$setup_constants", predicate, 1);
-		assert !ops.isEmpty();
-		final Transition op = ops.get(0);
-		this.animationSelector.changeCurrentAnimation(trace.add(op));
-		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
-		return new DisplayData(String.format("Machine constants set up using operation %s: %s", op.getId(), op.getRep()));
+		return this.kernelProvider.get().executeOperation(Transition.SETUP_CONSTANTS_NAME, args.get(PREDICATE_PARAM).orElse(null));
 	}
 	
 	@Override

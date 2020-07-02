@@ -28,11 +28,13 @@ import com.google.inject.Singleton;
 
 import de.prob.animator.ReusableAnimator;
 import de.prob.animator.domainobjects.ErrorItem;
+import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.exception.ProBError;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
+import de.prob.statespace.Transition;
 import de.prob2.jupyter.commands.AssertCommand;
 import de.prob2.jupyter.commands.BrowseCommand;
 import de.prob2.jupyter.commands.BsymbCommand;
@@ -300,6 +302,24 @@ public final class ProBKernel extends BaseKernel {
 			throw e;
 		}
 		this.setCurrentMachineDirectory(machineDirectory);
+	}
+	
+	public @NotNull DisplayData executeOperation(final @NotNull String name, final @Nullable String predicate) {
+		final Trace trace = this.animationSelector.getCurrentTrace();
+		final String translatedOpName = Transition.unprettifyName(name);
+		final String modifiedPredicate;
+		if (predicate == null) {
+			modifiedPredicate = "1=1";
+		} else {
+			modifiedPredicate = this.insertLetVariables(predicate);
+		}
+		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, modifiedPredicate, 1);
+		assert !ops.isEmpty();
+		final Transition op = ops.get(0);
+		
+		this.animationSelector.changeCurrentAnimation(trace.add(op));
+		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
+		return new DisplayData(String.format("Executed operation: %s", op.getRep()));
 	}
 	
 	@Override

@@ -70,21 +70,7 @@ public final class ExecCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String translatedOpName = Transition.unprettifyName(args.get(OPERATION_PARAM));
-		final String predicate;
-		if (!args.get(PREDICATE_PARAM).isPresent()) {
-			predicate = "1=1";
-		} else {
-			predicate = this.kernelProvider.get().insertLetVariables(args.get(PREDICATE_PARAM).get());
-		}
-		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, predicate, 1);
-		assert !ops.isEmpty();
-		final Transition op = ops.get(0);
-		
-		this.animationSelector.changeCurrentAnimation(trace.add(op));
-		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
-		return new DisplayData(String.format("Executed operation: %s", op.getRep()));
+		return this.kernelProvider.get().executeOperation(args.get(OPERATION_PARAM), args.get(PREDICATE_PARAM).orElse(null));
 	}
 	
 	@Override
