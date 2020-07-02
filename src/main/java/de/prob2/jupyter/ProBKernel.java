@@ -319,7 +319,7 @@ public final class ProBKernel extends BaseKernel {
 		
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
-		return new DisplayData(String.format("Executed operation: %s", op.getRep()));
+		return new DisplayData(String.format("Executed operation: %s", op.getPrettyRep()));
 	}
 	
 	@Override
