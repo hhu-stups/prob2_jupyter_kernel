@@ -4,6 +4,9 @@
 
 * Updated ProB 2 to version 4.0.0-SNAPSHOT.
 * Improved the performance of loading machines by reusing the existing instance of ProB instead of starting a new one for each machine.
+* Changed the `:exec`, `:init` and `:constants` commands to automatically move forward or backward in the trace to allow the command to execute successfully.
+	* Executing `:init` in an already initialised state will return to the last uninitialised state to re-initialise the machine (possibly with different initial values). The same works for `:constants`. Previously this caused an error "Machine is already initialised" or "Machine constants are already set up".
+	* Executing an operation in an uninitialised state will automatically initialise the machine with an arbitrary valid initialisation transition. If the machine has constants, they are also set up automatically in a similar way. This is useful if the machine's constants/initial variables are unambiguous or the exact values are not important. Previously this caused an error "Machine is not initialised".
 * Significantly refactored the logic for parsing commands and their arguments.
 	* This is an internal change and should not affect any user-visible behavior. That is, all inputs that were accepted by previous versions should still be accepted - if any previously valid inputs are no longer accepted, this is a bug.
 	* As a side effect, the inspection and code completion features now work better in a few edge cases.

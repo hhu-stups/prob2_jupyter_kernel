@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -32,6 +33,7 @@ import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.exception.ProBError;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
+import de.prob.statespace.State;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
@@ -304,22 +306,81 @@ public final class ProBKernel extends BaseKernel {
 		this.setCurrentMachineDirectory(machineDirectory);
 	}
 	
+	private static @NotNull Transition singleTransitionFromPredicate(final State state, final String opName, final String predicate) {
+		final List<Transition> ops = state.getStateSpace().transitionFromPredicate(state, opName, predicate, 1);
+		assert !ops.isEmpty();
+		return ops.get(0);
+	}
+	
 	public @NotNull DisplayData executeOperation(final @NotNull String name, final @Nullable String predicate) {
-		final Trace trace = this.animationSelector.getCurrentTrace();
+		Trace trace = this.animationSelector.getCurrentTrace();
 		final String translatedOpName = Transition.unprettifyName(name);
+		final StringBuilder sb = new StringBuilder();
+		
+		if (Transition.SETUP_CONSTANTS_NAME.equals(translatedOpName) && trace.getCurrentState().isConstantsSetUp()) {
+			trace = trace.gotoPosition(-1);
+			sb.append("Machine constants were already set up. Returned to root state to set up machine constants again.\n");
+		} else if (Transition.INITIALISE_MACHINE_NAME.equals(translatedOpName) && trace.getCurrentState().isInitialised()) {
+			// The last uninitialised state may be at index 0 (if SETUP_CONSTANTS exists) or at index -1 (if not).
+			trace = trace.gotoPosition(0);
+			if (trace.getCurrentState().isInitialised()) {
+				trace = trace.gotoPosition(-1);
+			}
+			sb.append("Machine was already initialised. Returned to uninitialised state to re-initialise the machine.\n");
+		}
+		
 		final String modifiedPredicate;
 		if (predicate == null) {
 			modifiedPredicate = "1=1";
 		} else {
 			modifiedPredicate = this.insertLetVariables(predicate);
 		}
-		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, modifiedPredicate, 1);
-		assert !ops.isEmpty();
-		final Transition op = ops.get(0);
+		Transition op;
+		try {
+			op = singleTransitionFromPredicate(trace.getCurrentState(), translatedOpName, modifiedPredicate);
+		} catch (IllegalArgumentException e) {
+			if (!trace.getCurrentState().isConstantsSetUp()) {
+				if (Transition.PARTIAL_SETUP_CONSTANTS_NAME.equals(translatedOpName) || Transition.SETUP_CONSTANTS_NAME.equals(translatedOpName)) {
+					throw e;
+				} else {
+					final Set<Transition> setupConstantsTransitions = trace.getNextTransitions();
+					if (setupConstantsTransitions.isEmpty()) {
+						throw new UserErrorException("Machine constants are not set up and no valid constant values were found automatically - cannot execute operation " + name, e);
+					}
+					final Transition setupConstants = setupConstantsTransitions.iterator().next();
+					trace = trace.add(setupConstants);
+					trace.getStateSpace().evaluateTransitions(Collections.singleton(setupConstants), FormulaExpand.TRUNCATE);
+					sb.append("Machine constants were not set up yet. Automatically set up constants using arbitrary transition: ");
+					sb.append(setupConstants.getPrettyRep());
+					sb.append('\n');
+				}
+			}
+			
+			if (!trace.getCurrentState().isInitialised()) {
+				if (Transition.PARTIAL_SETUP_CONSTANTS_NAME.equals(translatedOpName) || Transition.SETUP_CONSTANTS_NAME.equals(translatedOpName) || Transition.INITIALISE_MACHINE_NAME.equals(translatedOpName)) {
+					throw e;
+				} else {
+					final Set<Transition> initialisationTransitions = trace.getNextTransitions();
+					if (initialisationTransitions.isEmpty()) {
+						throw new UserErrorException("Machine is not initialised and no valid initialisation was found automatically - cannot execute operation " + name, e);
+					}
+					final Transition initialisation = initialisationTransitions.iterator().next();
+					trace = trace.add(initialisation);
+					trace.getStateSpace().evaluateTransitions(Collections.singleton(initialisation), FormulaExpand.TRUNCATE);
+					sb.append("Machine was not initialised yet. Automatically initialised machine using arbitrary transition: ");
+					sb.append(initialisation.getPrettyRep());
+					sb.append('\n');
+				}
+			}
+			
+			op = singleTransitionFromPredicate(trace.getCurrentState(), translatedOpName, modifiedPredicate);
+		}
 		
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
-		return new DisplayData(String.format("Executed operation: %s", op.getPrettyRep()));
+		sb.append("Executed operation: ");
+		sb.append(op.getPrettyRep());
+		return new DisplayData(sb.toString());
 	}
 	
 	@Override
