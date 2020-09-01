@@ -215,7 +215,6 @@ public final class Main {
 		final String contents = String.join("\n", Files.readAllLines(connectionFile, StandardCharsets.UTF_8));
 		final JupyterConnection conn = new JupyterConnection(KernelConnectionProperties.parse(contents));
 		
-		System.setProperty("prob.stdlib", Paths.get(de.prob.Main.getProBDirectory(), "stdlib").toString());
 		final Injector injector = Guice.createInjector(Stage.PRODUCTION, new ProBKernelModule());
 		final ProBKernel kernel = injector.getInstance(ProBKernel.class);
 		kernel.becomeHandlerForConnection(conn);
