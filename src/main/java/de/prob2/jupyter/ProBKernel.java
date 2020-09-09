@@ -124,6 +124,7 @@ public final class ProBKernel extends BaseKernel {
 	
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
+	public static final String LOAD_CELL_MACHINE_NAME = "(machine from Jupyter cell)";
 	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
 	private static final @NotNull Pattern MACHINE_CODE_PATTERN = Pattern.compile("MACHINE\\W.*", Pattern.DOTALL);
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
@@ -617,7 +618,7 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private @NotNull List<@NotNull String> formatErrorSource(final @NotNull List<@NotNull String> sourceLines, final @NotNull ErrorItem.Location location) {
-		if (sourceLines.isEmpty()) {
+		if (sourceLines.isEmpty() || (!location.getFilename().isEmpty() && !Paths.get(location.getFilename()).getFileName().toString().equals(LOAD_CELL_MACHINE_NAME + ".mch"))) {
 			return Collections.singletonList(this.errorStyler.primary("// Source code not known"));
 		}
 		

@@ -80,7 +80,7 @@ public final class LoadCellCommand implements Command {
 		this.proBKernelProvider.get().switchMachine(Paths.get(""), stateSpace -> {
 			stateSpace.changePreferences(preferences);
 			CommandUtils.withSourceCode(body, () ->
-				this.classicalBFactory.create("(machine from Jupyter cell)", body).loadIntoStateSpace(stateSpace)
+				this.classicalBFactory.create(ProBKernel.LOAD_CELL_MACHINE_NAME, body).loadIntoStateSpace(stateSpace)
 			);
 			return new Trace(stateSpace);
 		});
