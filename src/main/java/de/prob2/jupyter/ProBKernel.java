@@ -667,7 +667,9 @@ public final class ProBKernel extends BaseKernel {
 			out.add(this.errorStyler.secondary(String.format("Error end line %d out of bounds (1..%d)", location.getEndLine(), sourceLines.size())));
 			return out;
 		}
-		final List<String> errorLines = sourceLines.subList(location.getStartLine()-1, location.getEndLine());
+		final int startLineIndex = location.getStartLine() - 1;
+		final int endLineIndex = location.getEndLine() - 1;
+		final List<String> errorLines = sourceLines.subList(startLineIndex, endLineIndex + 1);
 		assert !errorLines.isEmpty();
 		final String firstLine = errorLines.get(0);
 		final String lastLine = errorLines.get(errorLines.size() - 1);
@@ -679,6 +681,11 @@ public final class ProBKernel extends BaseKernel {
 			out.add(this.errorStyler.secondary(String.format("Error end column %d out of bounds (0..%d)", location.getEndColumn(), lastLine.length()-1)));
 			return out;
 		}
+		
+		if (startLineIndex > 0) {
+			out.add(this.errorStyler.primary(sourceLines.get(startLineIndex - 1)));
+		}
+		
 		if (errorLines.size() == 1) {
 			out.add(
 				this.errorStyler.primary(firstLine.substring(0, location.getStartColumn()))
@@ -696,6 +703,11 @@ public final class ProBKernel extends BaseKernel {
 				+ this.errorStyler.primary(lastLine.substring(location.getEndColumn()))
 			);
 		}
+		
+		if (endLineIndex < sourceLines.size() - 1) {
+			out.add(this.errorStyler.primary(sourceLines.get(endLineIndex + 1)));
+		}
+		
 		return out;
 	}
 	
