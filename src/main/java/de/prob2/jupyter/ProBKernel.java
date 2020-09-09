@@ -249,8 +249,8 @@ public final class ProBKernel extends BaseKernel {
 		this.currentEvalThread = new AtomicReference<>(null);
 		this.variables = new HashMap<>();
 		
-		this.switchMachine(Paths.get(""), this::loadDefaultMachine);
 		this.currentMachineDirectory = Paths.get("");
+		this.switchMachine(Paths.get(""), this::loadDefaultMachine);
 	}
 	
 	private static @NotNull Properties getBuildInfo() {
