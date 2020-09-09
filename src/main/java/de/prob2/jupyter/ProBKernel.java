@@ -627,10 +627,13 @@ public final class ProBKernel extends BaseKernel {
 		if (filePath.toString().isEmpty()) {
 			return Optional.ofNullable(contextSourceLines);
 		} else {
-			final String fileName = filePath.getFileName().toString();
-			if (fileName.equals(DEFAULT_MACHINE_NAME + ".mch")) {
+			String fileName = filePath.getFileName().toString();
+			if (fileName.endsWith(".mch")) {
+				fileName = fileName.substring(0, fileName.length() - 4);
+			}
+			if (fileName.equals(DEFAULT_MACHINE_NAME)) {
 				return Optional.of(Arrays.asList(DEFAULT_MACHINE_SOURCE_CODE.split("\n")));
-			} else if (fileName.equals(LOAD_CELL_MACHINE_NAME + ".mch")) {
+			} else if (fileName.equals(LOAD_CELL_MACHINE_NAME)) {
 				if (currentCellSourceCode == null) {
 					return Optional.empty();
 				} else {
