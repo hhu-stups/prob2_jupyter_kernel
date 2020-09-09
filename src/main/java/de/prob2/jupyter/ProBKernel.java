@@ -222,6 +222,7 @@ public final class ProBKernel extends BaseKernel {
 		BSYMB_COMMAND_DEFINITIONS = Collections.unmodifiableMap(map);
 	}
 	
+	private final @NotNull ClassicalBFactory classicalBFactory;
 	private final @NotNull AnimationSelector animationSelector;
 	private final @NotNull ReusableAnimator animator;
 	
@@ -237,6 +238,7 @@ public final class ProBKernel extends BaseKernel {
 		
 		this.setShouldReplaceStdStreams(false);
 		
+		this.classicalBFactory = classicalBFactory;
 		this.animationSelector = animationSelector;
 		this.animator = animator;
 		
@@ -247,10 +249,7 @@ public final class ProBKernel extends BaseKernel {
 		this.currentEvalThread = new AtomicReference<>(null);
 		this.variables = new HashMap<>();
 		
-		this.switchMachine(Paths.get(""), stateSpace -> {
-			classicalBFactory.create("(initial Jupyter machine)", "MACHINE repl END").loadIntoStateSpace(stateSpace);
-			return new Trace(stateSpace);
-		});
+		this.switchMachine(Paths.get(""), this::loadDefaultMachine);
 		this.currentMachineDirectory = Paths.get("");
 	}
 	
@@ -292,6 +291,11 @@ public final class ProBKernel extends BaseKernel {
 		this.setCurrentMachineDirectory(Paths.get(""));
 	}
 	
+	private @NotNull Trace loadDefaultMachine(final @NotNull StateSpace stateSpace) {
+		this.classicalBFactory.create("(empty default machine)", "MACHINE repl END").loadIntoStateSpace(stateSpace);
+		return new Trace(stateSpace);
+	}
+	
 	public void switchMachine(final @NotNull Path machineDirectory, final @NotNull Function<@NotNull StateSpace, @NotNull Trace> newTraceCreator) {
 		this.unloadMachine();
 		final StateSpace newStateSpace = this.animator.createStateSpace();
@@ -299,6 +303,8 @@ public final class ProBKernel extends BaseKernel {
 			this.animationSelector.changeCurrentAnimation(newTraceCreator.apply(newStateSpace));
 		} catch (final RuntimeException e) {
 			newStateSpace.kill();
+			final StateSpace defaultStateSpace = this.animator.createStateSpace();
+			this.animationSelector.changeCurrentAnimation(this.loadDefaultMachine(defaultStateSpace));
 			throw e;
 		}
 		this.setCurrentMachineDirectory(machineDirectory);
