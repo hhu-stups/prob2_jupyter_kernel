@@ -102,7 +102,7 @@ public final class LoadFileCommand implements Command {
 		final Map<String, String> preferences = CommandUtils.parsePreferences(args.get(PREFS_PARAM));
 		
 		final ModelFactory<?> factory = this.injector.getInstance(FactoryProvider.factoryClassFromExtension(extension));
-		this.proBKernelProvider.get().switchMachine(machineFileDirectory, stateSpace -> {
+		this.proBKernelProvider.get().switchMachine(machineFileDirectory, null, stateSpace -> {
 			stateSpace.changePreferences(preferences);
 			try {
 				factory.extract(machineFilePath.toString()).loadIntoStateSpace(stateSpace);

@@ -77,11 +77,9 @@ public final class LoadCellCommand implements Command {
 		final String body = args.get(CODE_PARAM);
 		final Map<String, String> preferences = CommandUtils.parsePreferences(args.get(PREFS_PARAM));
 		
-		this.proBKernelProvider.get().switchMachine(Paths.get(""), stateSpace -> {
+		this.proBKernelProvider.get().switchMachine(Paths.get(""), body, stateSpace -> {
 			stateSpace.changePreferences(preferences);
-			CommandUtils.withSourceCode(body, () ->
-				this.classicalBFactory.create(ProBKernel.LOAD_CELL_MACHINE_NAME, body).loadIntoStateSpace(stateSpace)
-			);
+			this.classicalBFactory.create(ProBKernel.LOAD_CELL_MACHINE_NAME, body).loadIntoStateSpace(stateSpace);
 			return new Trace(stateSpace);
 		});
 		return new DisplayData("Loaded machine: " + this.animationSelector.getCurrentTrace().getStateSpace().getMainComponent());

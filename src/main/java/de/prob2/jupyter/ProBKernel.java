@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -124,6 +125,8 @@ public final class ProBKernel extends BaseKernel {
 	
 	private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(ProBKernel.class);
 	
+	private static final String DEFAULT_MACHINE_NAME = "(empty default machine)";
+	private static final String DEFAULT_MACHINE_SOURCE_CODE = "MACHINE repl END";
 	public static final String LOAD_CELL_MACHINE_NAME = "(machine from Jupyter cell)";
 	private static final @NotNull Pattern COMMAND_PATTERN = Pattern.compile("\\s*(\\:[^\\s]*)(?:\\h*(.*))?", Pattern.DOTALL);
 	private static final @NotNull Pattern MACHINE_CODE_PATTERN = Pattern.compile("MACHINE\\W.*", Pattern.DOTALL);
@@ -232,6 +235,7 @@ public final class ProBKernel extends BaseKernel {
 	private final @NotNull Map<@NotNull String, @NotNull String> variables;
 	
 	private @NotNull Path currentMachineDirectory;
+	private @Nullable String currentCellSourceCode;
 	
 	@Inject
 	private ProBKernel(final @NotNull Injector injector, final @NotNull ClassicalBFactory classicalBFactory, final @NotNull AnimationSelector animationSelector, final @NotNull ReusableAnimator animator) {
@@ -251,7 +255,8 @@ public final class ProBKernel extends BaseKernel {
 		this.variables = new HashMap<>();
 		
 		this.currentMachineDirectory = Paths.get("");
-		this.switchMachine(Paths.get(""), this::loadDefaultMachine);
+		this.currentCellSourceCode = null;
+		this.switchMachine(Paths.get(""), null, this::loadDefaultMachine);
 	}
 	
 	private static @NotNull Properties getBuildInfo() {
@@ -293,12 +298,13 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	private @NotNull Trace loadDefaultMachine(final @NotNull StateSpace stateSpace) {
-		this.classicalBFactory.create("(empty default machine)", "MACHINE repl END").loadIntoStateSpace(stateSpace);
+		this.classicalBFactory.create(DEFAULT_MACHINE_NAME, DEFAULT_MACHINE_SOURCE_CODE).loadIntoStateSpace(stateSpace);
 		return new Trace(stateSpace);
 	}
 	
-	public void switchMachine(final @NotNull Path machineDirectory, final @NotNull Function<@NotNull StateSpace, @NotNull Trace> newTraceCreator) {
+	public void switchMachine(final @NotNull Path machineDirectory, final @Nullable String cellSourceCode, final @NotNull Function<@NotNull StateSpace, @NotNull Trace> newTraceCreator) {
 		this.unloadMachine();
+		this.currentCellSourceCode = cellSourceCode;
 		final StateSpace newStateSpace = this.animator.createStateSpace();
 		try {
 			this.animationSelector.changeCurrentAnimation(newTraceCreator.apply(newStateSpace));
@@ -617,10 +623,40 @@ public final class ProBKernel extends BaseKernel {
 		this.animationSelector.getCurrentTrace().getStateSpace().sendInterrupt();
 	}
 	
-	private @NotNull List<@NotNull String> formatErrorSource(final @NotNull List<@NotNull String> sourceLines, final @NotNull ErrorItem.Location location) {
-		if (sourceLines.isEmpty() || (!location.getFilename().isEmpty() && !Paths.get(location.getFilename()).getFileName().toString().equals(LOAD_CELL_MACHINE_NAME + ".mch"))) {
+	private @NotNull Optional<List<@NotNull String>> sourceLinesForFile(final @NotNull Path filePath, final @Nullable List<@NotNull String> contextSourceLines) throws IOException {
+		if (filePath.toString().isEmpty()) {
+			return Optional.ofNullable(contextSourceLines);
+		} else {
+			final String fileName = filePath.getFileName().toString();
+			if (fileName.equals(DEFAULT_MACHINE_NAME + ".mch")) {
+				return Optional.of(Arrays.asList(DEFAULT_MACHINE_SOURCE_CODE.split("\n")));
+			} else if (fileName.equals(LOAD_CELL_MACHINE_NAME + ".mch")) {
+				if (currentCellSourceCode == null) {
+					return Optional.empty();
+				} else {
+					return Optional.of(Arrays.asList(this.currentCellSourceCode.split("\n")));
+				}
+			} else {
+				return Optional.of(Files.readAllLines(filePath));
+			}
+		}
+	}
+	
+	private @NotNull List<@NotNull String> formatErrorSource(final @Nullable List<@NotNull String> contextSourceLines, final @NotNull ErrorItem.Location location) {
+		final Optional<List<String>> sourceLinesOptional;
+		try {
+			sourceLinesOptional = this.sourceLinesForFile(Paths.get(location.getFilename()), contextSourceLines);
+		} catch (final IOException e) {
+			LOGGER.error("Failed to read source file contents while highlighting errors", e);
+			return Collections.singletonList(
+				this.errorStyler.primary("// Failed to read source file contents: ")
+				+ this.errorStyler.secondary(e.toString())
+			);
+		}
+		if (!sourceLinesOptional.isPresent()) {
 			return Collections.singletonList(this.errorStyler.primary("// Source code not known"));
 		}
+		final List<String> sourceLines = sourceLinesOptional.get();
 		
 		final List<String> out = new ArrayList<>();
 		if (location.getStartLine() < 1 || location.getStartLine() > sourceLines.size()) {
@@ -670,13 +706,13 @@ public final class ProBKernel extends BaseKernel {
 			if (e instanceof UserErrorException) {
 				return this.errorStyler.secondaryLines(String.valueOf(e.getMessage()));
 			} else if (e instanceof ProBError || e instanceof WithSourceCodeException) {
-				final List<String> sourceLines;
+				final List<String> contextSourceLines;
 				final ProBError proBError;
 				if (e instanceof WithSourceCodeException) {
-					sourceLines = Arrays.asList(((WithSourceCodeException)e).getSourceCode().split("\n"));
+					contextSourceLines = Arrays.asList(((WithSourceCodeException)e).getSourceCode().split("\n"));
 					proBError = ((WithSourceCodeException)e).getCause();
 				} else {
-					sourceLines = Collections.emptyList();
+					contextSourceLines = null;
 					proBError = (ProBError)e;
 				}
 				final List<String> out = new ArrayList<>(Arrays.asList((
@@ -695,7 +731,7 @@ public final class ProBKernel extends BaseKernel {
 					for (final ErrorItem error : proBError.getErrors()) {
 						out.addAll(this.errorStyler.secondaryLines(error.toString()));
 						for (final ErrorItem.Location location : error.getLocations()) {
-							out.addAll(formatErrorSource(sourceLines, location));
+							out.addAll(formatErrorSource(contextSourceLines, location));
 						}
 					}
 				}
