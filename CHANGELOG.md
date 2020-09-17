@@ -4,6 +4,7 @@
 
 * Updated ProB 2 to version 4.0.0-SNAPSHOT.
 * Improved the performance of loading machines by reusing the existing instance of ProB instead of starting a new one for each machine.
+* Improved error highlighting for machines loaded from files and not from the notebook.
 * Significantly refactored the logic for parsing commands and their arguments.
 	* This is an internal change and should not affect any user-visible behavior. That is, all inputs that were accepted by previous versions should still be accepted - if any previously valid inputs are no longer accepted, this is a bug.
 	* As a side effect, the inspection and code completion features now work better in a few edge cases.
