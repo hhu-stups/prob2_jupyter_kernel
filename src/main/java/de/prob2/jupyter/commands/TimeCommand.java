@@ -63,7 +63,7 @@ public final class TimeCommand implements Command {
 	public @Nullable DisplayData run(final @NotNull ParsedArguments args) {
 		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
 		final Stopwatch stopwatch = Stopwatch.createStarted();
-		final DisplayData result = kernel.eval(args.get(COMMAND_AND_ARGS_PARAM));
+		final DisplayData result = kernel.evalOnCurrentThread(args.get(COMMAND_AND_ARGS_PARAM));
 		stopwatch.stop();
 		final Duration elapsed = stopwatch.elapsed();
 		final String text = String.format("Execution time: %d.%09d seconds", elapsed.get(ChronoUnit.SECONDS), elapsed.get(ChronoUnit.NANOS));

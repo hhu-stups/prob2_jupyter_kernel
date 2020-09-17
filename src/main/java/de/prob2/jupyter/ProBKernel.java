@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -23,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.util.concurrent.Futures;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -231,7 +237,8 @@ public final class ProBKernel extends BaseKernel {
 	private final @NotNull ReusableAnimator animator;
 	
 	private final @NotNull Map<@NotNull String, @NotNull Command> commands;
-	private final @NotNull AtomicReference<@Nullable Thread> currentEvalThread;
+	private final @NotNull ExecutorService commandExecutor;
+	private final @NotNull AtomicReference<@NotNull Future<@Nullable DisplayData>> currentCommandFuture;
 	private final @NotNull Map<@NotNull String, @NotNull String> variables;
 	
 	private @NotNull Path currentMachineDirectory;
@@ -251,7 +258,8 @@ public final class ProBKernel extends BaseKernel {
 			.map(injector::getInstance)
 			.collect(Collectors.toMap(Command::getName, cmd -> cmd));
 		
-		this.currentEvalThread = new AtomicReference<>(null);
+		this.commandExecutor = Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "Command Executor"));
+		this.currentCommandFuture = new AtomicReference<>(Futures.immediateCancelledFuture());
 		this.variables = new HashMap<>();
 		
 		this.currentMachineDirectory = Paths.get("");
@@ -469,16 +477,35 @@ public final class ProBKernel extends BaseKernel {
 		return this.executeCommand(split.getName(), split.getArgString());
 	}
 	
+	public @Nullable DisplayData evalOnCurrentThread(final @NotNull String expr) {
+		return this.evalInternal(new PositionedString(expr, 0));
+	}
+	
 	@Override
 	public @Nullable DisplayData eval(final String expr) {
 		assert expr != null;
 		
-		this.currentEvalThread.set(Thread.currentThread());
+		final Future<DisplayData> oldFuture = this.currentCommandFuture.get();
+		assert oldFuture.isDone() || oldFuture.isCancelled();
 		
+		final Future<DisplayData> future = this.commandExecutor.submit(() -> this.evalOnCurrentThread(expr));
+		this.currentCommandFuture.set(future);
 		try {
-			return evalInternal(new PositionedString(expr, 0));
-		} finally {
-			this.currentEvalThread.set(null);
+			return future.get();
+		} catch (final InterruptedException e) {
+			LOGGER.error("Main kernel thread (event loop thread) interrupted while executing command", e);
+			Thread.currentThread().interrupt();
+			return null;
+		} catch (final CancellationException e) {
+			LOGGER.info("Command execution cancelled by user", e);
+			throw new UserErrorException("Interrupted by user");
+		} catch (final ExecutionException e) {
+			LOGGER.warn("Exception while executing command", e);
+			if (e.getCause() instanceof RuntimeException) {
+				throw (RuntimeException)e.getCause();
+			} else {
+				throw new IllegalStateException("Checked exception thrown by command, this should never happen", e);
+			}
 		}
 	}
 	
@@ -612,14 +639,12 @@ public final class ProBKernel extends BaseKernel {
 	@Override
 	public void onShutdown(final boolean isRestarting) {
 		this.animationSelector.getCurrentTrace().getStateSpace().kill();
+		this.commandExecutor.shutdownNow();
 	}
 	
 	@Override
 	public void interrupt() {
-		final Thread evalThread = this.currentEvalThread.get();
-		if (evalThread != null) {
-			evalThread.interrupt();
-		}
+		this.currentCommandFuture.get().cancel(true);
 		this.animationSelector.getCurrentTrace().getStateSpace().sendInterrupt();
 	}
 	
