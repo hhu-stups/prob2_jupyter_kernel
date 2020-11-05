@@ -40,7 +40,8 @@ public final class HelpCommand implements Command {
 			PrettyPrintCommand.class,
 			LetCommand.class,
 			UnletCommand.class,
-			AssertCommand.class
+			AssertCommand.class,
+			LanguageCommand.class
 		)));
 		commandCategories.put("Animation", Collections.unmodifiableList(Arrays.asList(
 			LoadCellCommand.class,

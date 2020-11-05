@@ -95,8 +95,9 @@ public final class DotCommand implements Command {
 		final List<IEvalElement> dotCommandArgs;
 		final String code;
 		if (args.get(FORMULA_PARAM).isPresent()) {
-			code = this.kernelProvider.get().insertLetVariables(args.get(FORMULA_PARAM).get());
-			final IEvalElement formula = CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().getModel().parseFormula(code, FormulaExpand.EXPAND));
+			final ProBKernel kernel = this.kernelProvider.get();
+			code = kernel.insertLetVariables(args.get(FORMULA_PARAM).get());
+			final IEvalElement formula = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
 			dotCommandArgs = Collections.singletonList(formula);
 		} else {
 			code = null;

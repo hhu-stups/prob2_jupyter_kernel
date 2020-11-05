@@ -65,9 +65,10 @@ public final class TypeCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final ProBKernel kernel = this.kernelProvider.get();
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String code = this.kernelProvider.get().insertLetVariables(args.get(FORMULA_PARAM));
-		final IEvalElement formula = CommandUtils.withSourceCode(code, () -> trace.getModel().parseFormula(code, FormulaExpand.EXPAND));
+		final String code = kernel.insertLetVariables(args.get(FORMULA_PARAM));
+		final IEvalElement formula = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
 		final TypeCheckResult result = trace.getStateSpace().typeCheck(formula);
 		if (result.isOk()) {
 			return new DisplayData(result.getType());

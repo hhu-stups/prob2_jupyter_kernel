@@ -374,6 +374,7 @@ public final class CommandUtils {
 				return null;
 			}
 			final String identifier = identifierMatcher.group();
+			// TODO Handle non-default languages (i. e. forced classical B or Event-B parsing) - important for the different meaning of INT in classical B vs. Event-B
 			final IEvalElement formula = trace.getModel().parseFormula(identifier, FormulaExpand.TRUNCATE);
 			final TypeCheckResult type = trace.getStateSpace().typeCheck(formula);
 			final AbstractEvalResult currentValue = trace.evalCurrent(formula);

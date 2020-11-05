@@ -34,8 +34,11 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import de.prob.animator.ReusableAnimator;
+import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.ErrorItem;
+import de.prob.animator.domainobjects.EventB;
 import de.prob.animator.domainobjects.FormulaExpand;
+import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.exception.ProBError;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
@@ -55,6 +58,7 @@ import de.prob2.jupyter.commands.GotoCommand;
 import de.prob2.jupyter.commands.GroovyCommand;
 import de.prob2.jupyter.commands.HelpCommand;
 import de.prob2.jupyter.commands.InitialiseCommand;
+import de.prob2.jupyter.commands.LanguageCommand;
 import de.prob2.jupyter.commands.LetCommand;
 import de.prob2.jupyter.commands.LoadCellCommand;
 import de.prob2.jupyter.commands.LoadFileCommand;
@@ -153,6 +157,7 @@ public final class ProBKernel extends BaseKernel {
 		GroovyCommand.class,
 		HelpCommand.class,
 		InitialiseCommand.class,
+		LanguageCommand.class,
 		LetCommand.class,
 		LoadCellCommand.class,
 		LoadFileCommand.class,
@@ -242,6 +247,7 @@ public final class ProBKernel extends BaseKernel {
 	private final @NotNull Map<@NotNull String, @NotNull String> variables;
 	
 	private @NotNull Path currentMachineDirectory;
+	private @NotNull FormulaLanguage currentFormulaLanguage;
 	private @Nullable String currentCellSourceCode;
 	
 	@Inject
@@ -262,7 +268,10 @@ public final class ProBKernel extends BaseKernel {
 		this.currentCommandFuture = new AtomicReference<>(Futures.immediateCancelledFuture());
 		this.variables = new HashMap<>();
 		
+		// These variables need to be initialized here,
+		// but they will be overwritten immediately by the switchMachine call.
 		this.currentMachineDirectory = Paths.get("");
+		this.currentFormulaLanguage = FormulaLanguage.DEFAULT;
 		this.currentCellSourceCode = null;
 		this.switchMachine(Paths.get(""), null, this::loadDefaultMachine);
 	}
@@ -295,6 +304,14 @@ public final class ProBKernel extends BaseKernel {
 		this.currentMachineDirectory = currentMachineDirectory;
 	}
 	
+	public @NotNull FormulaLanguage getCurrentFormulaLanguage() {
+		return this.currentFormulaLanguage;
+	}
+	
+	public void setCurrentFormulaLanguage(final @NotNull FormulaLanguage currentFormulaLanguage) {
+		this.currentFormulaLanguage = currentFormulaLanguage;
+	}
+	
 	public void unloadMachine() {
 		final Trace oldTrace = this.animationSelector.getCurrentTrace();
 		if (oldTrace != null) {
@@ -312,6 +329,7 @@ public final class ProBKernel extends BaseKernel {
 	
 	public void switchMachine(final @NotNull Path machineDirectory, final @Nullable String cellSourceCode, final @NotNull Function<@NotNull StateSpace, @NotNull Trace> newTraceCreator) {
 		this.unloadMachine();
+		this.setCurrentFormulaLanguage(FormulaLanguage.DEFAULT);
 		this.currentCellSourceCode = cellSourceCode;
 		final StateSpace newStateSpace = this.animator.createStateSpace();
 		try {
@@ -323,6 +341,30 @@ public final class ProBKernel extends BaseKernel {
 			throw e;
 		}
 		this.setCurrentMachineDirectory(machineDirectory);
+	}
+	
+	/**
+	 * Parse the given formula code into an {@link IEvalElement}.
+	 * The language used for parsing depends on the current formula language (see {@link #getCurrentFormulaLanguage()}.
+	 * 
+	 * @param code the formula code
+	 * @param expand the expansion mode to use when evaluating the formula
+	 * @return the parsed formula
+	 */
+	public IEvalElement parseFormula(final String code, final FormulaExpand expand) {
+		switch (this.getCurrentFormulaLanguage()) {
+			case DEFAULT:
+				return this.animationSelector.getCurrentTrace().getModel().parseFormula(code, expand);
+			
+			case CLASSICAL_B:
+				return new ClassicalB(code, expand);
+			
+			case EVENT_B:
+				return new EventB(code, expand);
+			
+			default:
+				throw new AssertionError("Unhandled formula parse mode: " + this.getCurrentFormulaLanguage());
+		}
 	}
 	
 	public @NotNull DisplayData executeOperation(final @NotNull String name, final @Nullable String predicate) {

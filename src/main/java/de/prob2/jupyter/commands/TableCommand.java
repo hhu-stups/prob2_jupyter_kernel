@@ -70,9 +70,10 @@ public final class TableCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final ProBKernel kernel = this.kernelProvider.get();
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String code = this.kernelProvider.get().insertLetVariables(args.get(EXPRESSION_PARAM));
-		final IEvalElement formula = CommandUtils.withSourceCode(code, () -> trace.getModel().parseFormula(code, FormulaExpand.EXPAND));
+		final String code = kernel.insertLetVariables(args.get(EXPRESSION_PARAM));
+		final IEvalElement formula = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
 		
 		final GetAllTableCommands cmd1 = new GetAllTableCommands(trace.getCurrentState());
 		trace.getStateSpace().execute(cmd1);

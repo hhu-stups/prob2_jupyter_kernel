@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import de.prob.animator.domainobjects.FormulaExpand;
+import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
@@ -62,8 +63,10 @@ public final class EvalCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final String code = this.injector.getInstance(ProBKernel.class).insertLetVariables(args.get(FORMULA_PARAM));
-		return CommandUtils.displayDataForEvalResult(CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().evalCurrent(code, FormulaExpand.EXPAND)));
+		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
+		final String code = kernel.insertLetVariables(args.get(FORMULA_PARAM));
+		final IEvalElement formula = kernel.parseFormula(code, FormulaExpand.EXPAND);
+		return CommandUtils.displayDataForEvalResult(CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().evalCurrent(formula)));
 	}
 	
 	@Override

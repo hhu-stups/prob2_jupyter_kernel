@@ -64,10 +64,11 @@ public final class FindCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final ProBKernel kernel = this.kernelProvider.get();
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String code = this.kernelProvider.get().insertLetVariables(args.get(PREDICATE_PARAM));
+		final String code = kernel.insertLetVariables(args.get(PREDICATE_PARAM));
 		final Trace newTrace = CommandUtils.withSourceCode(code, () -> {
-			final IEvalElement pred = trace.getModel().parseFormula(code, FormulaExpand.EXPAND);
+			final IEvalElement pred = kernel.parseFormula(code, FormulaExpand.EXPAND);
 			return trace.getStateSpace().getTraceToState(pred);
 		});
 		this.animationSelector.changeCurrentAnimation(newTrace);

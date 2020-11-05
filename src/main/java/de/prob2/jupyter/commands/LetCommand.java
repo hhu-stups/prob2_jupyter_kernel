@@ -8,6 +8,7 @@ import com.google.inject.Provider;
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.FormulaExpand;
+import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
@@ -67,10 +68,12 @@ public final class LetCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final String name = args.get(NAME_PARAM);
-		final String expr = this.kernelProvider.get().insertLetVariables(args.get(EXPRESSION_PARAM));
-		final AbstractEvalResult evaluated = CommandUtils.withSourceCode(expr, () -> this.animationSelector.getCurrentTrace().evalCurrent(expr, FormulaExpand.EXPAND));
+		final ProBKernel kernel = this.kernelProvider.get();
+		final String expr = kernel.insertLetVariables(args.get(EXPRESSION_PARAM));
+		final IEvalElement formula = kernel.parseFormula(expr, FormulaExpand.EXPAND);
+		final AbstractEvalResult evaluated = CommandUtils.withSourceCode(expr, () -> this.animationSelector.getCurrentTrace().evalCurrent(formula));
 		if (evaluated instanceof EvalResult) {
-			this.kernelProvider.get().getVariables().put(name, evaluated.toString());
+			kernel.getVariables().put(name, evaluated.toString());
 		}
 		return CommandUtils.displayDataForEvalResult(evaluated);
 	}

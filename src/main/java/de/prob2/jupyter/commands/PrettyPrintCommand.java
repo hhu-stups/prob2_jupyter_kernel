@@ -3,6 +3,7 @@ package de.prob2.jupyter.commands;
 import java.util.Collections;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import de.prob.animator.command.PrettyPrintFormulaCommand;
 import de.prob.animator.domainobjects.FormulaExpand;
@@ -15,6 +16,7 @@ import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
+import de.prob2.jupyter.ProBKernel;
 
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
@@ -23,12 +25,14 @@ import org.jetbrains.annotations.NotNull;
 public final class PrettyPrintCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle PREDICATE_PARAM = Parameter.requiredRemainder("predicate");
 	
+	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final AnimationSelector animationSelector;
 	
 	@Inject
-	private PrettyPrintCommand(final AnimationSelector animationSelector) {
+	private PrettyPrintCommand(final @NotNull Provider<@NotNull ProBKernel> kernelProvider, final AnimationSelector animationSelector) {
 		super();
 		
+		this.kernelProvider = kernelProvider;
 		this.animationSelector = animationSelector;
 	}
 	
@@ -61,7 +65,7 @@ public final class PrettyPrintCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final String code = args.get(PREDICATE_PARAM);
-		final IEvalElement formula = this.animationSelector.getCurrentTrace().getModel().parseFormula(code, FormulaExpand.EXPAND);
+		final IEvalElement formula = this.kernelProvider.get().parseFormula(code, FormulaExpand.EXPAND);
 		
 		final PrettyPrintFormulaCommand cmdUnicode = new PrettyPrintFormulaCommand(formula, PrettyPrintFormulaCommand.Mode.UNICODE);
 		cmdUnicode.setOptimize(false);

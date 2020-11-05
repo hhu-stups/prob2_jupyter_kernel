@@ -80,13 +80,14 @@ public final class SolveCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final ProBKernel kernel = this.kernelProvider.get();
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final CbcSolveCommand.Solvers solver = SOLVERS.get(args.get(SOLVER_PARAM));
 		if (solver == null) {
 			throw new UserErrorException("Unknown solver: " + args.get(SOLVER_PARAM));
 		}
-		final String code = this.kernelProvider.get().insertLetVariables(args.get(PREDICATE_PARAM));
-		final IEvalElement predicate = CommandUtils.withSourceCode(code, () -> trace.getModel().parseFormula(code, FormulaExpand.EXPAND));
+		final String code = kernel.insertLetVariables(args.get(PREDICATE_PARAM));
+		final IEvalElement predicate = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
 		
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());
 		trace.getStateSpace().execute(cmd);

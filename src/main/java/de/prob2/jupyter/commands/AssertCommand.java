@@ -8,6 +8,7 @@ import com.google.inject.Provider;
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.FormulaExpand;
+import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
@@ -67,8 +68,10 @@ public final class AssertCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final String code = this.kernelProvider.get().insertLetVariables(args.get(FORMULA_PARAM));
-		final AbstractEvalResult result = CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().evalCurrent(code, FormulaExpand.TRUNCATE));
+		final ProBKernel kernel = this.kernelProvider.get();
+		final String code = kernel.insertLetVariables(args.get(FORMULA_PARAM));
+		final IEvalElement formula = kernel.parseFormula(code, FormulaExpand.TRUNCATE);
+		final AbstractEvalResult result = CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().evalCurrent(formula));
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
 			// Use EvalResult.TRUE instead of the real result so that solution variables are not displayed.
 			return CommandUtils.displayDataForEvalResult(EvalResult.TRUE);
