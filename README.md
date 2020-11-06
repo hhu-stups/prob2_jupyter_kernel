@@ -4,11 +4,14 @@
 
 This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and model checker](https://www3.hhu.de/stups/prob/), based on the [ProB 2 Java API](https://github.com/hhu-stups/prob2_kernel) and the [Jupyter JVM BaseKernel](https://github.com/SpencerPark/jupyter-jvm-basekernel) library.
 
-[Download the latest version here][current-download].
-
-See the [requirements](#requirements) and [installation instructions](#installation) for information on how to install and use the downloaded jar file. Download links for previous versions can be found in the [changelog].
-
 **Note:** The project is still in development, but the syntax and commands accepted by the kernel are relatively stable. Small breaking changes in future versions are possible, but unlikely.
+
+## Downloads
+
+* **[Download the latest version here](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar).**
+* Download links for previous versions can be found in the [changelog].
+
+See the [requirements](#requirements) and [installation instructions](#installation) for information on how to install and use the downloaded jar file.
 
 ## Requirements
 
@@ -25,7 +28,7 @@ See the [requirements](#requirements) and [installation instructions](#installat
 ### For end users
 
 1. Ensure that all [requirements](#requirements) are installed.
-2. [Download the latest version of the kernel][current-download].
+2. [Download the latest version of the kernel](#downloads).
 3. If Jupyter is installed in a virtual environment, activate it.
 4. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
 	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
@@ -84,5 +87,4 @@ An article about the ProB Jupyter kernel has been [published at ABZ'2020](https:
 }
 ```
 
-[current-download]: https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar
 [changelog]: ./CHANGELOG.md
