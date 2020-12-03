@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import de.prob.animator.command.GetAllDotCommands;
-import de.prob.animator.command.GetSvgForVisualizationCommand;
+import de.prob.animator.domainobjects.DotVisualizationCommand;
 import de.prob.animator.domainobjects.DynamicCommandItem;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
@@ -105,9 +105,8 @@ public final class DotCommand implements Command {
 		}
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final GetAllDotCommands cmd1 = new GetAllDotCommands(trace.getCurrentState());
-		trace.getStateSpace().execute(cmd1);
-		final DynamicCommandItem item = cmd1.getCommands().stream()
+		final DotVisualizationCommand dotCommand = DotVisualizationCommand.getAll(trace.getCurrentState())
+			.stream()
 			.filter(i -> command.equals(i.getCommand()))
 			.findAny()
 			.orElseThrow(() -> new UserErrorException("No such dot command: " + command));
@@ -118,9 +117,8 @@ public final class DotCommand implements Command {
 		} catch (final IOException e) {
 			throw new UncheckedIOException("Failed to create temp file", e);
 		}
-		final GetSvgForVisualizationCommand cmd2 = new GetSvgForVisualizationCommand(trace.getCurrentState(), item, outPath.toFile(), dotCommandArgs);
 		// Provide source code (if any) to error highlighter
-		final Runnable execute = () -> trace.getStateSpace().execute(cmd2);
+		final Runnable execute = () -> dotCommand.visualizeAsSvgToFile(outPath, dotCommandArgs);
 		if (code != null) {
 			CommandUtils.withSourceCode(code, execute);
 		} else {
@@ -153,7 +151,8 @@ public final class DotCommand implements Command {
 				final GetAllDotCommands cmd = new GetAllDotCommands(trace.getCurrentState());
 				trace.getStateSpace().execute(cmd);
 				final String prefix = commandName.substring(0, at);
-				final List<String> commands = cmd.getCommands().stream()
+				final List<String> commands = DotVisualizationCommand.getAll(trace.getCurrentState())
+					.stream()
 					.filter(DynamicCommandItem::isAvailable)
 					.map(DynamicCommandItem::getCommand)
 					.filter(s -> s.startsWith(prefix))

@@ -7,12 +7,10 @@ import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import de.prob.animator.command.GetAllTableCommands;
-import de.prob.animator.command.GetTableForVisualizationCommand;
-import de.prob.animator.domainobjects.DynamicCommandItem;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.animator.domainobjects.TableData;
+import de.prob.animator.domainobjects.TableVisualizationCommand;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
@@ -75,15 +73,12 @@ public final class TableCommand implements Command {
 		final String code = kernel.insertLetVariables(args.get(EXPRESSION_PARAM));
 		final IEvalElement formula = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
 		
-		final GetAllTableCommands cmd1 = new GetAllTableCommands(trace.getCurrentState());
-		trace.getStateSpace().execute(cmd1);
-		final DynamicCommandItem dc = cmd1.getCommands().stream()
+		final TableData table = TableVisualizationCommand.getAll(trace.getCurrentState())
+			.stream()
 			.filter(c -> "expr_as_table".equals(c.getCommand()))
 			.findAny()
-			.orElseThrow(AssertionError::new);
-		final GetTableForVisualizationCommand cmd2 = new GetTableForVisualizationCommand(trace.getCurrentState(), dc, Collections.singletonList(formula));
-		trace.getStateSpace().execute(cmd2);
-		final TableData table = cmd2.getTable();
+			.orElseThrow(AssertionError::new)
+			.visualize(Collections.singletonList(formula));
 		
 		final StringBuilder sbPlain = new StringBuilder();
 		final StringBuilder sbMarkdown = new StringBuilder();
