@@ -1,14 +1,10 @@
 package de.prob2.jupyter.commands;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -111,24 +107,13 @@ public final class DotCommand implements Command {
 			.findAny()
 			.orElseThrow(() -> new UserErrorException("No such dot command: " + command));
 		
-		final Path outPath;
-		try {
-			outPath = Files.createTempFile(null, "svg");
-		} catch (final IOException e) {
-			throw new UncheckedIOException("Failed to create temp file", e);
-		}
 		// Provide source code (if any) to error highlighter
-		final Runnable execute = () -> dotCommand.visualizeAsSvgToFile(outPath, dotCommandArgs);
-		if (code != null) {
-			CommandUtils.withSourceCode(code, execute);
-		} else {
-			execute.run();
-		}
+		final Supplier<String> execute = () -> dotCommand.visualizeAsSvgToString(dotCommandArgs);
 		final String svg;
-		try (final Stream<String> lines = Files.lines(outPath)) {
-			svg = lines.collect(Collectors.joining("\n"));
-		} catch (final IOException e) {
-			throw new UncheckedIOException("Failed to read dot output", e);
+		if (code != null) {
+			svg = CommandUtils.withSourceCode(code, execute);
+		} else {
+			svg = execute.get();
 		}
 		final DisplayData result = new DisplayData(String.format("<Dot visualization: %s %s>", command, dotCommandArgs));
 		result.putSVG(svg);
