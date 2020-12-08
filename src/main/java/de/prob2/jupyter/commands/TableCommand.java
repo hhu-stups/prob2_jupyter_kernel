@@ -73,11 +73,7 @@ public final class TableCommand implements Command {
 		final String code = kernel.insertLetVariables(args.get(EXPRESSION_PARAM));
 		final IEvalElement formula = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
 		
-		final TableData table = TableVisualizationCommand.getAll(trace.getCurrentState())
-			.stream()
-			.filter(c -> "expr_as_table".equals(c.getCommand()))
-			.findAny()
-			.orElseThrow(AssertionError::new)
+		final TableData table = TableVisualizationCommand.getByName(TableVisualizationCommand.EXPRESSION_AS_TABLE_NAME, trace.getCurrentState())
 			.visualize(Collections.singletonList(formula));
 		
 		final StringBuilder sbPlain = new StringBuilder();

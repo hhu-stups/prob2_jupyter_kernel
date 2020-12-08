@@ -101,11 +101,12 @@ public final class DotCommand implements Command {
 		}
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final DotVisualizationCommand dotCommand = DotVisualizationCommand.getAll(trace.getCurrentState())
-			.stream()
-			.filter(i -> command.equals(i.getCommand()))
-			.findAny()
-			.orElseThrow(() -> new UserErrorException("No such dot command: " + command));
+		final DotVisualizationCommand dotCommand;
+		try {
+			dotCommand = DotVisualizationCommand.getByName(command, trace.getCurrentState());
+		} catch (final IllegalArgumentException e) {
+			throw new UserErrorException("No such dot command: " + command, e);
+		}
 		
 		// Provide source code (if any) to error highlighter
 		final Supplier<String> execute = () -> dotCommand.visualizeAsSvgToString(dotCommandArgs);
