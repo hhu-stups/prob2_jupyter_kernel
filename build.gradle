@@ -46,8 +46,10 @@ dependencies {
 	implementation(group: "se.sawano.java", name: "alphanumeric-comparator", version: "1.4.1")
 }
 
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 tasks.withType(JavaCompile) {
 	options.encoding = SOURCE_ENCODING
@@ -71,13 +73,17 @@ processResources {
 	}
 }
 
-mainClassName = "de.prob2.jupyter.Main"
+application {
+	mainClass = "de.prob2.jupyter.Main"
+}
+// Workaround for https://github.com/johnrengelman/shadow/issues/609
+mainClassName = application.mainClass.get()
 
 final KERNEL_SPEC_OUTPUT_PATH = project.buildDir.toPath().resolve(Paths.get("kernelspec"))
 
 task createKernelSpec(type: JavaExec) {
 	dependsOn = [shadowJar]
-	main = project.mainClassName
+	mainClass = application.mainClass
 	args = ["createKernelSpec", KERNEL_SPEC_OUTPUT_PATH.toString()]
 	classpath(shadowJar.archiveFile)
 	if (project.hasProperty("probHome")) {
