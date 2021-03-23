@@ -8,7 +8,7 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 
 ## Downloads
 
-* **[Download the latest version here](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar).**
+* **[Download the latest version of the ProB2 Jupyter kernel here](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar).**
 * Download links for previous versions can be found in the [changelog].
 * A [snapshot build](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.2.1-SNAPSHOT-all.jar?job=test) of the latest development version is also available. **Warning:** this is an unstable version that can contain bugs or breaking changes.
 
@@ -18,7 +18,7 @@ See the [requirements](#requirements) and [installation instructions](#installat
 
 * Java 8 or newer
 	* Tested up to Java 14.
-* A Python 3 interpreter with Jupyter installed
+* A Python 3 interpreter with [Jupyter installed](https://jupyter.org/install)
 	* Tested with CPython 3.8 and Jupyter core/Notebook 6.x.
 	* Older Python and Jupyter versions should also work (see below), but if possible please use the current versions of Python and Jupyter.
 	* This kernel requires version 5.0 of the kernel message protocol, which is supported by all versions of Jupyter (since the split from IPython, i. e. 4.x and later), as well as IPython Notebook 3.x.
