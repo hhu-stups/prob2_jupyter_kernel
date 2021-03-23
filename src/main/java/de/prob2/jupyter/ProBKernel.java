@@ -320,6 +320,7 @@ public final class ProBKernel extends BaseKernel {
 			oldTrace.getStateSpace().kill();
 		}
 		this.setCurrentMachineDirectory(Paths.get(""));
+		this.getVariables().clear();
 	}
 	
 	private @NotNull Trace loadDefaultMachine(final @NotNull StateSpace stateSpace) {

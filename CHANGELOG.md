@@ -6,6 +6,7 @@
 * Added a `:language` command to allow changing the language used to parse user input. For example `:language event_b` can be used to switch to Event-B syntax when a non-Event-B machine is loaded (or no machine at all).
 * Improved the performance of loading machines by reusing the existing instance of ProB instead of starting a new one for each machine.
 * Improved error highlighting for machines loaded from files and not from the notebook.
+* Local variables (created using `:let`) are now discarded when a new machine is loaded. Previously local variables would be remembered even across machine loads, which could lead to confusing behavior and errors.
 * Significantly refactored the logic for parsing commands and their arguments.
 	* This is an internal change and should not affect any user-visible behavior. That is, all inputs that were accepted by previous versions should still be accepted - if any previously valid inputs are no longer accepted, this is a bug.
 	* As a side effect, the inspection and code completion features now work better in a few edge cases.
