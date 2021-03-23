@@ -2,7 +2,7 @@
 
 ## [(next version)](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.2.1-SNAPSHOT-all.jar?job=test)
 
-* Updated ProB 2 to version 3.14.0.
+* Updated ProB 2 to version 4.0.0-SNAPSHOT.
 * Added a `:language` command to allow changing the language used to parse user input. For example `:language event_b` can be used to switch to Event-B syntax when a non-Event-B machine is loaded (or no machine at all).
 * Improved the performance of loading machines by reusing the existing instance of ProB instead of starting a new one for each machine.
 * Improved error highlighting for machines loaded from files and not from the notebook.
