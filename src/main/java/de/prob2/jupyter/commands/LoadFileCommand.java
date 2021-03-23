@@ -17,7 +17,6 @@ import com.google.inject.Provider;
 
 import de.prob.scripting.FactoryProvider;
 import de.prob.scripting.ModelFactory;
-import de.prob.scripting.ModelTranslationError;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
@@ -106,7 +105,7 @@ public final class LoadFileCommand implements Command {
 			stateSpace.changePreferences(preferences);
 			try {
 				factory.extract(machineFilePath.toString()).loadIntoStateSpace(stateSpace);
-			} catch (final IOException | ModelTranslationError e) {
+			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
 			return new Trace(stateSpace);
