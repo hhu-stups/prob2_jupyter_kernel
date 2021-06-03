@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.inject.Inject;
 
+import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
@@ -66,7 +67,7 @@ public final class TraceCommand implements Command {
 		
 		final List<Transition> transitionList = trace.getTransitionList();
 		for (int i = 0; i < transitionList.size(); i++) {
-			final Transition transition = transitionList.get(i);
+			final Transition transition = transitionList.get(i).evaluate(FormulaExpand.TRUNCATE);
 			sbPlain.append('\n');
 			sbPlain.append(i);
 			sbPlain.append(": ");

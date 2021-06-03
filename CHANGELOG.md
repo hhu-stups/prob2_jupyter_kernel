@@ -11,6 +11,7 @@
 	* This is an internal change and should not affect any user-visible behavior. That is, all inputs that were accepted by previous versions should still be accepted - if any previously valid inputs are no longer accepted, this is a bug.
 	* As a side effect, the inspection and code completion features now work better in a few edge cases.
 * Fixed a bug where interrupting a command could make the kernel completely stop responding, requiring a manual restart.
+* Fixed the `:trace` command sometimes displaying transitions as `null`.
 
 ## [1.2.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar)
 
