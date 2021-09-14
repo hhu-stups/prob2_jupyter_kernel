@@ -75,8 +75,6 @@ processResources {
 application {
 	mainClass = "de.prob2.jupyter.Main"
 }
-// Workaround for https://github.com/johnrengelman/shadow/issues/609
-mainClassName = application.mainClass.get()
 
 final KERNEL_SPEC_OUTPUT_PATH = project.buildDir.toPath().resolve(Paths.get("kernelspec"))
 
