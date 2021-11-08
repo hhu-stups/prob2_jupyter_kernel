@@ -86,8 +86,7 @@ public final class SolveCommand implements Command {
 		if (solver == null) {
 			throw new UserErrorException("Unknown solver: " + args.get(SOLVER_PARAM));
 		}
-		final String code = kernel.insertLetVariables(args.get(PREDICATE_PARAM));
-		final IEvalElement predicate = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
+		final IEvalElement predicate = kernel.parseFormula(args.get(PREDICATE_PARAM), FormulaExpand.EXPAND);
 		
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());
 		trace.getStateSpace().execute(cmd);

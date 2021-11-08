@@ -88,16 +88,12 @@ public final class DotCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final String command = args.get(COMMAND_PARAM);
-		final List<IEvalElement> dotCommandArgs;
-		final String code;
+		final IEvalElement formula;
 		if (args.get(FORMULA_PARAM).isPresent()) {
 			final ProBKernel kernel = this.kernelProvider.get();
-			code = kernel.insertLetVariables(args.get(FORMULA_PARAM).get());
-			final IEvalElement formula = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
-			dotCommandArgs = Collections.singletonList(formula);
+			formula = kernel.parseFormula(args.get(FORMULA_PARAM).get(), FormulaExpand.EXPAND);
 		} else {
-			code = null;
-			dotCommandArgs = Collections.emptyList();
+			formula = null;
 		}
 		
 		final Trace trace = this.animationSelector.getCurrentTrace();
@@ -108,13 +104,14 @@ public final class DotCommand implements Command {
 			throw new UserErrorException("No such dot command: " + command, e);
 		}
 		
-		// Provide source code (if any) to error highlighter
-		final Supplier<String> execute = () -> dotCommand.visualizeAsSvgToString(dotCommandArgs);
+		final List<IEvalElement> dotCommandArgs;
 		final String svg;
-		if (code != null) {
-			svg = CommandUtils.withSourceCode(code, execute);
+		if (formula != null) {
+			dotCommandArgs = Collections.singletonList(formula);
+			svg = CommandUtils.withSourceCode(formula, () -> dotCommand.visualizeAsSvgToString(dotCommandArgs));
 		} else {
-			svg = execute.get();
+			dotCommandArgs = Collections.emptyList();
+			svg = dotCommand.visualizeAsSvgToString(dotCommandArgs);
 		}
 		final DisplayData result = new DisplayData(String.format("<Dot visualization: %s %s>", command, dotCommandArgs));
 		result.putSVG(svg);

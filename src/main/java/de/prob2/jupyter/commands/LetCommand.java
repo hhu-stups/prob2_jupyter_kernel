@@ -69,9 +69,8 @@ public final class LetCommand implements Command {
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final String name = args.get(NAME_PARAM);
 		final ProBKernel kernel = this.kernelProvider.get();
-		final String expr = kernel.insertLetVariables(args.get(EXPRESSION_PARAM));
-		final IEvalElement formula = kernel.parseFormula(expr, FormulaExpand.EXPAND);
-		final AbstractEvalResult evaluated = CommandUtils.withSourceCode(expr, () -> this.animationSelector.getCurrentTrace().evalCurrent(formula));
+		final IEvalElement formula = kernel.parseFormula(args.get(EXPRESSION_PARAM), FormulaExpand.EXPAND);
+		final AbstractEvalResult evaluated = CommandUtils.withSourceCode(formula, () -> this.animationSelector.getCurrentTrace().evalCurrent(formula));
 		if (evaluated instanceof EvalResult) {
 			kernel.getVariables().put(name, evaluated.toString());
 		}

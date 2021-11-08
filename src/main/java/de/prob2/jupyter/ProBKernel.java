@@ -347,12 +347,14 @@ public final class ProBKernel extends BaseKernel {
 	/**
 	 * Parse the given formula code into an {@link IEvalElement}.
 	 * The language used for parsing depends on the current formula language (see {@link #getCurrentFormulaLanguage()}.
+	 * Unlike {@link #parseFormula(String, FormulaExpand)},
+	 * this method does not automatically insert local variables into the code.
 	 * 
 	 * @param code the formula code
 	 * @param expand the expansion mode to use when evaluating the formula
 	 * @return the parsed formula
 	 */
-	public IEvalElement parseFormula(final String code, final FormulaExpand expand) {
+	public IEvalElement parseFormulaWithoutLetVariables(final String code, final FormulaExpand expand) {
 		switch (this.getCurrentFormulaLanguage()) {
 			case DEFAULT:
 				return this.animationSelector.getCurrentTrace().getModel().parseFormula(code, expand);
@@ -368,16 +370,30 @@ public final class ProBKernel extends BaseKernel {
 		}
 	}
 	
+	/**
+	 * Parse the given formula code into an {@link IEvalElement}.
+	 * The language used for parsing depends on the current formula language (see {@link #getCurrentFormulaLanguage()}.
+	 * Any currently defined local variables are automatically inserted before parsing.
+	 * This can be avoided if necessary using {@link #parseFormulaWithoutLetVariables(String, FormulaExpand)}.
+	 * 
+	 * @param code the formula code
+	 * @param expand the expansion mode to use when evaluating the formula
+	 * @return the parsed formula
+	 */
+	public IEvalElement parseFormula(final String code, final FormulaExpand expand) {
+		return this.parseFormulaWithoutLetVariables(CommandUtils.insertLetVariables(code, this.getVariables()), expand);
+	}
+	
 	public @NotNull DisplayData executeOperation(final @NotNull String name, final @Nullable String predicate) {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final String translatedOpName = Transition.unprettifyName(name);
-		final String modifiedPredicate;
+		final IEvalElement parsedPredicate;
 		if (predicate == null) {
-			modifiedPredicate = "1=1";
+			parsedPredicate = this.parseFormulaWithoutLetVariables("1=1", FormulaExpand.EXPAND);
 		} else {
-			modifiedPredicate = this.insertLetVariables(predicate);
+			parsedPredicate = this.parseFormula(predicate, FormulaExpand.EXPAND);
 		}
-		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, modifiedPredicate, 1);
+		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, parsedPredicate, 1);
 		assert !ops.isEmpty();
 		final Transition op = ops.get(0);
 		
@@ -826,9 +842,5 @@ public final class ProBKernel extends BaseKernel {
 			LOGGER.error("Exception in error formatting", e2);
 			throw e2;
 		}
-	}
-	
-	public @NotNull String insertLetVariables(final @NotNull String code) {
-		return CommandUtils.insertLetVariables(code, this.getVariables());
 	}
 }

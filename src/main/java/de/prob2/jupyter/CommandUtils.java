@@ -211,6 +211,14 @@ public final class CommandUtils {
 		});
 	}
 	
+	public static <T> T withSourceCode(final @NotNull IEvalElement formula, final Supplier<T> action) {
+		return withSourceCode(formula.getCode(), action);
+	}
+	
+	public static void withSourceCode(final @NotNull IEvalElement formula, final Runnable action) {
+		withSourceCode(formula.getCode(), action);
+	}
+	
 	public static @NotNull String insertLetVariables(final @NotNull String code, final @NotNull Map<@NotNull String, @NotNull String> variables) {
 		if (variables.isEmpty()) {
 			return code;

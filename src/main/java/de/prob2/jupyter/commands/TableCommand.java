@@ -70,8 +70,7 @@ public final class TableCommand implements Command {
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final ProBKernel kernel = this.kernelProvider.get();
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String code = kernel.insertLetVariables(args.get(EXPRESSION_PARAM));
-		final IEvalElement formula = CommandUtils.withSourceCode(code, () -> kernel.parseFormula(code, FormulaExpand.EXPAND));
+		final IEvalElement formula = kernel.parseFormula(args.get(EXPRESSION_PARAM), FormulaExpand.EXPAND);
 		
 		final TableData table = TableVisualizationCommand.getByName(TableVisualizationCommand.EXPRESSION_AS_TABLE_NAME, trace.getCurrentState())
 			.visualize(Collections.singletonList(formula));

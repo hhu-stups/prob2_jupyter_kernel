@@ -66,11 +66,8 @@ public final class FindCommand implements Command {
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final ProBKernel kernel = this.kernelProvider.get();
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String code = kernel.insertLetVariables(args.get(PREDICATE_PARAM));
-		final Trace newTrace = CommandUtils.withSourceCode(code, () -> {
-			final IEvalElement pred = kernel.parseFormula(code, FormulaExpand.EXPAND);
-			return trace.getStateSpace().getTraceToState(pred);
-		});
+		final IEvalElement pred = kernel.parseFormula(args.get(PREDICATE_PARAM), FormulaExpand.EXPAND);
+		final Trace newTrace = CommandUtils.withSourceCode(pred, () -> trace.getStateSpace().getTraceToState(pred));
 		this.animationSelector.changeCurrentAnimation(newTrace);
 		return new DisplayData("Found a matching state and made it current state");
 	}

@@ -64,14 +64,13 @@ public final class PrettyPrintCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final String code = args.get(PREDICATE_PARAM);
-		final IEvalElement formula = this.kernelProvider.get().parseFormula(code, FormulaExpand.EXPAND);
+		final IEvalElement formula = this.kernelProvider.get().parseFormula(args.get(PREDICATE_PARAM), FormulaExpand.EXPAND);
 		
 		final PrettyPrintFormulaCommand cmdUnicode = new PrettyPrintFormulaCommand(formula, PrettyPrintFormulaCommand.Mode.UNICODE);
 		cmdUnicode.setOptimize(false);
 		final PrettyPrintFormulaCommand cmdLatex = new PrettyPrintFormulaCommand(formula, PrettyPrintFormulaCommand.Mode.LATEX);
 		cmdLatex.setOptimize(false);
-		CommandUtils.withSourceCode(code, () -> this.animationSelector.getCurrentTrace().getStateSpace().execute(cmdUnicode, cmdLatex));
+		CommandUtils.withSourceCode(formula, () -> this.animationSelector.getCurrentTrace().getStateSpace().execute(cmdUnicode, cmdLatex));
 		
 		final DisplayData ret = new DisplayData(cmdUnicode.getPrettyPrint());
 		ret.putLatex('$' + cmdLatex.getPrettyPrint() + '$');
