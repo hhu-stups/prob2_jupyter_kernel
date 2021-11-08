@@ -61,7 +61,7 @@ public final class LetCommand implements Command {
 	@Override
 	public @NotNull String getHelpBody() {
 		return "The expression is evaluated once in the current state, and its value is stored. Once set, variables are available in all states. A variable created by `:let` shadows any identifier with the same name from the machine.\n\n"
-			+ "Variables created by `:let` are retained even when a different machine is loaded. To remove a variable, use `:unlet`.\n\n"
+			+ "Variables created by `:let` are discarded when a new machine is loaded (or the current machine is reloaded). The `:unlet` command can also be used to manually remove local variables.\n\n"
 			+ "**Note:** The values of local variables are currently stored in text form. Values must have a syntactically valid text representation, and large values may cause performance issues.";
 	}
 	
