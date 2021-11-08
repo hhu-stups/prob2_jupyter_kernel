@@ -486,7 +486,8 @@ public final class ProBKernel extends BaseKernel {
 	
 	@Override
 	public @NotNull String getBanner() {
-		return "ProB Interactive Expression and Predicate Evaluator (on Jupyter)\nType \":help\" for more information.";
+		final String version = String.format("Version %s (%s)", getVersion(), getCommit());
+		return "ProB Interactive Expression and Predicate Evaluator (on Jupyter)\n" + version + "\nType \":help\" for a list of commands, \":version\" for full version information.";
 	}
 	
 	@Override
