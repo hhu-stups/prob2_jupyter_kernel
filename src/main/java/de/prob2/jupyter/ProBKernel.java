@@ -445,7 +445,8 @@ public final class ProBKernel extends BaseKernel {
 	
 	/**
 	 * Post-process an evaluation result returned by ProB.
-	 * Currently this only handles some special cases when evaluating Event-B formulas while local variables are defined.
+	 * Currently this only handles some special cases when local variables are defined,
+	 * especially in Event-B mode.
 	 * In all other cases,
 	 * the result is returned unmodified.
 	 * 
@@ -453,13 +454,13 @@ public final class ProBKernel extends BaseKernel {
 	 * @return the processed evaluation result
 	 */
 	public @NotNull AbstractEvalResult postprocessEvalResult(final @NotNull AbstractEvalResult aer) {
-		if (!this.getVariables().isEmpty() && this.isEventBMode() && aer instanceof EvalResult) {
+		if (!this.getVariables().isEmpty() && aer instanceof EvalResult) {
 			final EvalResult result = (EvalResult)aer;
 			
 			final Map<String, String> solutionValues = new HashMap<>(result.getSolutions());
 			
 			final String resultValue;
-			if (result.getValue().equals(EvalResult.TRUE.getValue()) && result.getSolutions().containsKey(CommandUtils.JUPYTER_RESULT_VARIABLE_NAME)) {
+			if (this.isEventBMode() && result.getValue().equals(EvalResult.TRUE.getValue()) && result.getSolutions().containsKey(CommandUtils.JUPYTER_RESULT_VARIABLE_NAME)) {
 				// Special case for expressions rewritten to predicates by CommandUtils.insertEventBExpressionLetVariables:
 				// extract the special result variable and use it in place of the predicate result (TRUE).
 				resultValue = solutionValues.remove(CommandUtils.JUPYTER_RESULT_VARIABLE_NAME);
