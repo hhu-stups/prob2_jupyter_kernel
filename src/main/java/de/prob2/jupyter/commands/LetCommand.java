@@ -1,6 +1,7 @@
 package de.prob2.jupyter.commands;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.regex.Pattern;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -18,14 +19,16 @@ import de.prob2.jupyter.ParameterInspectors;
 import de.prob2.jupyter.Parameters;
 import de.prob2.jupyter.ParsedArguments;
 import de.prob2.jupyter.ProBKernel;
+import de.prob2.jupyter.UserErrorException;
 
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
 
 public final class LetCommand implements Command {
-	private static final @NotNull Parameter.RequiredSingle NAME_PARAM = Parameter.required("name");
-	private static final @NotNull Parameter.RequiredSingle EXPRESSION_PARAM = Parameter.requiredRemainder("expression");
+	private static final @NotNull Parameter.RequiredSingle NAME_AND_EXPRESSION = Parameter.requiredRemainder("nameAndExpression");
+	
+	private static final @NotNull Pattern NAME_AND_EXPRESSION_SPLIT_PATTERN = Pattern.compile("=|\\s+");
 	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;
@@ -45,12 +48,12 @@ public final class LetCommand implements Command {
 	
 	@Override
 	public @NotNull Parameters getParameters() {
-		return new Parameters(Arrays.asList(NAME_PARAM, EXPRESSION_PARAM));
+		return new Parameters(Collections.singletonList(NAME_AND_EXPRESSION));
 	}
 	
 	@Override
 	public @NotNull String getSyntax() {
-		return ":let NAME EXPR";
+		return ":let NAME EXPR\n:let NAME=EXPR";
 	}
 	
 	@Override
@@ -67,9 +70,15 @@ public final class LetCommand implements Command {
 	
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final String name = args.get(NAME_PARAM);
+		final String[] split = NAME_AND_EXPRESSION_SPLIT_PATTERN.split(args.get(NAME_AND_EXPRESSION), 2);
+		if (split.length != 2) {
+			throw new UserErrorException("Missing variable value");
+		}
+		final String name = split[0];
+		final String expression = split[1];
+		
 		final ProBKernel kernel = this.kernelProvider.get();
-		final IEvalElement formula = kernel.parseFormula(args.get(EXPRESSION_PARAM), FormulaExpand.EXPAND);
+		final IEvalElement formula = kernel.parseFormula(expression, FormulaExpand.EXPAND);
 		final AbstractEvalResult evaluated = CommandUtils.withSourceCode(formula, () ->
 			kernel.postprocessEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(formula))
 		);
