@@ -47,6 +47,7 @@ public final class CommandUtils {
 	private static final @NotNull Pattern BODY_SPLIT_PATTERN = Pattern.compile("\\n");
 	public static final @NotNull Pattern ARG_SPLIT_PATTERN = Pattern.compile("\\s+");
 	private static final @NotNull Pattern B_IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
+	public static final @NotNull String JUPYTER_RESULT_VARIABLE_NAME = "__jUpYtEr_rEsUlT__";
 	
 	private CommandUtils() {
 		super();
@@ -219,7 +220,7 @@ public final class CommandUtils {
 		withSourceCode(formula.getCode(), action);
 	}
 	
-	public static @NotNull String insertLetVariables(final @NotNull String code, final @NotNull Map<@NotNull String, @NotNull String> variables) {
+	public static @NotNull String insertClassicalBLetVariables(final @NotNull String code, final @NotNull Map<@NotNull String, @NotNull String> variables) {
 		if (variables.isEmpty()) {
 			return code;
 		} else {
@@ -227,6 +228,30 @@ public final class CommandUtils {
 			final PredicateBuilder varAssignments = new PredicateBuilder();
 			varAssignments.addMap(variables);
 			return String.format("LET %s BE %s IN(\n%s\n)END", varNames, varAssignments, code);
+		}
+	}
+	
+	public static @NotNull String insertEventBPredicateLetVariables(final @NotNull String predicate, final @NotNull Map<@NotNull String, @NotNull String> variables) {
+		if (variables.isEmpty()) {
+			return predicate;
+		} else {
+			final String varNames = String.join(",", variables.keySet());
+			final PredicateBuilder varAssignments = new PredicateBuilder();
+			varAssignments.addMap(variables);
+			varAssignments.add(predicate);
+			return String.format("#%s.(\n%s\n)", varNames, varAssignments);
+		}
+	}
+	
+	public static @NotNull String insertEventBExpressionLetVariables(final @NotNull String expression, final @NotNull Map<@NotNull String, @NotNull String> variables) {
+		if (variables.isEmpty()) {
+			return expression;
+		} else {
+			final String varNames = String.join(",", variables.keySet());
+			final PredicateBuilder varAssignments = new PredicateBuilder();
+			varAssignments.addMap(variables);
+			varAssignments.add(JUPYTER_RESULT_VARIABLE_NAME, expression);
+			return String.format("#%s.(\n%s\n)", varNames, varAssignments);
 		}
 	}
 	

@@ -34,12 +34,16 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import de.prob.animator.ReusableAnimator;
+import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.ErrorItem;
+import de.prob.animator.domainobjects.EvalElementType;
+import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.EventB;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.exception.ProBError;
+import de.prob.model.eventb.EventBModel;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.StateSpace;
@@ -345,6 +349,17 @@ public final class ProBKernel extends BaseKernel {
 	}
 	
 	/**
+	 * Return whether user-entered formulas are currently being parsed using Event-B syntax.
+	 * This is true if the user has explicitly enabled Event-B mode,
+	 * or when the default mode is used while an Event-B model is loaded.
+	 * 
+	 * @return whether formulas are currently parsed as Event-B
+	 */
+	public boolean isEventBMode() {
+		return this.getCurrentFormulaLanguage() == FormulaLanguage.EVENT_B || this.animationSelector.getCurrentTrace().getModel() instanceof EventBModel;
+	}
+	
+	/**
 	 * Parse the given formula code into an {@link IEvalElement}.
 	 * The language used for parsing depends on the current formula language (see {@link #getCurrentFormulaLanguage()}.
 	 * Unlike {@link #parseFormula(String, FormulaExpand)},
@@ -381,7 +396,33 @@ public final class ProBKernel extends BaseKernel {
 	 * @return the parsed formula
 	 */
 	public IEvalElement parseFormula(final String code, final FormulaExpand expand) {
-		return this.parseFormulaWithoutLetVariables(CommandUtils.insertLetVariables(code, this.getVariables()), expand);
+		if (this.getVariables().isEmpty()) {
+			// Shortcut: if no local variables are defined,
+			// the code doesn't need to be changed at all.
+			return this.parseFormulaWithoutLetVariables(code, expand);
+		} else if (this.isEventBMode()) {
+			// Implementing local variables in Event-B mode is not straightforward,
+			// because Rodin does not support LET expressions/predicates
+			// like ProB does for classical B.
+			// For predicates,
+			// we can use an existential quantifier in place of LET.
+			// For expressions this is not possible,
+			// so as a workaround we construct a predicate with a new free variable equal to the expression.
+			// This helper predicate is unpacked again after evaluation.
+			final String predicateCode = CommandUtils.insertEventBPredicateLetVariables(code, this.getVariables());
+			final EventB predicate = (EventB)this.parseFormulaWithoutLetVariables(predicateCode, FormulaExpand.TRUNCATE);
+			if (predicate.getKind() == EvalElementType.PREDICATE) {
+				return predicate;
+			} else {
+				final String expressionAsPredicateCode = CommandUtils.insertEventBExpressionLetVariables(code, this.getVariables());
+				return this.parseFormulaWithoutLetVariables(expressionAsPredicateCode, FormulaExpand.TRUNCATE);
+			}
+		} else {
+			// Assume that we are using classical B syntax.
+			// This is the case for most other supported languages
+			// (the main exception is CSP).
+			return this.parseFormulaWithoutLetVariables(CommandUtils.insertClassicalBLetVariables(code, this.getVariables()), expand);
+		}
 	}
 	
 	public @NotNull DisplayData executeOperation(final @NotNull String name, final @Nullable String predicate) {
@@ -400,6 +441,46 @@ public final class ProBKernel extends BaseKernel {
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
 		return new DisplayData(String.format("Executed operation: %s", op.getPrettyRep()));
+	}
+	
+	/**
+	 * Post-process an evaluation result returned by ProB.
+	 * Currently this only handles some special cases when evaluating Event-B formulas while local variables are defined.
+	 * In all other cases,
+	 * the result is returned unmodified.
+	 * 
+	 * @param aer the evaluation result to postprocess
+	 * @return the processed evaluation result
+	 */
+	public @NotNull AbstractEvalResult postprocessEvalResult(final @NotNull AbstractEvalResult aer) {
+		if (!this.getVariables().isEmpty() && this.isEventBMode() && aer instanceof EvalResult) {
+			final EvalResult result = (EvalResult)aer;
+			
+			final Map<String, String> solutionValues = new HashMap<>(result.getSolutions());
+			
+			final String resultValue;
+			if (result.getValue().equals(EvalResult.TRUE.getValue()) && result.getSolutions().containsKey(CommandUtils.JUPYTER_RESULT_VARIABLE_NAME)) {
+				// Special case for expressions rewritten to predicates by CommandUtils.insertEventBExpressionLetVariables:
+				// extract the special result variable and use it in place of the predicate result (TRUE).
+				resultValue = solutionValues.remove(CommandUtils.JUPYTER_RESULT_VARIABLE_NAME);
+			} else {
+				resultValue = result.getValue();
+			}
+			
+			// Special case for predicates or expressions
+			// that had local variables inserted using an existential quantification
+			// (by insertEventBPredicateLetVariables or insertEventBExpressionLetVariables).
+			// ProB sometimes treats variables in a top-level existential quantification
+			// as if they were free variables
+			// and returns their values as part of the solution.
+			// We don't want this for local variables,
+			// so manually remove them from the solution again.
+			solutionValues.keySet().removeAll(this.getVariables().keySet());
+			
+			return new EvalResult(resultValue, solutionValues);
+		}
+		
+		return aer;
 	}
 	
 	@Override

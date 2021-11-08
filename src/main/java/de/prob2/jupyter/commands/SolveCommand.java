@@ -90,7 +90,7 @@ public final class SolveCommand implements Command {
 		
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());
 		trace.getStateSpace().execute(cmd);
-		return CommandUtils.displayDataForEvalResult(cmd.getValue());
+		return CommandUtils.displayDataForEvalResult(kernel.postprocessEvalResult(cmd.getValue()));
 	}
 	
 	@Override

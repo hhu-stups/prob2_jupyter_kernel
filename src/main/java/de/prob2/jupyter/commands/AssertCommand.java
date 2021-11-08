@@ -70,7 +70,9 @@ public final class AssertCommand implements Command {
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final ProBKernel kernel = this.kernelProvider.get();
 		final IEvalElement formula = kernel.parseFormula(args.get(FORMULA_PARAM), FormulaExpand.TRUNCATE);
-		final AbstractEvalResult result = CommandUtils.withSourceCode(formula, () -> this.animationSelector.getCurrentTrace().evalCurrent(formula));
+		final AbstractEvalResult result = CommandUtils.withSourceCode(formula, () -> 
+			kernel.postprocessEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(formula))
+		);
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
 			// Use EvalResult.TRUE instead of the real result so that solution variables are not displayed.
 			return CommandUtils.displayDataForEvalResult(EvalResult.TRUE);
