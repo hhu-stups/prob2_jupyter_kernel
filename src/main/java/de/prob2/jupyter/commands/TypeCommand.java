@@ -68,12 +68,14 @@ public final class TypeCommand implements Command {
 		final ProBKernel kernel = this.kernelProvider.get();
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final IEvalElement formula = kernel.parseFormula(args.get(FORMULA_PARAM), FormulaExpand.EXPAND);
-		final TypeCheckResult result = trace.getStateSpace().typeCheck(formula);
-		if (result.isOk()) {
-			return new DisplayData(result.getType());
-		} else {
-			throw new ProBError("Type errors in formula", result.getErrors());
-		}
+		return CommandUtils.withSourceCode(formula, () -> {
+			final TypeCheckResult result = trace.getStateSpace().typeCheck(formula);
+			if (result.isOk()) {
+				return new DisplayData(result.getType());
+			} else {
+				throw new ProBError("Type errors in formula", result.getErrors());
+			}
+		});
 	}
 	
 	@Override
