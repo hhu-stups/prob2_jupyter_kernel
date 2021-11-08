@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +29,7 @@ import de.prob.animator.domainobjects.ProBPreference;
 import de.prob.animator.domainobjects.TypeCheckResult;
 import de.prob.animator.domainobjects.WDError;
 import de.prob.exception.ProBError;
+import de.prob.formula.PredicateBuilder;
 import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
 
@@ -215,12 +215,9 @@ public final class CommandUtils {
 		if (variables.isEmpty()) {
 			return code;
 		} else {
-			final StringJoiner varNames = new StringJoiner(",");
-			final StringJoiner varAssignments = new StringJoiner("&");
-			variables.forEach((name, value) -> {
-				varNames.add(name);
-				varAssignments.add(name + "=(" + value + ')');
-			});
+			final String varNames = String.join(",", variables.keySet());
+			final PredicateBuilder varAssignments = new PredicateBuilder();
+			varAssignments.addMap(variables);
 			return String.format("LET %s BE %s IN(\n%s\n)END", varNames, varAssignments, code);
 		}
 	}
