@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 public final class LetCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle NAME_AND_EXPRESSION = Parameter.requiredRemainder("nameAndExpression");
 	
-	private static final @NotNull Pattern NAME_AND_EXPRESSION_SPLIT_PATTERN = Pattern.compile("=|\\s+");
+	private static final @NotNull Pattern NAME_AND_EXPRESSION_SPLIT_PATTERN = Pattern.compile("\\s*[\\s=]\\s*");
 	
 	private final @NotNull Provider<@NotNull ProBKernel> kernelProvider;
 	private final @NotNull AnimationSelector animationSelector;

@@ -5,7 +5,7 @@
 * Added support for Java 17.
 * Updated ProB 2 to version 4.0.0-SNAPSHOT.
 * Added a `:language` command to allow changing the language used to parse user input. For example `:language event_b` can be used to switch to Event-B syntax when a non-Event-B machine is loaded (or no machine at all).
-* Made `:let` syntax more flexible: both `:let name value` and `:let name=value` are now allowed.
+* Made `:let` syntax more flexible: both `:let name value` and `:let name = value` are now allowed.
 * Improved the performance of loading machines by reusing the existing instance of ProB instead of starting a new one for each machine.
 * Improved error highlighting for machines loaded from files and not from the notebook.
 * Local variables (created using `:let`) are now discarded when a new machine is loaded. Previously local variables would be remembered even across machine loads, which could lead to confusing behavior and errors.
