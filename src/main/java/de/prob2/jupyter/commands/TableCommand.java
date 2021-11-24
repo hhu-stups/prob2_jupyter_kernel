@@ -92,7 +92,7 @@ public final class TableCommand implements Command {
 			sbPlain.append(String.join("\t", row));
 			sbPlain.append('\n');
 			sbMarkdown.append('|');
-			sbMarkdown.append(row.stream().map(s -> '$' + UnicodeTranslator.toLatex(s) + '$').collect(Collectors.joining("|")));
+			sbMarkdown.append(row.stream().map(UnicodeTranslator::toUnicode).collect(Collectors.joining("|")));
 			sbMarkdown.append("|\n");
 		}
 		

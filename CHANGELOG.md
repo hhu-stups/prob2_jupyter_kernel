@@ -15,6 +15,7 @@
 * Fixed a bug where interrupting a command could make the kernel completely stop responding, requiring a manual restart.
 * Fixed syntax errors when using local variables (`:let`) in Event-B mode.
 * Fixed the `:trace` command sometimes displaying transitions as `null`.
+* Disabled LaTeX formatting inside `:table` output, because it leads to various layout issues inside Jupyter Notebook. The table contents are now rendered as plain Unicode text instead.
 
 ## [1.2.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar)
 
