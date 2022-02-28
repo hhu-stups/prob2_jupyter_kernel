@@ -1,22 +1,20 @@
 package de.prob2.jupyter.commands;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.inject.Inject;
 
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.IEvalElement;
-import de.prob.model.classicalb.Assertion;
+import de.prob.model.classicalb.ClassicalBMachine;
+import de.prob.model.representation.AbstractElement;
 import de.prob.model.representation.AbstractFormulaElement;
-import de.prob.model.representation.AbstractTheoremElement;
-import de.prob.model.representation.Axiom;
-import de.prob.model.representation.Invariant;
+import de.prob.model.representation.ConstantsComponent;
+import de.prob.model.representation.Machine;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.Trace;
 import de.prob.unicode.UnicodeTranslator;
@@ -36,15 +34,6 @@ import org.jetbrains.annotations.NotNull;
 
 public final class CheckCommand implements Command {
 	private static final @NotNull Parameter.RequiredSingle WHAT_PARAM = Parameter.required("what");
-	
-	private static final @NotNull Map<@NotNull String, @NotNull Class<? extends AbstractTheoremElement>> CHILDREN_BASE_CLASS_MAP;
-	static {
-		final Map<String, Class<? extends AbstractTheoremElement>> childrenBaseClassMap = new HashMap<>();
-		childrenBaseClassMap.put("properties", Axiom.class);
-		childrenBaseClassMap.put("invariant", Invariant.class);
-		childrenBaseClassMap.put("assertions", Assertion.class);
-		CHILDREN_BASE_CLASS_MAP = Collections.unmodifiableMap(childrenBaseClassMap);
-	}
 	
 	private final @NotNull AnimationSelector animationSelector;
 	
@@ -83,27 +72,39 @@ public final class CheckCommand implements Command {
 	@Override
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final String what = args.get(WHAT_PARAM);
-		if (!CHILDREN_BASE_CLASS_MAP.containsKey(what)) {
-			throw new UserErrorException("Don't know how to check " + what);
-		}
-		final Class<? extends AbstractTheoremElement> childrenBaseClass = CHILDREN_BASE_CLASS_MAP.get(what);
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		// Find all children of a subclass of childrenBaseClass.
-		// This needs to be done manually, because getChildrenOfType only returns children whose class *exactly* matches the given class.
-		// For example, getChildrenOfType(Axiom.class) doesn't return children of class Property (which is a subclass of Axiom).
-		final List<IEvalElement> formulas = new ArrayList<>();
-		trace.getStateSpace().getMainComponent().getChildren().forEach((clazz, children) -> {
-			if (childrenBaseClass.isAssignableFrom(clazz)) {
-				children.stream()
-					.map(childrenBaseClass::cast)
-					.map(AbstractFormulaElement::getFormula)
-					.collect(Collectors.toCollection(() -> formulas));
-			}
-		});
+		final AbstractElement mainComponent = trace.getStateSpace().getMainComponent();
+		final List<? extends AbstractFormulaElement> elements;
+		switch (what) {
+			case "properties":
+				if (!(mainComponent instanceof ConstantsComponent)) {
+					throw new UserErrorException("Checking " + what + " is only supported for classical B machines or Event-B contexts");
+				}
+				elements = ((ConstantsComponent)mainComponent).getAxioms();
+				break;
+			
+			case "invariant":
+				if (!(mainComponent instanceof Machine)) {
+					throw new UserErrorException("Checking " + what + " is only supported for classical B or Event-B machines");
+				}
+				elements = ((Machine)mainComponent).getInvariants();
+				break;
+			
+			case "assertions":
+				if (!(mainComponent instanceof ClassicalBMachine)) {
+					throw new UserErrorException("Checking " + what + " is only supported for classical B machines");
+				}
+				elements = ((ClassicalBMachine)mainComponent).getAssertions();
+				break;
+			
+			default:
+				throw new UserErrorException("Don't know how to check " + what);
+		}
 		
 		final StringJoiner sjPlain = new StringJoiner("\n");
 		final StringJoiner sjMarkdown = new StringJoiner("\n", "|Predicate|Value|\n|---|---|\n", "");
-		for (final IEvalElement f : formulas) {
+		for (final AbstractFormulaElement element : elements) {
+			final IEvalElement f = element.getFormula();
 			final AbstractEvalResult result = trace.evalCurrent(f);
 			sjPlain.add(f.getCode() + " = " + CommandUtils.inlinePlainTextForEvalResult(result));
 			sjMarkdown.add("|" + UnicodeTranslator.toUnicode(f.getCode()) + "|" + CommandUtils.inlineMarkdownForEvalResult(result) + '|');
@@ -123,8 +124,7 @@ public final class CheckCommand implements Command {
 		return new ParameterCompleters(Collections.singletonMap(
 			WHAT_PARAM, (argString, at) -> {
 				final String prefix = argString.substring(0, at);
-				return new ReplacementOptions(CHILDREN_BASE_CLASS_MAP.keySet()
-					.stream()
+				return new ReplacementOptions(Stream.of("properties", "invariant", "assertions")
 					.filter(s -> s.startsWith(prefix))
 					.collect(Collectors.toList()), 0, argString.length());
 			}
