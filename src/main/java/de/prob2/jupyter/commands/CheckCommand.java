@@ -106,7 +106,7 @@ public final class CheckCommand implements Command {
 		for (final IEvalElement f : formulas) {
 			final AbstractEvalResult result = trace.evalCurrent(f);
 			sjPlain.add(f.getCode() + " = " + CommandUtils.inlinePlainTextForEvalResult(result));
-			sjMarkdown.add("|$" + UnicodeTranslator.toLatex(f.getCode()) + "$|" + CommandUtils.inlineMarkdownForEvalResult(result) + '|');
+			sjMarkdown.add("|" + UnicodeTranslator.toUnicode(f.getCode()) + "|" + CommandUtils.inlineMarkdownForEvalResult(result) + '|');
 		}
 		final DisplayData result = new DisplayData(sjPlain.toString());
 		result.putMarkdown(sjMarkdown.toString());

@@ -336,7 +336,7 @@ public final class CommandUtils {
 	
 	public static @NotNull String inlineMarkdownForEvalResult(final @NotNull AbstractEvalResult aer) {
 		if (aer instanceof EvalResult) {
-			return '$' + UnicodeTranslator.toLatex(((EvalResult)aer).getValue()) + '$';
+			return UnicodeTranslator.toUnicode(((EvalResult)aer).getValue());
 		} else if (aer instanceof ComputationNotCompletedResult) {
 			return "*(computation not completed: " + ((ComputationNotCompletedResult)aer).getReason() + ")*";
 		} else if (aer instanceof IdentifierNotInitialised) {
