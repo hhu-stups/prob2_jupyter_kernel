@@ -5,6 +5,7 @@ import java.util.Collections;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
+import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.statespace.AnimationSelector;
@@ -65,9 +66,10 @@ public final class EvalCommand implements Command {
 	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
 		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
 		final IEvalElement formula = kernel.parseFormula(args.get(FORMULA_PARAM), FormulaExpand.EXPAND);
-		return CommandUtils.displayDataForEvalResult(CommandUtils.withSourceCode(formula, () ->
-			kernel.postprocessEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(formula))
-		));
+		return CommandUtils.withSourceCode(formula, () -> {
+			final AbstractEvalResult aer = this.animationSelector.getCurrentTrace().evalCurrent(formula);
+			return CommandUtils.displayDataForEvalResult(kernel.postprocessEvalResult(aer));
+		});
 	}
 	
 	@Override

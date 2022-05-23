@@ -89,8 +89,10 @@ public final class SolveCommand implements Command {
 		final IEvalElement predicate = kernel.parseFormula(args.get(PREDICATE_PARAM), FormulaExpand.EXPAND);
 		
 		final CbcSolveCommand cmd = new CbcSolveCommand(predicate, solver, this.animationSelector.getCurrentTrace().getCurrentState());
-		trace.getStateSpace().execute(cmd);
-		return CommandUtils.displayDataForEvalResult(kernel.postprocessEvalResult(cmd.getValue()));
+		return CommandUtils.withSourceCode(predicate, () -> {
+			trace.getStateSpace().execute(cmd);
+			return CommandUtils.displayDataForEvalResult(kernel.postprocessEvalResult(cmd.getValue()));
+		});
 	}
 	
 	@Override

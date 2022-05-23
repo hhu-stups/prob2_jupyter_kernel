@@ -85,7 +85,7 @@ public final class LetCommand implements Command {
 		if (evaluated instanceof EvalResult) {
 			kernel.getVariables().put(name, ((EvalResult)evaluated).getValue());
 		}
-		return CommandUtils.displayDataForEvalResult(evaluated);
+		return CommandUtils.withSourceCode(formula, () -> CommandUtils.displayDataForEvalResult(evaluated));
 	}
 	
 	@Override
