@@ -9,6 +9,7 @@ import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
+import de.prob.exception.ProBError;
 import de.prob.statespace.AnimationSelector;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.CommandUtils;
@@ -81,8 +82,8 @@ public final class AssertCommand implements Command {
 		final DisplayData displayData;
 		try {
 			displayData = CommandUtils.displayDataForEvalResult(result);
-		} catch (final UserErrorException e) {
-			throw new UserErrorException("Error while evaluating assertion: " + e.getMessage());
+		} catch (final ProBError e) {
+			throw new UserErrorException("Error while evaluating assertion: " + CommandUtils.inlinePlainTextForEvalResult(result), e);
 		}
 		throw new UserErrorException("Assertion is not true: " + displayData.getData(MIMEType.TEXT_PLAIN));
 	}

@@ -18,16 +18,14 @@ import de.prob.animator.command.GetCurrentPreferencesCommand;
 import de.prob.animator.command.GetDefaultPreferencesCommand;
 import de.prob.animator.command.GetPreferenceCommand;
 import de.prob.animator.domainobjects.AbstractEvalResult;
-import de.prob.animator.domainobjects.ComputationNotCompletedResult;
 import de.prob.animator.domainobjects.EnumerationWarning;
+import de.prob.animator.domainobjects.ErrorItem;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.EvaluationErrorResult;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
-import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.animator.domainobjects.ProBPreference;
 import de.prob.animator.domainobjects.TypeCheckResult;
-import de.prob.animator.domainobjects.WDError;
 import de.prob.exception.ProBError;
 import de.prob.formula.PredicateBuilder;
 import de.prob.statespace.Trace;
@@ -258,7 +256,6 @@ public final class CommandUtils {
 	public static @NotNull DisplayData displayDataForEvalResult(final @NotNull AbstractEvalResult aer) {
 		final StringBuilder sb = new StringBuilder();
 		final StringBuilder sbMarkdown = new StringBuilder();
-		final boolean error;
 		if (aer instanceof EvalResult) {
 			final EvalResult result = (EvalResult)aer;
 			sb.append(UnicodeTranslator.toUnicode(result.getValue()));
@@ -280,75 +277,47 @@ public final class CommandUtils {
 					sbMarkdown.append('$');
 				});
 			}
-			error = false;
-		} else if (aer instanceof ComputationNotCompletedResult) {
-			final ComputationNotCompletedResult result = (ComputationNotCompletedResult)aer;
-			sb.append("Computation not completed: ");
-			sb.append(result.getReason());
-			error = true;
 		} else if (aer instanceof EnumerationWarning) {
-			sb.append("UNKNOWN (FALSE with enumeration warning)");
-			error = true;
+			throw new ProBError(aer.toString());
 		} else if (aer instanceof EvaluationErrorResult) {
 			final EvaluationErrorResult result = (EvaluationErrorResult)aer;
-			sb.append(result.getResult());
-			if (!result.getErrors().isEmpty()) {
-				sb.append(": ");
-				result.getErrors().forEach(s -> {
-					sb.append('\n');
-					sb.append(s);
-				});
-			}
-			error = true;
+			throw new ProBError(result.getResult(), result.getErrorItems());
 		} else {
-			LOGGER.warn("Unknown eval result of type {}, falling back to toString(): {}", aer.getClass(), aer);
 			sb.append(aer);
 			sbMarkdown.append(aer);
-			error = false;
 		}
 		
-		if (error) {
-			throw new UserErrorException(sb.toString());
-		} else {
-			final DisplayData result = new DisplayData(sb.toString());
-			result.putMarkdown(sbMarkdown.toString());
-			return result;
-		}
+		final DisplayData result = new DisplayData(sb.toString());
+		result.putMarkdown(sbMarkdown.toString());
+		return result;
 	}
 	
 	public static @NotNull String inlinePlainTextForEvalResult(final @NotNull AbstractEvalResult aer) {
 		if (aer instanceof EvalResult) {
 			return UnicodeTranslator.toUnicode(((EvalResult)aer).getValue());
-		} else if (aer instanceof ComputationNotCompletedResult) {
-			return "(computation not completed: " + ((ComputationNotCompletedResult)aer).getReason() + ')';
-		} else if (aer instanceof IdentifierNotInitialised) {
-			return "(not initialised)";
-		} else if (aer instanceof WDError) {
-			return "(not well-defined)";
 		} else if (aer instanceof EvaluationErrorResult) {
-			LOGGER.warn("Unknown evaluation error of type {}: {}", aer.getClass(), aer);
-			return "(evaluation error: " + ((EvaluationErrorResult)aer).getErrors() + ')';
+			final EvaluationErrorResult result = (EvaluationErrorResult)aer;
+			final StringBuilder sb = new StringBuilder("(");
+			sb.append(result.getResult());
+			if (!result.getErrorItems().isEmpty()) {
+				sb.append(": ");
+				sb.append(result.getErrorItems().stream()
+					.map(ErrorItem::getMessage)
+					.collect(Collectors.joining(", ")));
+			}
+			sb.append(")");
+			return sb.toString();
 		} else {
-			LOGGER.warn("Unknown eval result of type {}, falling back to toString(): {}", aer.getClass(), aer);
 			return aer.toString();
 		}
 	}
 	
 	public static @NotNull String inlineMarkdownForEvalResult(final @NotNull AbstractEvalResult aer) {
-		if (aer instanceof EvalResult) {
-			return UnicodeTranslator.toUnicode(((EvalResult)aer).getValue());
-		} else if (aer instanceof ComputationNotCompletedResult) {
-			return "*(computation not completed: " + ((ComputationNotCompletedResult)aer).getReason() + ")*";
-		} else if (aer instanceof IdentifierNotInitialised) {
-			return "*(not initialised)*";
-		} else if (aer instanceof WDError) {
-			return "*(not well-defined)*";
-		} else if (aer instanceof EvaluationErrorResult) {
-			LOGGER.warn("Unknown evaluation error of type {}: {}", aer.getClass(), aer);
-			return "*(evaluation error: " + ((EvaluationErrorResult)aer).getErrors() + ")*";
+		if (aer instanceof EvaluationErrorResult) {
+			// Display errors in italics
+			return "*" + inlinePlainTextForEvalResult(aer) + "*";
 		} else {
-			LOGGER.warn("Unknown eval result of type {}, falling back to toString(): {}", aer.getClass(), aer);
-			return aer.toString();
+			return inlinePlainTextForEvalResult(aer);
 		}
 	}
 	
