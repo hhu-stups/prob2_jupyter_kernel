@@ -43,9 +43,9 @@ import de.prob.animator.domainobjects.EventB;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
 import de.prob.exception.ProBError;
-import de.prob.model.eventb.EventBModel;
 import de.prob.scripting.ClassicalBFactory;
 import de.prob.statespace.AnimationSelector;
+import de.prob.statespace.Language;
 import de.prob.statespace.StateSpace;
 import de.prob.statespace.Trace;
 import de.prob.statespace.Transition;
@@ -251,7 +251,7 @@ public final class ProBKernel extends BaseKernel {
 	private final @NotNull Map<@NotNull String, @NotNull String> variables;
 	
 	private @NotNull Path currentMachineDirectory;
-	private @NotNull FormulaLanguage currentFormulaLanguage;
+	private @Nullable Language currentFormulaLanguage;
 	private @Nullable String currentCellSourceCode;
 	
 	@Inject
@@ -275,7 +275,7 @@ public final class ProBKernel extends BaseKernel {
 		// These variables need to be initialized here,
 		// but they will be overwritten immediately by the switchMachine call.
 		this.currentMachineDirectory = Paths.get("");
-		this.currentFormulaLanguage = FormulaLanguage.DEFAULT;
+		this.currentFormulaLanguage = null;
 		this.currentCellSourceCode = null;
 		this.switchMachine(Paths.get(""), null, this::loadDefaultMachine);
 	}
@@ -308,11 +308,11 @@ public final class ProBKernel extends BaseKernel {
 		this.currentMachineDirectory = currentMachineDirectory;
 	}
 	
-	public @NotNull FormulaLanguage getCurrentFormulaLanguage() {
+	public @Nullable Language getCurrentFormulaLanguage() {
 		return this.currentFormulaLanguage;
 	}
 	
-	public void setCurrentFormulaLanguage(final @NotNull FormulaLanguage currentFormulaLanguage) {
+	public void setCurrentFormulaLanguage(final @Nullable Language currentFormulaLanguage) {
 		this.currentFormulaLanguage = currentFormulaLanguage;
 	}
 	
@@ -334,7 +334,7 @@ public final class ProBKernel extends BaseKernel {
 	
 	public void switchMachine(final @NotNull Path machineDirectory, final @Nullable String cellSourceCode, final @NotNull Function<@NotNull StateSpace, @NotNull Trace> newTraceCreator) {
 		this.unloadMachine();
-		this.setCurrentFormulaLanguage(FormulaLanguage.DEFAULT);
+		this.setCurrentFormulaLanguage(null);
 		this.currentCellSourceCode = cellSourceCode;
 		final StateSpace newStateSpace = this.animator.createStateSpace();
 		try {
@@ -356,7 +356,7 @@ public final class ProBKernel extends BaseKernel {
 	 * @return whether formulas are currently parsed as Event-B
 	 */
 	public boolean isEventBMode() {
-		return this.getCurrentFormulaLanguage() == FormulaLanguage.EVENT_B || this.animationSelector.getCurrentTrace().getModel() instanceof EventBModel;
+		return this.getCurrentFormulaLanguage() == Language.EVENT_B || this.animationSelector.getCurrentTrace().getModel().getLanguage() == Language.EVENT_B;
 	}
 	
 	/**
@@ -370,18 +370,19 @@ public final class ProBKernel extends BaseKernel {
 	 * @return the parsed formula
 	 */
 	public IEvalElement parseFormulaWithoutLetVariables(final String code, final FormulaExpand expand) {
-		switch (this.getCurrentFormulaLanguage()) {
-			case DEFAULT:
-				return this.animationSelector.getCurrentTrace().getModel().parseFormula(code, expand);
-			
-			case CLASSICAL_B:
-				return new ClassicalB(code, expand);
-			
-			case EVENT_B:
-				return new EventB(code, expand);
-			
-			default:
-				throw new AssertionError("Unhandled formula parse mode: " + this.getCurrentFormulaLanguage());
+		if (this.getCurrentFormulaLanguage() == null) {
+			return this.animationSelector.getCurrentTrace().getModel().parseFormula(code, expand);
+		} else {
+			switch (this.getCurrentFormulaLanguage()) {
+				case CLASSICAL_B:
+					return new ClassicalB(code, expand);
+				
+				case EVENT_B:
+					return new EventB(code, expand);
+				
+				default:
+					throw new AssertionError("Unhandled formula parse mode: " + this.getCurrentFormulaLanguage());
+			}
 		}
 	}
 	

@@ -10,13 +10,11 @@ import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import de.prob.model.eventb.EventBModel;
 import de.prob.model.representation.AbstractModel;
 import de.prob.statespace.AnimationSelector;
-import de.prob.statespace.FormalismType;
+import de.prob.statespace.Language;
 import de.prob.statespace.Trace;
 import de.prob2.jupyter.Command;
-import de.prob2.jupyter.FormulaLanguage;
 import de.prob2.jupyter.Parameter;
 import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
@@ -29,16 +27,17 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class LanguageCommand implements Command {
 	private static final @NotNull Parameter.OptionalSingle LANGUAGE_PARAM = Parameter.optional("language");
 	
-	private static final @NotNull Map<@NotNull String, @NotNull FormulaLanguage> LANGUAGE_BY_IDENTIFIER_MAP;
+	private static final @NotNull Map<@NotNull String, @NotNull Language> LANGUAGE_BY_IDENTIFIER_MAP;
 	static {
-		final Map<String, FormulaLanguage> languageByIdentifierMap = new HashMap<>();
-		languageByIdentifierMap.put("default", FormulaLanguage.DEFAULT);
-		languageByIdentifierMap.put("classical_b", FormulaLanguage.CLASSICAL_B);
-		languageByIdentifierMap.put("event_b", FormulaLanguage.EVENT_B);
+		final Map<String, Language> languageByIdentifierMap = new HashMap<>();
+		languageByIdentifierMap.put("default", null);
+		languageByIdentifierMap.put("classical_b", Language.CLASSICAL_B);
+		languageByIdentifierMap.put("event_b", Language.EVENT_B);
 		LANGUAGE_BY_IDENTIFIER_MAP = Collections.unmodifiableMap(languageByIdentifierMap);
 	}
 	
@@ -78,38 +77,35 @@ public final class LanguageCommand implements Command {
 		return "By default, formulas entered by the user are parsed using the language of the currently loaded model. Using this command, the language can be changed, so that for example formulas in Event-B syntax can be evaluated in the context of a classical B machine.\n\nSome features will not work correctly when a non-default language is set, such as `DEFINITIONS` from classical B machines.";
 	}
 	
-	private static @NotNull String describeLanguage(final FormulaLanguage language, final AbstractModel model) {
+	private static @NotNull String getLanguageName(final @NotNull Language language) {
 		switch (language) {
-			case DEFAULT:
-				final FormalismType formalismType = model.getFormalismType();
-				final String languageName;
-				if (model instanceof EventBModel) {
-					languageName = "Event-B";
-				} else if (formalismType == FormalismType.CSP) {
-					languageName = "CSP";
-				} else if (formalismType == FormalismType.B || formalismType == FormalismType.Z) {
-					// Languages that ProB internally translates to B, such as TLA and Alloy,
-					// have their formalism type set to B.
-					// For such models, only the model itself is translated to B.
-					// Formulas passed to model.parseFormula must be in classical B syntax,
-					// not the original language of the model.
-					// Z models are also internally translated to classical B,
-					// but currently have their own formalism type in ProB 2 (FIXME?).
-					languageName = "classical B";
-				} else {
-					// Fallback for future formalism types
-					languageName = "unknown (" + formalismType + ")";
-				}
-				return languageName + " (default for model)";
-			
-			case CLASSICAL_B:
-				return "classical B (forced)";
-			
-			case EVENT_B:
-				return "Event-B (forced)";
-			
-			default:
-				throw new AssertionError("Unhandled formula language: " + language);
+			case CLASSICAL_B: return "classical B";
+			case B_RULES: return "B rules";
+			case EVENT_B: return "Event-B";
+			case TLA: return "TLA+";
+			case ALLOY: return "Alloy";
+			case Z: return "Z";
+			case CSP: return "CSP-M";
+			case XTL: return "XTL Prolog";
+			default: return language.toString();
+		}
+	}
+	
+	private static @NotNull String describeLanguage(final @Nullable Language language, final @NotNull AbstractModel model) {
+		if (language == null) {
+			Language lang = model.getLanguage();
+			if (lang.getTranslatedTo() != null) {
+				// For languages that ProB internally translates to B,
+				// such as TLA and Alloy,
+				// only the model itself is translated to B.
+				// Formulas passed to model.parseFormula must be in classical B syntax,
+				// not the original language of the model,
+				// so we really only care about the translation target language.
+				lang = lang.getTranslatedTo();
+			}
+			return getLanguageName(lang) + " (default for model)";
+		} else {
+			return getLanguageName(language) + " (forced)";
 		}
 	}
 	
@@ -122,11 +118,11 @@ public final class LanguageCommand implements Command {
 			if (!LANGUAGE_BY_IDENTIFIER_MAP.containsKey(languageName.get())) {
 				throw new UserErrorException("Unknown language: " + languageName.get());
 			}
-			final FormulaLanguage language = LANGUAGE_BY_IDENTIFIER_MAP.get(languageName.get());
+			final Language language = LANGUAGE_BY_IDENTIFIER_MAP.get(languageName.get());
 			kernel.setCurrentFormulaLanguage(language);
 			return new DisplayData("Changed language for user input to " + describeLanguage(language, trace.getModel()));
 		} else {
-			final FormulaLanguage language = kernel.getCurrentFormulaLanguage();
+			final Language language = kernel.getCurrentFormulaLanguage();
 			return new DisplayData("Current language for user input is " + describeLanguage(language, trace.getModel()));
 		}
 	}
