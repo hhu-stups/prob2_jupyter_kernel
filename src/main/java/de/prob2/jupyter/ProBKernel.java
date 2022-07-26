@@ -902,20 +902,13 @@ public final class ProBKernel extends BaseKernel {
 					this.errorStyler.primary("Error from ProB: ")
 					+ this.errorStyler.secondary(String.valueOf(proBError.getOriginalMessage()))
 				).split("\n")));
-				if (proBError.getErrors() == null) {
-					// If the errors list is null rather than empty, don't show the "no error messages" message.
-					// (This matches the normal behavior of ProBError.)
-				} else if (proBError.getErrors().isEmpty()) {
-					out.addAll(this.errorStyler.primaryLines("ProB returned no error messages.\n"));
-				} else {
-					if (proBError.getErrors().size() > 1) {
-						out.addAll(this.errorStyler.primaryLines(proBError.getErrors().size() + " errors:\n"));
-					}
-					for (final ErrorItem error : proBError.getErrors()) {
-						out.addAll(this.errorStyler.secondaryLines(error.toString()));
-						for (final ErrorItem.Location location : error.getLocations()) {
-							out.addAll(formatErrorSource(contextSourceLines, location));
-						}
+				if (proBError.getErrors().size() > 1) {
+					out.addAll(this.errorStyler.primaryLines(proBError.getErrors().size() + " errors:\n"));
+				}
+				for (final ErrorItem error : proBError.getErrors()) {
+					out.addAll(this.errorStyler.secondaryLines(error.toString()));
+					for (final ErrorItem.Location location : error.getLocations()) {
+						out.addAll(formatErrorSource(contextSourceLines, location));
 					}
 				}
 				return out;
