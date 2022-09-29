@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -34,6 +35,7 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import de.prob.animator.ReusableAnimator;
+import de.prob.animator.command.ExecuteOperationException;
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.ErrorItem;
@@ -426,9 +428,7 @@ public final class ProBKernel extends BaseKernel {
 		}
 	}
 	
-	public @NotNull DisplayData executeOperation(final @NotNull String name, final @Nullable String predicate) {
-		final Trace trace = this.animationSelector.getCurrentTrace();
-		final String translatedOpName = Transition.unprettifyName(name);
+	private @NotNull Transition singleTransitionFromPredicate(final @Nullable String predicate, final @NotNull Trace trace, final @NotNull String translatedOpName) {
 		final IEvalElement parsedPredicate;
 		if (predicate == null) {
 			parsedPredicate = this.parseFormulaWithoutLetVariables("1=1", FormulaExpand.EXPAND);
@@ -437,11 +437,67 @@ public final class ProBKernel extends BaseKernel {
 		}
 		final List<Transition> ops = trace.getStateSpace().transitionFromPredicate(trace.getCurrentState(), translatedOpName, parsedPredicate, 1);
 		assert !ops.isEmpty();
-		final Transition op = ops.get(0);
+		return ops.get(0);
+	}
+	
+	public @NotNull DisplayData executeOperation(final @NotNull String name, final @Nullable String predicate) {
+		Trace trace = this.animationSelector.getCurrentTrace();
+		final String translatedOpName = Transition.unprettifyName(name);
+		final StringBuilder sb = new StringBuilder();
+		
+		Transition op;
+		try {
+			op = this.singleTransitionFromPredicate(predicate, trace, translatedOpName);
+		} catch (ExecuteOperationException e) {
+			boolean tryAgain = false;
+			if (
+				!trace.getCurrentState().isConstantsSetUp()
+				&& !Arrays.asList(Transition.PARTIAL_SETUP_CONSTANTS_NAME, Transition.SETUP_CONSTANTS_NAME).contains(translatedOpName)
+			) {
+				LOGGER.debug("Trying to set up constants using arbitrary transition");
+				final Set<Transition> setupConstantsTransitions = trace.getNextTransitions();
+				if (setupConstantsTransitions.isEmpty()) {
+					throw new UserErrorException("Machine constants are not set up and no valid constant values were found automatically - cannot execute operation " + name, e);
+				}
+				final Transition setupConstants = setupConstantsTransitions.iterator().next();
+				trace = trace.add(setupConstants);
+				trace.getStateSpace().evaluateTransitions(Collections.singleton(setupConstants), FormulaExpand.TRUNCATE);
+				sb.append("Machine constants were not set up yet. Automatically set up constants using arbitrary transition: ");
+				sb.append(setupConstants.getPrettyRep());
+				sb.append('\n');
+				tryAgain = true;
+			}
+			
+			if (
+				!trace.getCurrentState().isInitialised()
+				&& !Arrays.asList(Transition.PARTIAL_SETUP_CONSTANTS_NAME, Transition.SETUP_CONSTANTS_NAME, Transition.INITIALISE_MACHINE_NAME).contains(translatedOpName)
+			) {
+				LOGGER.debug("Trying to initialize machine using arbitrary transition");
+				final Set<Transition> initialisationTransitions = trace.getNextTransitions();
+				if (initialisationTransitions.isEmpty()) {
+					throw new UserErrorException("Machine is not initialised and no valid initialisation was found automatically - cannot execute operation " + name, e);
+				}
+				final Transition initialisation = initialisationTransitions.iterator().next();
+				trace = trace.add(initialisation);
+				trace.getStateSpace().evaluateTransitions(Collections.singleton(initialisation), FormulaExpand.TRUNCATE);
+				sb.append("Machine was not initialised yet. Automatically initialised machine using arbitrary transition: ");
+				sb.append(initialisation.getPrettyRep());
+				sb.append('\n');
+				tryAgain = true;
+			}
+			
+			if (tryAgain) {
+				op = this.singleTransitionFromPredicate(predicate, trace, translatedOpName);
+			} else {
+				throw e;
+			}
+		}
 		
 		this.animationSelector.changeCurrentAnimation(trace.add(op));
 		trace.getStateSpace().evaluateTransitions(Collections.singleton(op), FormulaExpand.TRUNCATE);
-		return new DisplayData(String.format("Executed operation: %s", op.getPrettyRep()));
+		sb.append("Executed operation: ");
+		sb.append(op.getPrettyRep());
+		return new DisplayData(sb.toString());
 	}
 	
 	/**
