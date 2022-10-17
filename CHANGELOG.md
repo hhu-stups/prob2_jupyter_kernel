@@ -5,6 +5,7 @@
 * Updated ProB 2 to version 4.0.0-SNAPSHOT.
 * Added position information to formula evaluation errors (e. g. type or well-definedness errors).
 * Changed `:exec` and `:init` to automatically set up constants and initialize the machine if necessary. Previously this caused an error "Machine is not initialised".
+* Rewrote the kernel installation code in Python. This is mostly an internal change and shouldn't affect most users. As a side effect, uninstalling the kernel is now simpler and requires no extra steps after `jupyter kernelspec remove`.
 * Disabled LaTeX formatting inside `:check` tables as well, because of the layout issues mentioned below.
 
 ## [1.3.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.3.0-all.jar)

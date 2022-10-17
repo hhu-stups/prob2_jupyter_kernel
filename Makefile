@@ -5,14 +5,14 @@ rebuild:
 install:
 	./gradlew installKernelSpec
 USERNAME=
-PHOME=/Users/$(USERNAME)/git_root/prob_prolog
-JUPYTER=/Users/$(USERNAME)/opt/miniconda3/bin/jupyter
-#JUPYTER=/Users/$(USERNAME)/opt/miniconda3/envs/py10/bin/jupyter
+PROB_HOME=/Users/$(USERNAME)/git_root/prob_prolog
+PYTHON=/Users/$(USERNAME)/opt/miniconda3/bin/python3
+#PYTHON=/Users/$(USERNAME)/opt/miniconda3/envs/py10/bin/python3
 installph:
-	./gradlew -PprobHome=$(PHOME) -PjupyterCommand=$(JUPYTER) installKernelSpec
+	./gradlew -PpythonCommand=$(PYTHON) installKernelSpec
 installphuser:
     echo "Installing for user, so that, e.g., VSCode sees the kernel"
-	./gradlew -PprobHome=$(PHOME) -PjupyterCommand=$(JUPYTER) -PkernelspecUserInstall=true installKernelSpec
+	./gradlew -PpythonCommand=$(PYTHON) -PkernelspecUserInstall=true installKernelSpec
 
 console:
 	jupyter console --kernel prob2
