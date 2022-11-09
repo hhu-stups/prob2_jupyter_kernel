@@ -195,7 +195,7 @@ define([
 											return "variable";
 										}
 									} else {
-										stream.match(/^.+/);
+										stream.match(/^./);
 										return "error";
 									}
 								}
