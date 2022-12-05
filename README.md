@@ -31,10 +31,17 @@ See the [requirements](#requirements) and [installation instructions](#installat
 1. Ensure that all [requirements](#requirements) are installed.
 2. [Download the latest version of the kernel](#downloads).
 3. If Jupyter is installed in a virtual environment, activate it.
+4. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
+	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
+	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, pass it as an argument after `install`, e. g. `java -jar <jarfile> install /path/to/jupyter`.
+	* To use a different ProB home directory than the default, pass `-Dprob.home=/path/to/prob/home` before the `-jar` option. (The path must be absolute.)
+5. (Optional) The jar file can be deleted after installation.
+<!--
+New instructions once the next version is released:
 4. Run `python3 <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded. Yes, you need to run the jar file using Python.)
 	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
 	* To use a different ProB home directory than the default, set the environment variable `PROB_HOME` to the desired path. (The path must be absolute.)
-5. (Optional) The jar file can be deleted after installation.
+-->
 
 ### For developers
 
