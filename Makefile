@@ -15,8 +15,8 @@ installphuser:
 	./gradlew -PprobHome=$(PROB_HOME) -PpythonCommand=$(PYTHON) -PkernelspecUserInstall=true installKernelSpec
 
 remove:
-    echo "Deinstalling ProB2 Kernel; you may have to run this twice!
-    jupyter kernelspec remove prob2
+	echo "Deinstalling ProB2 Kernel; you may have to run this twice!
+	jupyter kernelspec remove prob2
 
 console:
 	jupyter console --kernel prob2
