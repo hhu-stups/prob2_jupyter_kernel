@@ -46,6 +46,7 @@ public final class CommandUtils {
 	public static final @NotNull Pattern ARG_SPLIT_PATTERN = Pattern.compile("\\s+");
 	private static final @NotNull Pattern B_IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
 	public static final @NotNull String JUPYTER_RESULT_VARIABLE_NAME = "__jUpYtEr_rEsUlT__";
+	public static final @NotNull String JUPYTER_DUMMY_VARIABLE_NAME = "___jUpYtEr_dUmMy__";
 	
 	private CommandUtils() {
 		super();
@@ -249,7 +250,11 @@ public final class CommandUtils {
 			final PredicateBuilder varAssignments = new PredicateBuilder();
 			varAssignments.addMap(variables);
 			varAssignments.add(JUPYTER_RESULT_VARIABLE_NAME, expression);
-			return String.format("#%s.(\n%s\n)", varNames, varAssignments);
+			// this was not working: return String.format("#%s.(\n%s\n)", varNames, varAssignments);
+			// generate {dummy |-> jupres|#(x,y).(dummy=1 & x=1 &y=1 & jupres=x+y)}(1)
+			return String.format("{%s |-> %s | %s=1 & #%s.(\n%s\n)}(1)",
+			                 JUPYTER_DUMMY_VARIABLE_NAME, JUPYTER_RESULT_VARIABLE_NAME,
+			                 JUPYTER_DUMMY_VARIABLE_NAME, varNames, varAssignments);
 		}
 	}
 	
