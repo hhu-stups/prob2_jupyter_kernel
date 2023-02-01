@@ -549,7 +549,7 @@ public final class ProBKernel extends BaseKernel {
 	
 	@Override
 	public @NotNull List<LanguageInfo.@NotNull Help> getHelpLinks() {
-		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://www3.hhu.de/stups/prob/index.php/User_Manual"));
+		return Collections.singletonList(new LanguageInfo.Help("ProB User Manual", "https://prob.hhu.de/w/index.php/User_Manual"));
 	}
 	
 	private static @NotNull String addBsymbDefinitions(final @NotNull String markdown) {

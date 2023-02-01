@@ -2,7 +2,7 @@
 
 [![GitLab CI](https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel/badges/master/pipeline.svg)](https://gitlab.cs.uni-duesseldorf.de/general/stups/prob2-jupyter-kernel/pipelines) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.cs.uni-duesseldorf.de%2Fgeneral%2Fstups%2Fprob2-jupyter-kernel.git/master?filepath=notebooks)
 
-This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and model checker](https://www3.hhu.de/stups/prob/), based on the [ProB 2 Java API](https://github.com/hhu-stups/prob2_kernel) and the [Jupyter JVM BaseKernel](https://github.com/SpencerPark/jupyter-jvm-basekernel) library.
+This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and model checker](https://prob.hhu.de/w/), based on the [ProB 2 Java API](https://github.com/hhu-stups/prob2_kernel) and the [Jupyter JVM BaseKernel](https://github.com/SpencerPark/jupyter-jvm-basekernel) library.
 
 **Note:** The project is still in development, but the syntax and commands accepted by the kernel are relatively stable. Small breaking changes in future versions are possible, but unlikely.
 
