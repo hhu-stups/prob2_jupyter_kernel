@@ -8,7 +8,7 @@
 * Rewrote the kernel installation code in Python. This is mostly an internal change and shouldn't affect most users. As a side effect, uninstalling the kernel is now simpler and requires no extra steps after `jupyter kernelspec remove`.
 * Disabled LaTeX formatting inside `:check` tables as well, because of the layout issues mentioned below.
 
-## [1.3.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.3.0-all.jar)
+## [1.3.0](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.3.0-all.jar)
 
 * Added support for Java 17.
 * Updated ProB 2 to version 3.15.0.
@@ -25,7 +25,7 @@
 * Fixed the `:trace` command sometimes displaying transitions as `null`.
 * Disabled LaTeX formatting inside `:table` output, because it leads to various layout issues inside Jupyter Notebook. The table contents are now rendered as plain Unicode text instead.
 
-## [1.2.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar)
+## [1.2.0](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.2.0-all.jar)
 
 * Added support for Java 14.
 * Added B parser version information to `:version` output.
@@ -34,7 +34,7 @@
 * Fixed a parse error when a line comment is used on the last line of an expression while any `:let` variables are defined.
 * Fixed detection of B machines in cells without `::load`. Previously only single-line machines were recognized.
 
-## [1.1.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.1.0-all.jar)
+## [1.1.0](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.1.0-all.jar)
 
 * Added a `--user` flag to the installer to allow installing the kernel into the user home directory. This allows installing the kernel without `sudo` when not using a virtual environment.
 * Added `:let` and `:unlet` commands to (un)define local variables.
@@ -52,6 +52,6 @@
 * Fixed `:trace` not showing the parameters and return values of executed transitions.
 * Changed error handling so exception stack traces are no longer shown in the notebook. (They are still logged to the console.)
 
-## [1.0.0](https://www3.hhu.de/stups/downloads/prob2-jupyter/prob2-jupyter-kernel-1.0.0-all.jar)
+## [1.0.0](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.0.0-all.jar)
 
 * Initial release.
