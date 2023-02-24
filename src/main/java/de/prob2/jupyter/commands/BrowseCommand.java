@@ -75,7 +75,8 @@ public final class BrowseCommand implements Command {
 		sb.append("\nVariables: ");
 		sb.append(listToString(lm.getVariableNames()));
 		sb.append("\nOperations: ");
-		final List<Transition> sortedTransitions = new ArrayList<>(trace.getNextTransitions(true, FormulaExpand.TRUNCATE));
+		final List<Transition> sortedTransitions = new ArrayList<>(trace.getNextTransitions());
+		trace.getStateSpace().evaluateTransitions(sortedTransitions, FormulaExpand.EXPAND);
 		// Sort transitions by ID to get a consistent ordering.
 		// Transition IDs are strings, but they almost always contain numbers.
 		sortedTransitions.sort(Comparator.comparing(Transition::getId, new AlphanumericComparator()));
