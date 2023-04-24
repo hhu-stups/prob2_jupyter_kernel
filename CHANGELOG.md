@@ -2,7 +2,7 @@
 
 ## [(next version)](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.3.1-SNAPSHOT-all.jar?job=test)
 
-* Updated ProB 2 to version 4.0.0-SNAPSHOT.
+* Updated to ProB 1.12.0 (ProB Java API version 4.12.0).
 * Added position information to formula evaluation errors (e. g. type or well-definedness errors).
 * Changed `:exec` and `:init` to automatically set up constants and initialize the machine if necessary. Previously this caused an error "Machine is not initialised".
 * Rewrote the kernel installation code in Python. This is mostly an internal change and shouldn't affect most users. As a side effect, uninstalling the kernel is now simpler and requires no extra steps after `jupyter kernelspec remove`.
