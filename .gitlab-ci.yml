@@ -30,3 +30,26 @@ test:
     paths:
       - build/distributions
       - build/libs
+
+deploy:
+  stage: deploy
+  only:
+    - master@general/stups/prob2-jupyter-kernel
+  needs:
+    - test
+  image: alpine:3
+  before_script:
+    - apk update
+    - apk add lftp openssh-client
+  script:
+    - |
+      case build/libs/prob2-jupyter-kernel-*-all.jar in
+        (*-SNAPSHOT-all.jar)
+          # Don't upload SNAPSHOT builds
+        ;;
+        
+        (*-all.jar)
+          # Do upload release builds
+          LFTP_PASSWORD="${DEPLOY_PASSWORD}" lftp -c "set cmd:fail-exit true; set sftp:auto-confirm true; open --user ${DEPLOY_USERNAME} --env-password sftp://${DEPLOY_HOST}/${DEPLOY_REMOTE_BASEDIR}/downloads/prob2-jupyter/; mput build/libs/prob2-jupyter-kernel-*-all.jar"
+        ;;
+      esac
