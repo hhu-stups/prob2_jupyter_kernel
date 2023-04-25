@@ -79,6 +79,6 @@ task installKernelSpec(type: Exec) {
 	executable = project.hasProperty("pythonCommand") ? project.pythonCommand : "python3"
 	args = [shadowJar.archiveFile.get().asFile, "--jar-path=" + shadowJar.archiveFile.get().asFile, "install"]
 	if (project.hasProperty("kernelspecUserInstall") && project.kernelspecUserInstall == "true") {
-		args << "--user"
+		args("--user")
 	}
 }
