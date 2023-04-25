@@ -1,6 +1,6 @@
 # Changelog
 
-## [(next version)](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.3.1-SNAPSHOT-all.jar?job=test)
+## [(next version)](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.4.1-SNAPSHOT-all.jar?job=test)
 
 * (no changes yet)
 
