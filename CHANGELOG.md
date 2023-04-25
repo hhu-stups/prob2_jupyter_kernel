@@ -2,6 +2,10 @@
 
 ## [(next version)](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.3.1-SNAPSHOT-all.jar?job=test)
 
+* (no changes yet)
+
+## [1.4.0](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.4.0-all.jar)
+
 * Updated to ProB 1.12.0 (ProB Java API version 4.12.0).
 * Added position information to formula evaluation errors (e. g. type or well-definedness errors).
 * Changed `:exec` and `:init` to automatically set up constants and initialize the machine if necessary. Previously this caused an error "Machine is not initialised".

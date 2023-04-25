@@ -8,7 +8,7 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 
 ## Downloads
 
-* **[Download the latest version of the ProB2 Jupyter kernel here](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.3.0-all.jar).**
+* **[Download the latest version of the ProB2 Jupyter kernel here](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.4.0-all.jar).**
 * Download links for previous versions can be found in the [changelog].
 * A [snapshot build](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.3.1-SNAPSHOT-all.jar?job=test) of the latest development version is also available. **Warning:** this is an unstable version that can contain bugs or breaking changes.
 
@@ -31,17 +31,10 @@ See the [requirements](#requirements) and [installation instructions](#installat
 1. Ensure that all [requirements](#requirements) are installed.
 2. [Download the latest version of the kernel](#downloads).
 3. If Jupyter is installed in a virtual environment, activate it.
-4. Run `java -jar <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded.)
-	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
-	* This assumes that Jupyter can be called using the command `jupyter`. To use a different command in place of `jupyter`, pass it as an argument after `install`, e. g. `java -jar <jarfile> install /path/to/jupyter`.
-	* To use a different ProB home directory than the default, pass `-Dprob.home=/path/to/prob/home` before the `-jar` option. (The path must be absolute.)
-5. (Optional) The jar file can be deleted after installation.
-<!--
-New instructions once the next version is released:
 4. Run `python3 <jarfile> install` to install the kernel. (`<jarfile>` is the name of the jar file that you just downloaded. Yes, you need to run the jar file using Python.)
 	* If you get a permission error when installing the kernel spec, add the option `--user` after `install`. This will install the kernel spec into your user home instead of the Python install directory (which may not be writable).
 	* To use a different ProB home directory than the default, set the environment variable `PROB_HOME` to the desired path. (The path must be absolute.)
--->
+5. (Optional) The jar file can be deleted after installation.
 
 ### For developers
 
