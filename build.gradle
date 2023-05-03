@@ -8,7 +8,7 @@ plugins {
 	id("com.github.johnrengelman.shadow").version("7.1.2")
 }
 
-version = "1.4.1-SNAPSHOT"
+version = "1.4.1"
 
 final isSnapshot = project.version.endsWith("-SNAPSHOT")
 
