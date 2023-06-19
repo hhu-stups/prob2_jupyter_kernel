@@ -21,10 +21,12 @@ test:
     # Test installation of kernel into Jupyter.
     - java -jar build/libs/prob2-jupyter-kernel-*-all.jar install --user
     # Test basic functionality of the installed kernel.
-    - |
-      jupyter console --kernel=prob2 --simple-prompt << EOF
-      :version
-      EOF
+    # Temporarily disabled because jupyter-console is broken on Ubuntu 22.04 (jammy):
+    # https://bugs.launchpad.net/ubuntu/+source/jupyter-console/+bug/2017613
+    ##- |
+    ##  jupyter console --kernel=prob2 --simple-prompt << EOF
+    ##  :version
+    ##  EOF
   artifacts:
     expire_in: 1 week
     paths:
