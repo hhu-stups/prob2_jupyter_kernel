@@ -12,9 +12,12 @@ import com.google.inject.Provider;
 import de.prob.animator.command.GetAnimationMatrixForStateCommand;
 import de.prob.animator.command.GetImagesForMachineCommand;
 import de.prob.animator.command.GetPreferenceCommand;
+import de.prob.animator.command.GetVisBHtmlForStates;
+import de.prob.animator.command.GetVisBLoadedJsonFileCommand;
+import de.prob.animator.command.LoadVisBCommand;
 import de.prob.animator.domainobjects.AnimationMatrixEntry;
 import de.prob.statespace.AnimationSelector;
-import de.prob.statespace.Trace;
+import de.prob.statespace.State;
 import de.prob2.jupyter.Command;
 import de.prob2.jupyter.ParameterCompleters;
 import de.prob2.jupyter.ParameterInspectors;
@@ -26,6 +29,7 @@ import de.prob2.jupyter.UserErrorException;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class ShowCommand implements Command {
 	private final @NotNull AnimationSelector animationSelector;
@@ -56,29 +60,23 @@ public final class ShowCommand implements Command {
 	
 	@Override
 	public @NotNull String getShortHelp() {
-		return "Show the machine's animation function visualisation for the current state.";
+		return "Show the machine's visualization for the current state.";
 	}
 	
 	@Override
 	public @NotNull String getHelpBody() {
-		return "The visualisation is static, any defined right-click options cannot be viewed or used.";
+		return "Only the current state is visualized. Interactively executing operations is not supported.\n\n"
+			+ "Both VisB and the classical `ANIMATION_FUNCTION` are supported. The visualization type is detected automatically (if both are defined, VisB is preferred).";
 	}
 	
-	@Override
-	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
-		final Trace trace = this.animationSelector.getCurrentTrace();
-		
-		if (!trace.getCurrentState().isInitialised()) {
-			throw new UserErrorException("Machine is not initialised, cannot show animation function visualisation");
-		}
-		
+	private @Nullable DisplayData getAnimationFunctionVisualization(final @NotNull State state) {
 		final GetImagesForMachineCommand cmdImages = new GetImagesForMachineCommand();
-		final GetAnimationMatrixForStateCommand cmdMatrix = new GetAnimationMatrixForStateCommand(trace.getCurrentState());
+		final GetAnimationMatrixForStateCommand cmdMatrix = new GetAnimationMatrixForStateCommand(state);
 		final GetPreferenceCommand cmdImagePadding = new GetPreferenceCommand("TK_CUSTOM_STATE_VIEW_PADDING");
 		final GetPreferenceCommand cmdStringPadding = new GetPreferenceCommand("TK_CUSTOM_STATE_VIEW_STRING_PADDING");
 		final GetPreferenceCommand cmdFontName = new GetPreferenceCommand("TK_CUSTOM_STATE_VIEW_FONT_NAME");
 		final GetPreferenceCommand cmdFontSize = new GetPreferenceCommand("TK_CUSTOM_STATE_VIEW_FONT_SIZE");
-		trace.getStateSpace().execute(
+		state.getStateSpace().execute(
 			cmdImages,
 			cmdMatrix,
 			cmdImagePadding,
@@ -87,8 +85,8 @@ public final class ShowCommand implements Command {
 			cmdFontSize
 		);
 		
-		if (cmdMatrix.getMatrix() == null) {
-			throw new UserErrorException("No animation function visualisation available");
+		if (cmdMatrix.getMatrix().isEmpty()) {
+			return null;
 		}
 		
 		final Path machineDirectory = this.proBKernelProvider.get().getCurrentMachineDirectory();
@@ -146,9 +144,53 @@ public final class ShowCommand implements Command {
 		}
 		tableBuilder.append("\n</tbody></table>");
 		
-		final DisplayData result = new DisplayData("<Animation function visualisation>");
+		final DisplayData result = new DisplayData("<Animation function visualization>");
 		result.putMarkdown(tableBuilder.toString());
 		return result;
+	}
+	
+	private static @Nullable DisplayData getVisBVisualization(final @NotNull State state) {
+		GetVisBLoadedJsonFileCommand loadedCmd = new GetVisBLoadedJsonFileCommand();
+		state.getStateSpace().execute(loadedCmd);
+		
+		if (loadedCmd.getPath() == null) {
+			// Load VisB visualization defined inside the model itself
+			state.getStateSpace().execute(new LoadVisBCommand(""));
+		}
+		
+		state.getStateSpace().execute(loadedCmd);
+		if (loadedCmd.getPath() == null) {
+			// The model doesn't contain any VisB visualization
+			return null;
+		}
+		
+		GetVisBHtmlForStates htmlCmd = new GetVisBHtmlForStates(state);
+		state.getStateSpace().execute(htmlCmd);
+		
+		final DisplayData result = new DisplayData("<VisB visualization>");
+		result.putHTML(htmlCmd.getHtml());
+		return result;
+	}
+	
+	@Override
+	public @NotNull DisplayData run(final @NotNull ParsedArguments args) {
+		final State state = this.animationSelector.getCurrentTrace().getCurrentState();
+		
+		final DisplayData visBResult = getVisBVisualization(state);
+		if (visBResult != null) {
+			return visBResult;
+		}
+		
+		DisplayData animationFunctionResult = this.getAnimationFunctionVisualization(state);
+		if (animationFunctionResult != null) {
+			return animationFunctionResult;
+		}
+		
+		if (state.isInitialised()) {
+			throw new UserErrorException("No VisB visualization or ANIMATION_FUNCTION defined in the model");
+		} else {
+			throw new UserErrorException("Model is not initialized, cannot show visualization (or no visualization is defined)");
+		}
 	}
 	
 	@Override

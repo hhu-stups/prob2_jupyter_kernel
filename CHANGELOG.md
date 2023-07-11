@@ -7,6 +7,7 @@
 ## [1.4.1](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.4.1-all.jar)
 
 * Updated to ProB 1.12.1 (ProB Java API version 4.12.1).
+* `:show` now also supports VisB visualizations in addition to the classical `ANIMATION_FUNCTION`.
 
 ## [1.4.0](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.4.0-all.jar)
 
