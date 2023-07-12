@@ -16,6 +16,7 @@ import de.prob.animator.command.GetVisBHtmlForStates;
 import de.prob.animator.command.GetVisBLoadedJsonFileCommand;
 import de.prob.animator.command.LoadVisBCommand;
 import de.prob.animator.domainobjects.AnimationMatrixEntry;
+import de.prob.animator.domainobjects.VisBExportOptions;
 import de.prob.statespace.AnimationSelector;
 import de.prob.statespace.State;
 import de.prob2.jupyter.Command;
@@ -164,7 +165,7 @@ public final class ShowCommand implements Command {
 			return null;
 		}
 		
-		GetVisBHtmlForStates htmlCmd = new GetVisBHtmlForStates(state);
+		GetVisBHtmlForStates htmlCmd = new GetVisBHtmlForStates(state, VisBExportOptions.DEFAULT.withShowVersionInfo(false));
 		state.getStateSpace().execute(htmlCmd);
 		
 		final DisplayData result = new DisplayData("<VisB visualization>");
