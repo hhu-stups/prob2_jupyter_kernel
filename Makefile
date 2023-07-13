@@ -8,11 +8,13 @@ USERNAME=
 PROB_HOME=/Users/$(USERNAME)/git_root/prob_prolog
 PYTHON=/Users/$(USERNAME)/opt/miniconda3/bin/python3
 #PYTHON=/Users/$(USERNAME)/opt/miniconda3/envs/py10/bin/python3
-installph:
+runph:
+	PROB_HOME=/Users/$(USERNAME)/git_root/prob_prolog jupyter notebook
+installpy:
 	./gradlew -PpythonCommand=$(PYTHON) installKernelSpec
 installphuser:
 	echo "Installing for user, so that, e.g., VSCode sees the kernel"
-	./gradlew -PprobHome=$(PROB_HOME) -PpythonCommand=$(PYTHON) -PkernelspecUserInstall=true installKernelSpec
+	PROB_HOME=/Users/$(USERNAME)/git_root/prob_prolog ./gradlew -PpythonCommand=$(PYTHON) -PkernelspecUserInstall=true installKernelSpec
 
 remove:
 	echo "Deinstalling ProB2 Kernel; you may have to run this twice!
