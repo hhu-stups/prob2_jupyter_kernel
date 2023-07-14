@@ -1,0 +1,19 @@
+<svg  xmlns="http://www.w3.org/2000/svg"
+      width="430.0" height="100" viewBox="0 0 430.0 100" >
+  <style>
+        .selected {
+            stroke : gray;
+            stroke-width: 2.0;
+            fill: coral
+        }
+        .normal {
+            stroke : none;
+            fill : burlywood
+        }
+  </style>
+ <circle id="circ1" class="normal" cx="80.0" cy="50" r="10"></circle>
+ <circle id="circ2" class="normal" cx="160.0" cy="50" r="10"></circle>
+ <circle id="circ3" class="selected" cx="240.0" cy="50" r="10"></circle>
+ <circle id="circ4" class="normal" cx="320.0" cy="50" r="10"></circle>
+ <circle id="circ5" class="normal" cx="400.0" cy="50" r="10"></circle>
+</svg>
