@@ -165,7 +165,11 @@ public final class ShowCommand implements Command {
 			return null;
 		}
 		
-		GetVisBHtmlForStates htmlCmd = new GetVisBHtmlForStates(state, VisBExportOptions.DEFAULT.withShowHeader(false).withShowVersionInfo(false));
+		VisBExportOptions options = VisBExportOptions.DEFAULT
+			.withShowHeader(false)
+			.withShowVersionInfo(false)
+			.withAutoIdPrefix();
+		GetVisBHtmlForStates htmlCmd = new GetVisBHtmlForStates(state, options);
 		state.getStateSpace().execute(htmlCmd);
 		
 		final DisplayData result = new DisplayData("<VisB visualization>");
