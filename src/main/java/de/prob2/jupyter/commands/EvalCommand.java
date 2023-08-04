@@ -67,7 +67,7 @@ public final class EvalCommand implements Command {
 		final ProBKernel kernel = this.injector.getInstance(ProBKernel.class);
 		final IEvalElement formula = kernel.parseFormula(args.get(FORMULA_PARAM), FormulaExpand.EXPAND);
 		return CommandUtils.withSourceCode(formula, () -> {
-			final AbstractEvalResult aer = this.animationSelector.getCurrentTrace().evalCurrent(formula);
+			final AbstractEvalResult aer = this.animationSelector.getCurrentTrace().evalCurrent(formula, ProBKernel.EVAL_OPTIONS);
 			return CommandUtils.displayDataForEvalResult(kernel.postprocessEvalResult(aer));
 		});
 	}

@@ -80,7 +80,7 @@ public final class LetCommand implements Command {
 		final ProBKernel kernel = this.kernelProvider.get();
 		final IEvalElement formula = kernel.parseFormula(expression, FormulaExpand.EXPAND);
 		final AbstractEvalResult evaluated = CommandUtils.withSourceCode(formula, () ->
-			kernel.postprocessEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(formula))
+			kernel.postprocessEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(formula, ProBKernel.EVAL_OPTIONS))
 		);
 		if (evaluated instanceof EvalResult) {
 			kernel.getVariables().put(name, ((EvalResult)evaluated).getValue());

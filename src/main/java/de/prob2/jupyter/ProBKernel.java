@@ -40,6 +40,8 @@ import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.ErrorItem;
 import de.prob.animator.domainobjects.EvalElementType;
+import de.prob.animator.domainobjects.EvalExpandMode;
+import de.prob.animator.domainobjects.EvalOptions;
 import de.prob.animator.domainobjects.EvalResult;
 import de.prob.animator.domainobjects.EventB;
 import de.prob.animator.domainobjects.FormulaExpand;
@@ -148,6 +150,13 @@ public final class ProBKernel extends BaseKernel {
 	private static final @NotNull Pattern MACHINE_CODE_PATTERN = Pattern.compile("MACHINE\\W.*", Pattern.DOTALL);
 	private static final @NotNull Pattern BSYMB_COMMAND_PATTERN = Pattern.compile("\\\\([a-z]+)");
 	private static final @NotNull Pattern LATEX_FORMULA_PATTERN = Pattern.compile("(\\$\\$?)([^\\$]+)\\1");
+	
+	public static final @NotNull EvalOptions EVAL_OPTIONS = EvalOptions.DEFAULT
+		.withProvideStoredLetValues(true)
+		.withEvalExpand(EvalExpandMode.EFFICIENT);
+	public static final @NotNull EvalOptions TRUNCATE_EVAL_OPTIONS = EVAL_OPTIONS
+		.withEvalExpand(EvalExpandMode.NEVER)
+		.withExpand(FormulaExpand.TRUNCATE);
 	
 	private static final @NotNull Collection<@NotNull Class<? extends Command>> COMMAND_CLASSES = Collections.unmodifiableList(Arrays.asList(
 		AssertCommand.class,

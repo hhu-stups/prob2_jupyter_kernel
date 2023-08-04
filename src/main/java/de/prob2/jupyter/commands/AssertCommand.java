@@ -72,7 +72,7 @@ public final class AssertCommand implements Command {
 		final ProBKernel kernel = this.kernelProvider.get();
 		final IEvalElement formula = kernel.parseFormula(args.get(FORMULA_PARAM), FormulaExpand.TRUNCATE);
 		final AbstractEvalResult result = CommandUtils.withSourceCode(formula, () -> 
-			kernel.postprocessEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(formula))
+			kernel.postprocessEvalResult(this.animationSelector.getCurrentTrace().evalCurrent(formula, ProBKernel.TRUNCATE_EVAL_OPTIONS))
 		);
 		if (result instanceof EvalResult && "TRUE".equals(((EvalResult)result).getValue())) {
 			// Use EvalResult.TRUE instead of the real result so that solution variables are not displayed.
