@@ -2,7 +2,7 @@
 
 ## [(next version)](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.4.2-SNAPSHOT-all.jar?job=test)
 
-* Updated to ProB 1.13.0 (ProB Java API version 4.13.0).
+* Updated to ProB 1.13.0 (ProB Java API version 4.13.1).
 
 ## [1.4.1](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.4.1-all.jar)
 
