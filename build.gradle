@@ -49,21 +49,19 @@ tasks.withType(JavaCompile) {
 	options.encoding = SOURCE_ENCODING
 }
 
-def readCurrentGitCommit() {
-	def proc = ["git", "rev-parse", "HEAD"].execute(null, project.projectDir)
-	def exitCode = proc.waitFor()
-	if (exitCode != 0) {
-		throw new IllegalStateException("git rev-parse command exited with status code ${exitCode}:\n" + proc.err.readLines().join("\n"))
-	}
-	return proc.in.readLines()[0]
+final firstLineOfProcessOutput = {ExecOutput execOutput ->
+	return execOutput.standardOutput.asText.map {it.split('\n')[0]}
 }
 
-final currentGitCommit = readCurrentGitCommit()
 processResources {
-	inputs.property("project.version", project.version)
-	inputs.property("currentGitCommit", currentGitCommit)
+	inputs.property("version", project.version)
+	inputs.property("currentGitCommit", firstLineOfProcessOutput(providers.exec {
+		executable = "git"
+		args = ["rev-parse", "HEAD"]
+	}))
+
 	filesMatching("de/prob2/jupyter/build.properties") {
-		expand(version: project.version, commit: readCurrentGitCommit())
+		expand(version: inputs.properties["version"], commit: inputs.properties["currentGitCommit"])
 	}
 }
 
