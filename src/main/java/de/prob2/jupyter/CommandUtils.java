@@ -409,13 +409,18 @@ public final class CommandUtils {
 			cmdExact.addKeywordContext(CompleteIdentifierCommand.KeywordContext.ALL);
 			trace.getStateSpace().execute(cmdExact);
 			// Use LinkedHashSet to remove duplicates while maintaining order.
-			final Set<String> completions = new LinkedHashSet<>(cmdExact.getCompletions());
+			final Set<String> completions = new LinkedHashSet<>();
+			for (CompleteIdentifierCommand.Completion completion : cmdExact.getCompletions()) {
+				completions.add(completion.getCompletion());
+			}
 			
 			final CompleteIdentifierCommand cmdIgnoreCase = new CompleteIdentifierCommand(prefix);
 			cmdIgnoreCase.setIgnoreCase(true);
 			cmdIgnoreCase.addKeywordContext(CompleteIdentifierCommand.KeywordContext.ALL);
 			trace.getStateSpace().execute(cmdIgnoreCase);
-			completions.addAll(cmdIgnoreCase.getCompletions());
+			for (CompleteIdentifierCommand.Completion completion : cmdExact.getCompletions()) {
+				completions.add(completion.getCompletion());
+			}
 			
 			return new ReplacementOptions(new ArrayList<>(completions), start, end);
 		};
