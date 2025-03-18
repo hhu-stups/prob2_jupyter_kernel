@@ -72,7 +72,7 @@ public final class TableCommand implements Command {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final IEvalElement formula = kernel.parseFormula(args.get(EXPRESSION_PARAM), FormulaExpand.EXPAND);
 		
-		final TableData table = TableVisualizationCommand.getByName(TableVisualizationCommand.EXPRESSION_AS_TABLE_NAME, trace.getCurrentState())
+		final TableData table = TableVisualizationCommand.getByName(TableVisualizationCommand.EXPRESSION_AS_TABLE_NAME, trace)
 			.visualize(Collections.singletonList(formula));
 		
 		final StringBuilder sbPlain = new StringBuilder();

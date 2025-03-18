@@ -71,7 +71,7 @@ public final class DotCommand implements Command {
 	public @NotNull String getHelpBody() {
 		final StringBuilder sb = new StringBuilder("The following dot visualisation commands are available:\n\n");
 		final Trace trace = this.animationSelector.getCurrentTrace();
-		final GetAllDotCommands cmd = new GetAllDotCommands(trace.getCurrentState());
+		final GetAllDotCommands cmd = new GetAllDotCommands(trace);
 		trace.getStateSpace().execute(cmd);
 		for (final DynamicCommandItem item : cmd.getCommands()) {
 			sb.append("* `");
@@ -99,7 +99,7 @@ public final class DotCommand implements Command {
 		final Trace trace = this.animationSelector.getCurrentTrace();
 		final DotVisualizationCommand dotCommand;
 		try {
-			dotCommand = DotVisualizationCommand.getByName(command, trace.getCurrentState());
+			dotCommand = DotVisualizationCommand.getByName(command, trace);
 		} catch (final IllegalArgumentException e) {
 			throw new UserErrorException("No such dot command: " + command, e);
 		}
@@ -131,10 +131,10 @@ public final class DotCommand implements Command {
 		return new ParameterCompleters(ImmutableMap.of(
 			COMMAND_PARAM, (commandName, at) -> {
 				final Trace trace = this.animationSelector.getCurrentTrace();
-				final GetAllDotCommands cmd = new GetAllDotCommands(trace.getCurrentState());
+				final GetAllDotCommands cmd = new GetAllDotCommands(trace);
 				trace.getStateSpace().execute(cmd);
 				final String prefix = commandName.substring(0, at);
-				final List<String> commands = DotVisualizationCommand.getAll(trace.getCurrentState())
+				final List<String> commands = DotVisualizationCommand.getAll(trace)
 					.stream()
 					.filter(DynamicCommandItem::isAvailable)
 					.map(DynamicCommandItem::getCommand)
