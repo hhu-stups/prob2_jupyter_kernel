@@ -17,7 +17,7 @@ See the [requirements](#requirements) and [installation instructions](#installat
 ## Requirements
 
 * Java 8 or newer
-	* Tested up to Java 17.
+	* Tested up to Java 21.
 * A Python 3 interpreter with [Jupyter installed](https://jupyter.org/install)
 	* Tested with CPython 3.8 and Jupyter core/Notebook 6.x.
 	* Older Python and Jupyter versions should also work (see below), but if possible please use the current versions of Python and Jupyter.
