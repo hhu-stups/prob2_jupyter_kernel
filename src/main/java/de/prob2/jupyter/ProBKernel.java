@@ -39,10 +39,10 @@ import de.prob.animator.command.ExecuteOperationException;
 import de.prob.animator.domainobjects.AbstractEvalResult;
 import de.prob.animator.domainobjects.ClassicalB;
 import de.prob.animator.domainobjects.ErrorItem;
-import de.prob.animator.domainobjects.EvalElementType;
 import de.prob.animator.domainobjects.EvalExpandMode;
 import de.prob.animator.domainobjects.EvalOptions;
 import de.prob.animator.domainobjects.EvalResult;
+import de.prob.animator.domainobjects.EvaluationException;
 import de.prob.animator.domainobjects.EventB;
 import de.prob.animator.domainobjects.FormulaExpand;
 import de.prob.animator.domainobjects.IEvalElement;
@@ -421,11 +421,18 @@ public final class ProBKernel extends BaseKernel {
 			// For expressions this is not possible,
 			// so as a workaround we construct a predicate with a new free variable equal to the expression.
 			// This helper predicate is unpacked again after evaluation.
+			
+			// We don't know yet if the original formula is a predicate or an expression,
+			// so try both and use the first one that doesn't result in a syntax error.
 			final String predicateCode = CommandUtils.insertEventBPredicateLetVariables(code, this.getVariables());
-			final EventB predicate = (EventB)this.parseFormulaWithoutLetVariables(predicateCode, FormulaExpand.TRUNCATE);
-			if (predicate.getKind() == EvalElementType.PREDICATE) {
+			try {
+				final EventB predicate = (EventB)this.parseFormulaWithoutLetVariables(predicateCode, FormulaExpand.TRUNCATE);
+				// The EventB class parses formulas lazily.
+				// Force parsing now so we can detect syntax errors.
+				predicate.ensureParsed();
 				return predicate;
-			} else {
+			} catch (EvaluationException exc) {
+				LOGGER.trace("Syntax error while inserting let variables around Event-B predicate - trying again as an expression", exc);
 				final String expressionAsPredicateCode = CommandUtils.insertEventBExpressionLetVariables(code, this.getVariables());
 				return this.parseFormulaWithoutLetVariables(expressionAsPredicateCode, FormulaExpand.TRUNCATE);
 			}
