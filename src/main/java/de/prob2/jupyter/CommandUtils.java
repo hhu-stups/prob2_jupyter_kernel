@@ -45,8 +45,8 @@ public final class CommandUtils {
 	private static final @NotNull Pattern BODY_SPLIT_PATTERN = Pattern.compile("\\n");
 	public static final @NotNull Pattern ARG_SPLIT_PATTERN = Pattern.compile("\\s+");
 	private static final @NotNull Pattern B_IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
-	public static final @NotNull String JUPYTER_RESULT_VARIABLE_NAME = "__jUpYtEr_rEsUlT__";
-	public static final @NotNull String JUPYTER_DUMMY_VARIABLE_NAME = "___jUpYtEr_dUmMy__";
+	public static final @NotNull String JUPYTER_RESULT_VARIABLE_NAME = "jUpYtEr_rEsUlT__";
+	public static final @NotNull String JUPYTER_DUMMY_VARIABLE_NAME = "jUpYtEr_dUmMy__";
 	
 	private CommandUtils() {
 		super();
