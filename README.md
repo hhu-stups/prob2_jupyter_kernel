@@ -8,7 +8,7 @@ This is a [Jupyter](https://jupyter.org/) kernel for the [ProB animator and mode
 
 ## Downloads
 
-* **[Download the latest version of the ProB 2 Jupyter kernel here](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.4.1-all.jar).**
+* **[Download the latest version of the ProB 2 Jupyter kernel here](https://stups.hhu-hosting.de/downloads/prob2-jupyter/prob2-jupyter-kernel-1.5.0-all.jar).**
 * Download links for previous versions can be found in the [changelog].
 * A [snapshot build](https://gitlab.cs.uni-duesseldorf.de/api/v4/projects/848/jobs/artifacts/master/raw/build/libs/prob2-jupyter-kernel-1.4.2-SNAPSHOT-all.jar?job=test) of the latest development version is also available. **Warning:** this is an unstable version that can contain bugs or breaking changes.
 
