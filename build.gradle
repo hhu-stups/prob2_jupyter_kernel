@@ -43,6 +43,12 @@ dependencies {
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_1_8
+
+	if (project.hasProperty("javaToolchainVersion")) {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(project.javaToolchainVersion)
+		}
+	}
 }
 
 tasks.withType(JavaCompile) {
