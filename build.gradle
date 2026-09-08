@@ -60,7 +60,7 @@ final firstLineOfProcessOutput = {ExecOutput execOutput ->
 	return execOutput.standardOutput.asText.map {it.split('\n')[0]}
 }
 
-tasks.named("processResources") {
+tasks.named("processResources", ProcessResources) {
 	inputs.property("version", project.version)
 	inputs.property("currentGitCommit", firstLineOfProcessOutput(providers.exec {
 		executable = "git"
