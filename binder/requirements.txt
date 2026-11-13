@@ -1,0 +1,5 @@
+# This empty requirements.txt is a workaround to make mybinder.org recognize the other configuration files.
+# mybinder.org only accepts repos that contain a Binder environment specification
+# and apparently doesn't recognize apt.txt and postBuild on their own,
+# even though they are a valid and documented way to configure Binder.
+# https://github.com/jupyterhub/repo2docker/issues/1507
